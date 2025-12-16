@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistItemRow from './ChecklistItemRow';
 import { PHASES } from './checklistTemplates';
@@ -20,8 +20,10 @@ export default function PhaseCard({
   onItemUpdate,
   onItemEdit,
   onAddItem,
+  onEditPhase,
   userRole,
-  isCriticalPhase 
+  isCriticalPhase,
+  customPhaseName
 }) {
   const phaseConfig = PHASES[phase];
   const Icon = iconMap[phaseConfig?.icon] || FileText;

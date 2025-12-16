@@ -22,6 +22,7 @@ import ConflictAlert from '../components/conflicts/ConflictAlert';
 import EditChecklistItemModal from '../components/checklist/EditChecklistItemModal';
 import AddChecklistItemModal from '../components/checklist/AddChecklistItemModal';
 import EditProjectModal from '../components/project/EditProjectModal';
+import EditPhaseModal from '../components/checklist/EditPhaseModal';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -41,6 +42,7 @@ export default function ProjectChecklist() {
   const [editingItem, setEditingItem] = useState(null);
   const [addingToPhase, setAddingToPhase] = useState(null);
   const [isEditingProject, setIsEditingProject] = useState(false);
+  const [editingPhase, setEditingPhase] = useState(null);
   
   const queryClient = useQueryClient();
   
@@ -258,6 +260,17 @@ export default function ProjectChecklist() {
     updateProjectMutation.mutate(data);
   };
   
+  const handleEditPhase = (phase) => {
+    setEditingPhase(phase);
+  };
+  
+  const handleSavePhase = (phase, newName) => {
+    const customNames = { ...(project.custom_phase_names || {}) };
+    customNames[phase] = newName;
+    updateProjectMutation.mutate({ custom_phase_names: customNames });
+    setEditingPhase(null);
+  };
+  
   const togglePhase = (phase) => {
     setExpandedPhases(prev => 
       prev.includes(phase) 
@@ -384,8 +397,10 @@ export default function ProjectChecklist() {
                     onItemUpdate={handleItemUpdate}
                     onItemEdit={handleItemEdit}
                     onAddItem={handleAddItem}
+                    onEditPhase={handleEditPhase}
                     userRole={userRole}
                     isCriticalPhase={criticalPhases.includes(phaseKey)}
+                    customPhaseName={project?.custom_phase_names?.[phaseKey]}
                   />
                 );
               })}
@@ -467,6 +482,15 @@ export default function ProjectChecklist() {
         isOpen={isEditingProject}
         onClose={() => setIsEditingProject(false)}
         onSave={handleSaveProject}
+        isLoading={updateProjectMutation.isPending}
+      />
+      
+      <EditPhaseModal
+        phase={editingPhase}
+        currentName={project?.custom_phase_names?.[editingPhase]}
+        isOpen={!!editingPhase}
+        onClose={() => setEditingPhase(null)}
+        onSave={handleSavePhase}
         isLoading={updateProjectMutation.isPending}
       />
     </div>
