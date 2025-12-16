@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, MessageSquare, User, Clock, X, Check, Edit } from 'lucide-react';
+import { AlertTriangle, MessageSquare, User, Clock, X, Check, Edit, GripVertical } from 'lucide-react';
 import { WEIGHT_CONFIG, ROLE_CONFIG } from './checklistTemplates';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole }) {
+export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dragHandleProps }) {
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState(item.notes || '');
   

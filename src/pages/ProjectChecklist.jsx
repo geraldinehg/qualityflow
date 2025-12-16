@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ArrowLeft, Download, RefreshCw, Send, AlertTriangle, CheckCircle2, 
-  ChevronDown, Settings, Users, Calendar 
+  ChevronDown, Settings, Users, Calendar, GripVertical 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -43,6 +44,9 @@ export default function ProjectChecklist() {
   const [addingToPhase, setAddingToPhase] = useState(null);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editingPhase, setEditingPhase] = useState(null);
+  const [phaseOrder, setPhaseOrder] = useState(() => 
+    Object.keys(PHASES).sort((a, b) => PHASES[a].order - PHASES[b].order)
+  );
   
   const queryClient = useQueryClient();
   
@@ -271,6 +275,42 @@ export default function ProjectChecklist() {
     setEditingPhase(null);
   };
   
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    
+    const { source, destination, type } = result;
+    
+    if (type === 'PHASE') {
+      // Reordenar fases
+      const newPhaseOrder = Array.from(phaseOrder);
+      const [removed] = newPhaseOrder.splice(source.index, 1);
+      newPhaseOrder.splice(destination.index, 0, removed);
+      setPhaseOrder(newPhaseOrder);
+      
+      // Guardar en el proyecto
+      updateProjectMutation.mutate({ phase_order: newPhaseOrder });
+    } else if (type === 'ITEM') {
+      // Reordenar ítems dentro de una fase
+      const phase = source.droppableId;
+      const items = [...(itemsByPhase[phase] || [])].sort((a, b) => a.order - b.order);
+      const [movedItem] = items.splice(source.index, 1);
+      items.splice(destination.index, 0, movedItem);
+      
+      // Actualizar el orden de todos los ítems
+      const updates = items.map((item, index) => ({
+        id: item.id,
+        order: index + 1
+      }));
+      
+      // Actualizar en la base de datos
+      for (const update of updates) {
+        await base44.entities.ChecklistItem.update(update.id, { order: update.order });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+    }
+  };
+  
   const togglePhase = (phase) => {
     setExpandedPhases(prev => 
       prev.includes(phase) 
@@ -281,6 +321,13 @@ export default function ProjectChecklist() {
   
   const expandAll = () => setExpandedPhases(Object.keys(PHASES));
   const collapseAll = () => setExpandedPhases([]);
+  
+  // Cargar orden de fases guardado
+  useEffect(() => {
+    if (project?.phase_order) {
+      setPhaseOrder(project.phase_order);
+    }
+  }, [project]);
   
   if (projectLoading || !project) {
     return (
@@ -381,29 +428,50 @@ export default function ProjectChecklist() {
             )}
             
             {/* Fases del checklist */}
-            {Object.entries(PHASES)
-              .sort((a, b) => a[1].order - b[1].order)
-              .map(([phaseKey, phaseConfig]) => {
-                const items = filteredItemsByPhase[phaseKey] || [];
-                if (items.length === 0 && viewMode !== 'all') return null;
-                
-                return (
-                  <PhaseCard
-                    key={phaseKey}
-                    phase={phaseKey}
-                    items={itemsByPhase[phaseKey] || []}
-                    isExpanded={expandedPhases.includes(phaseKey)}
-                    onToggle={() => togglePhase(phaseKey)}
-                    onItemUpdate={handleItemUpdate}
-                    onItemEdit={handleItemEdit}
-                    onAddItem={handleAddItem}
-                    onEditPhase={handleEditPhase}
-                    userRole={userRole}
-                    isCriticalPhase={criticalPhases.includes(phaseKey)}
-                    customPhaseName={project?.custom_phase_names?.[phaseKey]}
-                  />
-                );
-              })}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="phases" type="PHASE">
+                {(provided) => (
+                  <div 
+                    {...provided.droppableProps} 
+                    ref={provided.innerRef}
+                    className="space-y-4"
+                  >
+                    {phaseOrder.map((phaseKey, index) => {
+                      const items = filteredItemsByPhase[phaseKey] || [];
+                      if (items.length === 0 && viewMode !== 'all') return null;
+                      
+                      return (
+                        <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={snapshot.isDragging ? 'opacity-50' : ''}
+                            >
+                              <PhaseCard
+                                phase={phaseKey}
+                                items={itemsByPhase[phaseKey] || []}
+                                isExpanded={expandedPhases.includes(phaseKey)}
+                                onToggle={() => togglePhase(phaseKey)}
+                                onItemUpdate={handleItemUpdate}
+                                onItemEdit={handleItemEdit}
+                                onAddItem={handleAddItem}
+                                onEditPhase={handleEditPhase}
+                                userRole={userRole}
+                                isCriticalPhase={criticalPhases.includes(phaseKey)}
+                                customPhaseName={project?.custom_phase_names?.[phaseKey]}
+                                dragHandleProps={provided.dragHandleProps}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
           
           {/* Panel lateral - Resumen */}

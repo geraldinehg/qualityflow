@@ -1,9 +1,10 @@
 import React from 'react';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2, GripVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistItemRow from './ChecklistItemRow';
 import { PHASES } from './checklistTemplates';
@@ -23,7 +24,8 @@ export default function PhaseCard({
   onEditPhase,
   userRole,
   isCriticalPhase,
-  customPhaseName
+  customPhaseName,
+  dragHandleProps
 }) {
   const phaseConfig = PHASES[phase];
   const Icon = iconMap[phaseConfig?.icon] || FileText;
@@ -41,10 +43,17 @@ export default function PhaseCard({
         className="hover:bg-slate-50 transition-colors py-4"
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={onToggle}>
-            <div className={`p-2 rounded-lg ${isCriticalPhase ? 'bg-amber-100' : 'bg-slate-100'}`}>
+          <div className="flex items-center gap-3 flex-1">
+            <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing">
+              <GripVertical className="h-5 w-5 text-slate-400" />
+            </div>
+            <div 
+              className={`p-2 rounded-lg ${isCriticalPhase ? 'bg-amber-100' : 'bg-slate-100'} cursor-pointer`}
+              onClick={onToggle}
+            >
               <Icon className={`h-5 w-5 ${isCriticalPhase ? 'text-amber-600' : 'text-slate-600'}`} />
             </div>
+            <div className="cursor-pointer" onClick={onToggle}>
             <div>
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 {displayName}
@@ -108,17 +117,36 @@ export default function PhaseCard({
             transition={{ duration: 0.2 }}
           >
             <CardContent className="pt-0 pb-4">
-              <div className="border-t pt-4 space-y-1">
-                {items.sort((a, b) => a.order - b.order).map(item => (
-                  <ChecklistItemRow 
-                    key={item.id} 
-                    item={item} 
-                    onUpdate={onItemUpdate}
-                    onEdit={onItemEdit}
-                    userRole={userRole}
-                  />
-                ))}
-              </div>
+              <Droppable droppableId={phase} type="ITEM">
+                {(provided) => (
+                  <div 
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="border-t pt-4 space-y-1"
+                  >
+                    {items.sort((a, b) => a.order - b.order).map((item, index) => (
+                      <Draggable key={item.id} draggableId={item.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={snapshot.isDragging ? 'opacity-50' : ''}
+                          >
+                            <ChecklistItemRow 
+                              item={item} 
+                              onUpdate={onItemUpdate}
+                              onEdit={onItemEdit}
+                              userRole={userRole}
+                              dragHandleProps={provided.dragHandleProps}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
               
               {/* Botón para agregar nuevo ítem */}
               <div className="mt-3 pt-3 border-t">
