@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistItemRow from './ChecklistItemRow';
 import { PHASES } from './checklistTemplates';
@@ -16,7 +17,9 @@ export default function PhaseCard({
   items, 
   isExpanded, 
   onToggle, 
-  onItemUpdate, 
+  onItemUpdate,
+  onItemEdit,
+  onAddItem,
   userRole,
   isCriticalPhase 
 }) {
@@ -96,9 +99,23 @@ export default function PhaseCard({
                     key={item.id} 
                     item={item} 
                     onUpdate={onItemUpdate}
+                    onEdit={onItemEdit}
                     userRole={userRole}
                   />
                 ))}
+              </div>
+              
+              {/* Botón para agregar nuevo ítem */}
+              <div className="mt-3 pt-3 border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-slate-600 hover:text-slate-900 hover:border-slate-400"
+                  onClick={() => onAddItem(phase)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar ítem a esta fase
+                </Button>
               </div>
             </CardContent>
           </motion.div>

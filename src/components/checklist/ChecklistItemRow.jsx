@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, MessageSquare, User, Clock, X, Check } from 'lucide-react';
+import { AlertTriangle, MessageSquare, User, Clock, X, Check, Edit } from 'lucide-react';
 import { WEIGHT_CONFIG, ROLE_CONFIG } from './checklistTemplates';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export default function ChecklistItemRow({ item, onUpdate, userRole }) {
+export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole }) {
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState(item.notes || '');
   
@@ -128,6 +128,22 @@ export default function ChecklistItemRow({ item, onUpdate, userRole }) {
             <Badge className={`${weightConfig.color} border-0 text-xs`}>
               {weightConfig.label}
             </Badge>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7"
+                    onClick={() => onEdit(item)}
+                  >
+                    <Edit className="h-4 w-4 text-slate-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Editar ítem</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             
             <TooltipProvider>
               <Tooltip>

@@ -14,10 +14,13 @@ import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import PhaseCard from '../components/checklist/PhaseCard';
 import RiskSummary from '../components/checklist/RiskSummary';
 import RoleSelector from '../components/team/RoleSelector';
 import ConflictAlert from '../components/conflicts/ConflictAlert';
+import EditChecklistItemModal from '../components/checklist/EditChecklistItemModal';
+import AddChecklistItemModal from '../components/checklist/AddChecklistItemModal';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -34,6 +37,8 @@ export default function ProjectChecklist() {
   const [userRole, setUserRole] = useState(() => localStorage.getItem('userRole') || '');
   const [user, setUser] = useState(null);
   const [viewMode, setViewMode] = useState('all');
+  const [editingItem, setEditingItem] = useState(null);
+  const [addingToPhase, setAddingToPhase] = useState(null);
   
   const queryClient = useQueryClient();
   
@@ -110,6 +115,25 @@ export default function ProjectChecklist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+      toast.success('Ítem actualizado correctamente');
+    }
+  });
+  
+  const deleteItemMutation = useMutation({
+    mutationFn: (itemId) => base44.entities.ChecklistItem.delete(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+      setEditingItem(null);
+      toast.success('Ítem eliminado correctamente');
+    }
+  });
+  
+  const createItemMutation = useMutation({
+    mutationFn: (data) => base44.entities.ChecklistItem.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+      setAddingToPhase(null);
+      toast.success('Ítem agregado correctamente');
     }
   });
   
@@ -192,6 +216,29 @@ export default function ProjectChecklist() {
   
   const handleItemUpdate = (itemId, data) => {
     updateItemMutation.mutate({ itemId, data });
+  };
+  
+  const handleItemEdit = (item) => {
+    setEditingItem(item);
+  };
+  
+  const handleSaveEdit = (data) => {
+    if (editingItem) {
+      updateItemMutation.mutate({ itemId: editingItem.id, data });
+      setEditingItem(null);
+    }
+  };
+  
+  const handleDeleteItem = (itemId) => {
+    deleteItemMutation.mutate(itemId);
+  };
+  
+  const handleAddItem = (phase) => {
+    setAddingToPhase(phase);
+  };
+  
+  const handleCreateItem = (data) => {
+    createItemMutation.mutate(data);
   };
   
   const togglePhase = (phase) => {
@@ -310,6 +357,8 @@ export default function ProjectChecklist() {
                     isExpanded={expandedPhases.includes(phaseKey)}
                     onToggle={() => togglePhase(phaseKey)}
                     onItemUpdate={handleItemUpdate}
+                    onItemEdit={handleItemEdit}
+                    onAddItem={handleAddItem}
                     userRole={userRole}
                     isCriticalPhase={criticalPhases.includes(phaseKey)}
                   />
@@ -368,6 +417,25 @@ export default function ProjectChecklist() {
           </div>
         </div>
       </main>
+      
+      {/* Modales */}
+      <EditChecklistItemModal
+        item={editingItem}
+        isOpen={!!editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={handleSaveEdit}
+        onDelete={handleDeleteItem}
+        isLoading={updateItemMutation.isPending || deleteItemMutation.isPending}
+      />
+      
+      <AddChecklistItemModal
+        phase={addingToPhase}
+        projectId={projectId}
+        isOpen={!!addingToPhase}
+        onClose={() => setAddingToPhase(null)}
+        onCreate={handleCreateItem}
+        isLoading={createItemMutation.isPending}
+      />
     </div>
   );
 }
