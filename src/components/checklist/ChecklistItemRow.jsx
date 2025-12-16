@@ -49,12 +49,15 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
   
   return (
     <div className={`
-      flex items-start gap-3 p-3 rounded-lg transition-all
+      group flex items-start gap-2 p-3 rounded-lg transition-all
       ${isCompleted ? 'bg-green-50/50' : ''}
       ${isConflict ? 'bg-orange-50 border border-orange-200' : ''}
       ${isNotApplicable ? 'bg-slate-50 opacity-60' : ''}
       hover:bg-slate-50
     `}>
+      <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing pt-1">
+        <GripVertical className="h-4 w-4 text-slate-300 group-hover:text-slate-400" />
+      </div>
       <Checkbox
         checked={isCompleted}
         onCheckedChange={handleStatusChange}
