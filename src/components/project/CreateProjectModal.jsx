@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SITE_TYPE_CONFIG, TECHNOLOGY_CONFIG } from '../checklist/checklistTemplates';
 
-export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoading }) {
+export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoading, initialData, isEditing }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -21,6 +21,28 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     impact_level: 'medium',
     target_date: null
   });
+  
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        site_type: initialData.site_type || '',
+        technology: initialData.technology || '',
+        impact_level: initialData.impact_level || 'medium',
+        target_date: initialData.target_date ? new Date(initialData.target_date) : null
+      });
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        site_type: '',
+        technology: '',
+        impact_level: 'medium',
+        target_date: null
+      });
+    }
+  }, [initialData, isOpen]);
   
   const handleSubmit = (e) => {
     e.preventDefault();
