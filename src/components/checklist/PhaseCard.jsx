@@ -123,7 +123,7 @@ export default function PhaseCard({
                     ref={provided.innerRef}
                     className="border-t pt-4 space-y-1"
                   >
-                    {items.sort((a, b) => a.order - b.order).map((item, index) => (
+                    {[...items].sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => (
                       <Draggable key={item.id} draggableId={item.id} index={index}>
                         {(provided, snapshot) => (
                           <div
