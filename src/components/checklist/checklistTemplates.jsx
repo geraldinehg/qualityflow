@@ -1,16 +1,18 @@
 // Plantillas de checklist por fase con configuración dinámica
 
 export const PHASES = {
-  requirements: { name: 'Requerimientos', icon: 'FileText', order: 1 },
-  architecture: { name: 'Arquitectura', icon: 'GitBranch', order: 2 },
-  design: { name: 'Diseño', icon: 'Palette', order: 3 },
-  development: { name: 'Desarrollo', icon: 'Code', order: 4 },
-  performance: { name: 'Performance', icon: 'Zap', order: 5 },
-  seo_accessibility: { name: 'SEO y Accesibilidad', icon: 'Search', order: 6 },
-  responsive: { name: 'Responsive', icon: 'Smartphone', order: 7 },
-  qa: { name: 'QA', icon: 'CheckSquare', order: 8 },
-  security: { name: 'Seguridad', icon: 'Shield', order: 9 },
-  delivery: { name: 'Entrega', icon: 'Rocket', order: 10 }
+  documentation: { name: 'Documentación de Proyecto', icon: 'FileText', order: 1 },
+  planning: { name: 'Planeación', icon: 'GitBranch', order: 2 },
+  ux_ui: { name: 'UX / UI', icon: 'Palette', order: 3 },
+  content: { name: 'Producto y Contenido', icon: 'FileText', order: 4 },
+  technical: { name: 'Requerimientos Técnicos', icon: 'Code', order: 5 },
+  development: { name: 'Desarrollo', icon: 'Code', order: 6 },
+  performance: { name: 'Performance', icon: 'Zap', order: 7 },
+  seo_accessibility: { name: 'SEO y Accesibilidad', icon: 'Search', order: 8 },
+  responsive: { name: 'Responsive', icon: 'Smartphone', order: 9 },
+  qa: { name: 'QA', icon: 'CheckSquare', order: 10 },
+  security: { name: 'Seguridad', icon: 'Shield', order: 11 },
+  delivery: { name: 'Entrega', icon: 'Rocket', order: 12 }
 };
 
 export const WEIGHT_CONFIG = {
