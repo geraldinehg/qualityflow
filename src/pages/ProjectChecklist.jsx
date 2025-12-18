@@ -85,11 +85,22 @@ export default function ProjectChecklist() {
   // Generar checklist inicial si no existe
   const initializeChecklistMutation = useMutation({
     mutationFn: async () => {
+      console.log('=== INICIO INICIALIZACIÓN ===');
+      console.log('Project site_type:', project.site_type);
+      console.log('Project technology:', project.technology);
+      
       const template = generateFilteredChecklist(project.site_type, project.technology);
+      console.log('Template generado:', template.length, 'items');
+      
+      if (template.length === 0) {
+        throw new Error('No se generaron items del checklist. Verifica el site_type y technology del proyecto.');
+      }
+      
       const items = template.map(item => ({
         project_id: projectId,
         phase: item.phase,
         title: item.title,
+        description: item.description || '',
         weight: item.weight,
         order: item.order,
         status: 'pending',
@@ -97,11 +108,22 @@ export default function ProjectChecklist() {
         applicable_site_types: item.siteTypes
       }));
       
-      return await base44.entities.ChecklistItem.bulkCreate(items);
+      console.log('Items a crear:', items.length);
+      console.log('Primer item:', items[0]);
+      
+      const result = await base44.entities.ChecklistItem.bulkCreate(items);
+      console.log('Resultado bulkCreate:', result);
+      
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Success! Items creados:', data);
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
-      toast.success('Checklist inicializado correctamente');
+      toast.success(`Checklist inicializado: ${data?.length || 0} items creados`);
+    },
+    onError: (error) => {
+      console.error('Error al inicializar checklist:', error);
+      toast.error(`Error: ${error.message}`);
     }
   });
   
