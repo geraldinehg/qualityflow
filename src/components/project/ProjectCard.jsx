@@ -26,7 +26,7 @@ const RISK_CONFIG = {
   high: { color: 'bg-red-500', icon: AlertTriangle }
 };
 
-export default function ProjectCard({ project, index }) {
+export default function ProjectCard({ project, index, onDelete, onDuplicate, dragHandleProps }) {
   const siteTypeConfig = SITE_TYPE_CONFIG[project.site_type];
   const techConfig = TECHNOLOGY_CONFIG[project.technology];
   const statusConfig = STATUS_CONFIG[project.status];
@@ -42,9 +42,12 @@ export default function ProjectCard({ project, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="hover:shadow-lg transition-all duration-300 group">
+      <Card className="hover:shadow-lg transition-all duration-300 group relative">
         <CardHeader className="pb-2">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-2">
+            <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing pt-1">
+              <GripVertical className="h-5 w-5 text-slate-300 group-hover:text-slate-400" />
+            </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <div className={`w-2 h-2 rounded-full ${techConfig?.color || 'bg-slate-400'}`} />
@@ -56,9 +59,31 @@ export default function ProjectCard({ project, index }) {
                 {project.name}
               </CardTitle>
             </div>
-            <Badge className={`${statusConfig.color} border-0`}>
-              {statusConfig.label}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={`${statusConfig.color} border-0`}>
+                {statusConfig.label}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onDuplicate(project)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicar proyecto
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onDelete(project.id)}
+                    className="text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Eliminar proyecto
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </CardHeader>
         
