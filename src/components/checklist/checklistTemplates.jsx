@@ -22,10 +22,10 @@ export const WEIGHT_CONFIG = {
 };
 
 export const SITE_TYPE_CONFIG = {
-  landing: { name: 'Landing Page', criticalPhases: ['design', 'responsive', 'performance'] },
-  ecommerce: { name: 'E-commerce', criticalPhases: ['performance', 'qa', 'security'] },
-  corporate: { name: 'Corporativo', criticalPhases: ['seo_accessibility', 'responsive', 'design'] },
-  blog: { name: 'Blog', criticalPhases: ['seo_accessibility', 'performance', 'responsive'] },
+  landing: { name: 'Landing Page', criticalPhases: ['documentation', 'ux_ui', 'responsive', 'performance'] },
+  ecommerce: { name: 'E-commerce', criticalPhases: ['documentation', 'technical', 'performance', 'qa', 'security'] },
+  corporate: { name: 'Corporativo', criticalPhases: ['documentation', 'planning', 'ux_ui', 'content'] },
+  blog: { name: 'Blog', criticalPhases: ['documentation', 'content', 'performance', 'responsive'] },
   forms: { name: 'Formularios', criticalPhases: ['qa', 'security', 'development'] },
   webapp: { name: 'Web App', criticalPhases: ['security', 'qa', 'performance'] }
 };
