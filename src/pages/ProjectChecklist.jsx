@@ -465,18 +465,35 @@ export default function ProjectChecklist() {
               </div>
             )}
             
+            {/* Indicador de carga de checklist */}
+            {itemsLoading || initializeChecklistMutation.isPending ? (
+              <div className="bg-white rounded-xl p-8 shadow-sm border text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+                <p className="text-slate-600">Generando checklist del proyecto...</p>
+              </div>
+            ) : checklistItems.length === 0 ? (
+              <div className="bg-white rounded-xl p-8 shadow-sm border text-center">
+                <p className="text-slate-600 mb-4">No hay ítems en el checklist</p>
+                <Button onClick={() => initializeChecklistMutation.mutate()}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Generar Checklist
+                </Button>
+              </div>
+            ) : null}
+            
             {/* Fases del checklist */}
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="phases" type="PHASE">
-                {(provided) => (
-                  <div 
-                    {...provided.droppableProps} 
-                    ref={provided.innerRef}
-                    className="space-y-4"
-                  >
-                    {phaseOrder.map((phaseKey, index) => {
-                      const items = filteredItemsByPhase[phaseKey] || [];
-                      if (items.length === 0 && viewMode !== 'all') return null;
+            {!itemsLoading && !initializeChecklistMutation.isPending && checklistItems.length > 0 && (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="phases" type="PHASE">
+                  {(provided) => (
+                    <div 
+                      {...provided.droppableProps} 
+                      ref={provided.innerRef}
+                      className="space-y-4"
+                    >
+                      {phaseOrder.map((phaseKey, index) => {
+                        const items = itemsByPhase[phaseKey] || [];
+                        if (items.length === 0 && viewMode !== 'all') return null;
                       
                       return (
                         <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
@@ -505,11 +522,12 @@ export default function ProjectChecklist() {
                         </Draggable>
                       );
                     })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            )}
           </div>
           
           {/* Panel lateral - Resumen */}
