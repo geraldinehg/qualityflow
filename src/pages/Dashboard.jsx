@@ -80,12 +80,43 @@ export default function Dashboard() {
     }
   });
   
-  const filteredProjects = projects.filter(p => {
-    const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         p.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredProjects = projects
+    .filter(p => {
+      const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           p.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(filteredProjects);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    // Actualizar orden de todos los proyectos
+    for (let i = 0; i < items.length; i++) {
+      await updateOrderMutation.mutateAsync({ 
+        projectId: items[i].id, 
+        order: i 
+      });
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['projects'] });
+    toast.success('Orden actualizado');
+  };
+  
+  const handleDelete = (projectId) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.')) {
+      deleteMutation.mutate(projectId);
+    }
+  };
+  
+  const handleDuplicate = (project) => {
+    duplicateMutation.mutate(project);
+  };
   
   const stats = {
     total: projects.length,
