@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2, GripVertical, Calendar, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistItemRow from './ChecklistItemRow';
 import { PHASES } from './checklistTemplates';
