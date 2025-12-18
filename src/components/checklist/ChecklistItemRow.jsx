@@ -80,16 +80,16 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
             {isCompleted && itemData.completed_by && (
               <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
                 <User className="h-3 w-3" />
-                <span>{item.completed_by}</span>
+                <span>{itemData.completed_by}</span>
                 {roleConfig && (
                   <Badge variant="outline" className={`text-xs ${roleConfig.color} bg-opacity-10`}>
                     {roleConfig.name}
                   </Badge>
                 )}
-                {item.completed_at && (
+                {itemData.completed_at && (
                   <>
                     <Clock className="h-3 w-3 ml-2" />
-                    <span>{format(new Date(item.completed_at), "d MMM, HH:mm", { locale: es })}</span>
+                    <span>{format(new Date(itemData.completed_at), "d MMM, HH:mm", { locale: es })}</span>
                   </>
                 )}
               </div>
@@ -121,9 +121,9 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                   </Button>
                 </div>
               </div>
-            ) : item.notes && (
+            ) : itemData.notes && (
               <p className="text-xs text-slate-500 mt-2 italic bg-slate-100 p-2 rounded">
-                💬 {item.notes}
+                💬 {itemData.notes}
               </p>
             )}
           </div>
