@@ -3,10 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, RotateCcw } from 'lucide-react';
+import { Loader2, RotateCcw, Trash2 } from 'lucide-react';
 import { PHASES } from './checklistTemplates';
 
-export default function EditPhaseModal({ phase, currentName, isOpen, onClose, onSave, isLoading }) {
+export default function EditPhaseModal({ phase, currentName, isOpen, onClose, onSave, onDelete, isLoading }) {
   const [customName, setCustomName] = useState('');
   const defaultName = PHASES[phase]?.name || '';
   
@@ -71,14 +71,29 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
             💡 Este cambio solo afecta a este proyecto. Otros proyectos mantendrán el nombre por defecto.
           </div>
           
-          <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
+            <strong>⚠️ Eliminar fase:</strong> Al eliminar una fase, esta se ocultará pero los ítems del checklist se conservarán y podrás restaurarla más tarde.
+          </div>
+          
+          <DialogFooter className="mt-6 flex justify-between">
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={() => onDelete && onDelete(phase)}
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Eliminar Fase
             </Button>
-            <Button type="submit" disabled={!isValid || isLoading}>
-              {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Guardar
-            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={!isValid || isLoading}>
+                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Guardar
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
