@@ -224,9 +224,13 @@ export default function ProjectChecklist() {
   
   // Agrupar items por fase
   const itemsByPhase = useMemo(() => {
+    console.log('=== AGRUPANDO ITEMS POR FASE ===');
+    console.log('ChecklistItems recibidos:', checklistItems.length, checklistItems);
+    
     const grouped = {};
     Object.keys(PHASES).forEach(phase => {
       grouped[phase] = checklistItems.filter(item => item.phase === phase);
+      console.log(`Fase ${phase}:`, grouped[phase].length, 'items');
     });
     return grouped;
   }, [checklistItems]);
