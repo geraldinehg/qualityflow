@@ -85,8 +85,6 @@ export default function ProjectChecklist() {
   // Generar checklist inicial si no existe
   const initializeChecklistMutation = useMutation({
     mutationFn: async () => {
-      if (!project || checklistItems.length > 0) return;
-      
       const template = generateFilteredChecklist(project.site_type, project.technology);
       const items = template.map(item => ({
         project_id: projectId,
@@ -107,7 +105,7 @@ export default function ProjectChecklist() {
   });
   
   useEffect(() => {
-    if (project && checklistItems.length === 0 && !itemsLoading) {
+    if (project && checklistItems.length === 0 && !itemsLoading && !initializeChecklistMutation.isPending) {
       initializeChecklistMutation.mutate();
     }
   }, [project, checklistItems.length, itemsLoading]);
