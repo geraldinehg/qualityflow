@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, ArrowRight, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar, Users, ArrowRight, AlertTriangle, CheckCircle2, Clock, Copy, Pencil, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
@@ -25,7 +26,7 @@ const RISK_CONFIG = {
   high: { color: 'bg-red-500', icon: AlertTriangle }
 };
 
-export default function ProjectCard({ project, index }) {
+export default function ProjectCard({ project, index, onEdit, onDuplicate }) {
   const siteTypeConfig = SITE_TYPE_CONFIG[project.site_type];
   const techConfig = TECHNOLOGY_CONFIG[project.technology];
   const statusConfig = STATUS_CONFIG[project.status];
@@ -55,9 +56,28 @@ export default function ProjectCard({ project, index }) {
                 {project.name}
               </CardTitle>
             </div>
-            <Badge className={`${statusConfig.color} border-0`}>
-              {statusConfig.label}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={`${statusConfig.color} border-0`}>
+                {statusConfig.label}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.preventDefault()}>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); onEdit(project); }}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); onDuplicate(project); }}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </CardHeader>
         

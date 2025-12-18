@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Nuevo Proyecto</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{isEditing ? 'Editar Proyecto' : 'Nuevo Proyecto'}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -150,7 +150,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </Button>
             <Button type="submit" disabled={!isValid || isLoading}>
               {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Crear Proyecto
+              {isEditing ? 'Guardar Cambios' : 'Crear Proyecto'}
             </Button>
           </DialogFooter>
         </form>

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, LayoutGrid, List, Filter, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import ProjectCard from '../components/project/ProjectCard';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import RoleSelector from '../components/team/RoleSelector';
@@ -41,82 +39,59 @@ export default function Dashboard() {
     queryFn: () => base44.entities.Project.list('-created_date')
   });
   
+  const [editingProject, setEditingProject] = useState(null);
+  
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Project.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setIsCreateOpen(false);
-      toast.success('Proyecto creado correctamente');
     }
   });
   
-  const deleteMutation = useMutation({
-    mutationFn: (projectId) => base44.entities.Project.delete(projectId),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Project.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('Proyecto eliminado correctamente');
+      setEditingProject(null);
     }
   });
   
   const duplicateMutation = useMutation({
     mutationFn: async (project) => {
-      const { id, created_date, updated_date, created_by, completion_percentage, critical_pending, has_conflicts, risk_level, ...projectData } = project;
-      const newProject = {
+      const { id, created_date, updated_date, created_by, completion_percentage, critical_pending, risk_level, has_conflicts, ...projectData } = project;
+      const newProject = await base44.entities.Project.create({
         ...projectData,
-        name: `${projectData.name} (Copia)`,
-        status: 'draft'
-      };
-      return base44.entities.Project.create(newProject);
+        name: `${project.name} (Copia)`,
+        status: 'draft',
+        completion_percentage: 0,
+        critical_pending: 0
+      });
+      
+      // Duplicar checklist items
+      const items = await base44.entities.ChecklistItem.filter({ project_id: project.id });
+      if (items.length > 0) {
+        const newItems = items.map(({ id, created_date, updated_date, created_by, project_id, completed_by, completed_at, completed_by_role, status, ...itemData }) => ({
+          ...itemData,
+          project_id: newProject.id,
+          status: 'pending'
+        }));
+        await base44.entities.ChecklistItem.bulkCreate(newItems);
+      }
+      
+      return newProject;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('Proyecto duplicado correctamente');
     }
   });
   
-  const updateOrderMutation = useMutation({
-    mutationFn: async ({ projectId, order }) => {
-      await base44.entities.Project.update(projectId, { order });
-    }
+  const filteredProjects = projects.filter(p => {
+    const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         p.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
-  
-  const filteredProjects = projects
-    .filter(p => {
-      const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.description?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
-  
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
-    
-    const items = Array.from(filteredProjects);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    
-    // Actualizar orden de todos los proyectos
-    for (let i = 0; i < items.length; i++) {
-      await updateOrderMutation.mutateAsync({ 
-        projectId: items[i].id, 
-        order: i 
-      });
-    }
-    
-    queryClient.invalidateQueries({ queryKey: ['projects'] });
-    toast.success('Orden actualizado');
-  };
-  
-  const handleDelete = (projectId) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.')) {
-      deleteMutation.mutate(projectId);
-    }
-  };
-  
-  const handleDuplicate = (project) => {
-    duplicateMutation.mutate(project);
-  };
   
   const stats = {
     total: projects.length,
@@ -264,40 +239,19 @@ export default function Dashboard() {
             )}
           </div>
         ) : (
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="projects">
-              {(provided) => (
-                <div 
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                >
-                  <AnimatePresence>
-                    {filteredProjects.map((project, index) => (
-                      <Draggable key={project.id} draggableId={project.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className={snapshot.isDragging ? 'opacity-50' : ''}
-                          >
-                            <ProjectCard 
-                              project={project} 
-                              index={index}
-                              onDelete={handleDelete}
-                              onDuplicate={handleDuplicate}
-                              dragHandleProps={provided.dragHandleProps}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  </AnimatePresence>
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {filteredProjects.map((project, index) => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  index={index}
+                  onEdit={setEditingProject}
+                  onDuplicate={(p) => duplicateMutation.mutate(p)}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
         )}
       </main>
       
@@ -307,6 +261,17 @@ export default function Dashboard() {
         onCreate={(data) => createMutation.mutate(data)}
         isLoading={createMutation.isPending}
       />
+      
+      {editingProject && (
+        <CreateProjectModal
+          isOpen={!!editingProject}
+          onClose={() => setEditingProject(null)}
+          onCreate={(data) => updateMutation.mutate({ id: editingProject.id, data })}
+          isLoading={updateMutation.isPending}
+          initialData={editingProject}
+          isEditing
+        />
+      )}
     </div>
   );
 }
