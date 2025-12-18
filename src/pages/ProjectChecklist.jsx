@@ -468,6 +468,7 @@ export default function ProjectChecklist() {
             )}
             
             {/* Fases del checklist */}
+            {console.log('RENDER DECISION - checklistItems.length:', checklistItems.length, 'itemsLoading:', itemsLoading)}
             {checklistItems.length === 0 && !itemsLoading ? (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Inicializar Checklist de Calidad</h3>
