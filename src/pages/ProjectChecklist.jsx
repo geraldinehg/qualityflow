@@ -271,9 +271,9 @@ export default function ProjectChecklist() {
     const filtered = {};
     Object.keys(itemsByPhase).forEach(phase => {
       if (viewMode === 'pending') {
-        filtered[phase] = itemsByPhase[phase].filter(i => i.status === 'pending');
+        filtered[phase] = itemsByPhase[phase].filter(i => (i.data?.status || i.status) === 'pending');
       } else if (viewMode === 'critical') {
-        filtered[phase] = itemsByPhase[phase].filter(i => i.weight === 'critical');
+        filtered[phase] = itemsByPhase[phase].filter(i => (i.data?.weight || i.weight) === 'critical');
       } else {
         filtered[phase] = itemsByPhase[phase];
       }
