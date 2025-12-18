@@ -94,6 +94,7 @@ export default function ProjectChecklist() {
   const initializeChecklistMutation = useMutation({
     mutationFn: async () => {
       console.log('=== INICIO INICIALIZACIÓN ===');
+      console.log('ProjectId que se usará:', projectId);
       console.log('Project site_type:', project.site_type);
       console.log('Project technology:', project.technology);
       
@@ -116,17 +117,26 @@ export default function ProjectChecklist() {
         applicable_site_types: item.siteTypes
       }));
       
-      console.log('Items a crear:', items.length);
-      console.log('Primer item:', items[0]);
+      console.log('Items a crear con project_id:', projectId);
+      console.log('Total items:', items.length);
+      console.log('Primer item completo:', items[0]);
       
       const result = await base44.entities.ChecklistItem.bulkCreate(items);
       console.log('Resultado bulkCreate:', result);
+      console.log('Verificando primer item creado - project_id:', result?.[0]?.project_id);
       
       return result;
     },
-    onSuccess: (data) => {
-      console.log('Success! Items creados:', data);
-      queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+    onSuccess: async (data) => {
+      console.log('Success! Items creados:', data?.length);
+      
+      // Esperar un momento para asegurar que la BD se actualice
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Forzar refetch manual
+      await queryClient.refetchQueries({ queryKey: ['checklist-items', projectId] });
+      
+      console.log('Refetch completado');
       toast.success(`Checklist inicializado: ${data?.length || 0} items creados`);
     },
     onError: (error) => {
