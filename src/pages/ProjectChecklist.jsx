@@ -203,7 +203,7 @@ export default function ProjectChecklist() {
   const itemsByPhase = useMemo(() => {
     const grouped = {};
     Object.keys(PHASES).forEach(phase => {
-      grouped[phase] = checklistItems.filter(item => item.phase === phase);
+      grouped[phase] = checklistItems.filter(item => (item.phase || item.data?.phase) === phase);
     });
     return grouped;
   }, [checklistItems]);
