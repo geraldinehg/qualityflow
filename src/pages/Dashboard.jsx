@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import ProjectCard from '../components/project/ProjectCard';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import RoleSelector from '../components/team/RoleSelector';
+import NotificationCenter from '../components/notifications/NotificationCenter';
 
 export default function Dashboard() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -138,6 +139,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {user && <NotificationCenter userEmail={user.email} />}
               <RoleSelector value={userRole} onChange={setUserRole} />
               <Button onClick={() => setIsCreateOpen(true)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />

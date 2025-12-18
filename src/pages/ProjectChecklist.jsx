@@ -24,6 +24,8 @@ import EditChecklistItemModal from '../components/checklist/EditChecklistItemMod
 import AddChecklistItemModal from '../components/checklist/AddChecklistItemModal';
 import EditProjectModal from '../components/project/EditProjectModal';
 import EditPhaseModal from '../components/checklist/EditPhaseModal';
+import NotificationCenter from '../components/notifications/NotificationCenter';
+import { NotificationService } from '../components/notifications/NotificationService';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -130,13 +132,24 @@ export default function ProjectChecklist() {
   }, [project, checklistItems.length, itemsLoading]);
   
   const updateItemMutation = useMutation({
-    mutationFn: async ({ itemId, data }) => {
+    mutationFn: async ({ itemId, data, oldStatus, item }) => {
       const updateData = { ...data };
       if (data.status === 'completed') {
         updateData.completed_by = user?.email;
         updateData.completed_by_role = userRole;
       }
       await base44.entities.ChecklistItem.update(itemId, updateData);
+      
+      // Enviar notificación si cambió el estado
+      if (data.status && data.status !== oldStatus && project) {
+        await NotificationService.notifyChecklistUpdate(
+          project, 
+          item, 
+          oldStatus, 
+          data.status, 
+          user?.email
+        );
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
@@ -176,13 +189,18 @@ export default function ProjectChecklist() {
   });
   
   const resolveConflictMutation = useMutation({
-    mutationFn: async ({ conflictId, resolution }) => {
+    mutationFn: async ({ conflictId, resolution, conflict }) => {
       await base44.entities.Conflict.update(conflictId, {
         status: 'resolved',
         resolution,
         resolved_by: user?.email,
         resolved_at: new Date().toISOString()
       });
+      
+      // Notificar resolución
+      if (project && conflict) {
+        await NotificationService.notifyConflictResolved(project, conflict, resolution);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conflicts', projectId] });
@@ -245,7 +263,9 @@ export default function ProjectChecklist() {
   const criticalPhases = project?.site_type ? SITE_TYPE_CONFIG[project.site_type]?.criticalPhases || [] : [];
   
   const handleItemUpdate = (itemId, data) => {
-    updateItemMutation.mutate({ itemId, data });
+    const item = checklistItems.find(i => i.id === itemId);
+    const oldStatus = item?.status;
+    updateItemMutation.mutate({ itemId, data, oldStatus, item });
   };
   
   const handleItemEdit = (item) => {
@@ -387,6 +407,7 @@ export default function ProjectChecklist() {
             </div>
             
             <div className="flex flex-wrap items-center gap-3">
+              {user && <NotificationCenter userEmail={user.email} />}
               <RoleSelector value={userRole} onChange={setUserRole} showLabel={false} />
               <Button 
                 variant="outline" 
@@ -437,7 +458,7 @@ export default function ProjectChecklist() {
                     conflict={conflict}
                     isLeader={userRole === 'web_leader'}
                     onResolve={(id, status, resolution) => 
-                      resolveConflictMutation.mutate({ conflictId: id, resolution })
+                      resolveConflictMutation.mutate({ conflictId: id, resolution, conflict })
                     }
                   />
                 ))}
