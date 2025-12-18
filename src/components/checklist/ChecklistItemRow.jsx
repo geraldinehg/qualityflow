@@ -46,7 +46,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
     setShowNotes(false);
   };
   
-  const roleConfig = item.completed_by_role ? ROLE_CONFIG[item.completed_by_role] : null;
+  const roleConfig = itemData.completed_by_role ? ROLE_CONFIG[itemData.completed_by_role] : null;
   
   return (
     <div className={`
@@ -70,14 +70,14 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             <p className={`text-sm font-medium ${isCompleted ? 'line-through text-slate-400' : 'text-slate-700'} ${isNotApplicable ? 'line-through' : ''}`}>
-              {item.title}
+              {itemData.title}
             </p>
-            {item.description && (
-              <p className="text-xs text-slate-500 mt-0.5">{item.description}</p>
+            {itemData.description && (
+              <p className="text-xs text-slate-500 mt-0.5">{itemData.description}</p>
             )}
             
             {/* Metadatos de completado */}
-            {isCompleted && item.completed_by && (
+            {isCompleted && itemData.completed_by && (
               <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
                 <User className="h-3 w-3" />
                 <span>{item.completed_by}</span>
