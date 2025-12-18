@@ -31,11 +31,22 @@ export default function PhaseCard({
   const Icon = iconMap[phaseConfig?.icon] || FileText;
   const displayName = customPhaseName || phaseConfig?.name || phase;
   
-  const completed = items.filter(i => (i.data?.status || i.status) === 'completed').length;
-  const total = items.length;
+  // Normalizar items para acceder a data
+  const normalizedItems = items.map(item => ({
+    ...item,
+    phase: item.data?.phase || item.phase,
+    status: item.data?.status || item.status,
+    weight: item.data?.weight || item.weight,
+    title: item.data?.title || item.title,
+    description: item.data?.description || item.description,
+    order: item.data?.order || item.order
+  }));
+  
+  const completed = normalizedItems.filter(i => i.status === 'completed').length;
+  const total = normalizedItems.length;
   const progress = total > 0 ? (completed / total) * 100 : 0;
-  const hasCritical = items.some(i => (i.data?.weight || i.weight) === 'critical' && (i.data?.status || i.status) !== 'completed');
-  const hasConflicts = items.some(i => (i.data?.status || i.status) === 'conflict');
+  const hasCritical = normalizedItems.some(i => i.weight === 'critical' && i.status !== 'completed');
+  const hasConflicts = normalizedItems.some(i => i.status === 'conflict');
   
   return (
     <Card className={`overflow-hidden transition-all duration-300 ${isCriticalPhase ? 'ring-2 ring-amber-200' : ''}`}>
