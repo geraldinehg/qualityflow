@@ -47,27 +47,55 @@ export const ROLE_CONFIG = {
 
 // Plantilla base de checklist items
 export const CHECKLIST_TEMPLATE = [
-  // REQUERIMIENTOS
-  { phase: 'requirements', title: 'Brief del cliente documentado', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'requirements', title: 'Objetivos del proyecto definidos', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'requirements', title: 'Alcance y limitaciones claras', weight: 'high', order: 3, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'requirements', title: 'KPIs de éxito establecidos', weight: 'medium', order: 4, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'requirements', title: 'Contenido recibido y aprobado', weight: 'high', order: 5, technologies: ['all'], siteTypes: ['all'] },
+  // 1. DOCUMENTACIÓN DE PROYECTO
+  { phase: 'documentation', title: 'Brief – Objetivo del sitio claramente definido', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'Brief de Descubrimiento Tecnológico completo', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'Alcance aprobado (qué incluye / qué no incluye)', weight: 'critical', order: 3, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'KPIs esperados documentados', weight: 'high', order: 4, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'Propuesta cargada y validada (URL)', weight: 'critical', order: 5, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'Propuesta coincide con el brief (validación PO)', weight: 'critical', order: 6, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'documentation', title: 'Cronograma del Proyecto (URL al cronograma)', weight: 'high', order: 7, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
   
-  // ARQUITECTURA
-  { phase: 'architecture', title: 'Estructura de navegación definida', weight: 'high', order: 1, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'architecture', title: 'Mapa del sitio aprobado', weight: 'high', order: 2, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'architecture', title: 'Definición de URLs amigables', weight: 'medium', order: 3, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'architecture', title: 'Estructura de base de datos', weight: 'high', order: 4, technologies: ['wordpress', 'custom'], siteTypes: ['ecommerce', 'webapp', 'forms'] },
-  { phase: 'architecture', title: 'Integraciones identificadas', weight: 'medium', order: 5, technologies: ['all'], siteTypes: ['all'] },
+  // 2. PLANEACIÓN – PREPARACIÓN GENERAL
+  { phase: 'planning', title: 'Canal único de comunicación definido', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Repositorio centralizado de insumos (URL carpeta)', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Equipo completo asignado – UX', weight: 'high', order: 3, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Equipo completo asignado – UI', weight: 'high', order: 4, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Equipo completo asignado – DEV', weight: 'critical', order: 5, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Equipo completo asignado – QA', weight: 'critical', order: 6, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Equipo completo asignado – Líder Web', weight: 'critical', order: 7, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Kickoff formal realizado', weight: 'high', order: 8, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'planning', title: 'Acta de reunión de kickoff cargada', weight: 'medium', order: 9, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
   
-  // DISEÑO
-  { phase: 'design', title: 'Wireframes aprobados', weight: 'high', order: 1, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'design', title: 'Mockups finales aprobados', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'design', title: 'Sistema de diseño documentado', weight: 'medium', order: 3, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'design', title: 'CTA claros y destacados', weight: 'critical', order: 4, technologies: ['all'], siteTypes: ['landing', 'ecommerce'] },
-  { phase: 'design', title: 'Jerarquía visual correcta', weight: 'high', order: 5, technologies: ['all'], siteTypes: ['all'] },
-  { phase: 'design', title: 'Consistencia de marca', weight: 'high', order: 6, technologies: ['all'], siteTypes: ['all'] },
+  // 3. UX / UI – DISEÑO Y ESTÁNDARES DE CALIDAD
+  { phase: 'ux_ui', title: 'Wireframes o diseño final aprobado', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Diseño responsive aprobado', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Estados especiales diseñados (error, hover, success)', weight: 'high', order: 3, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Favicon incluido', weight: 'medium', order: 4, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Referentes visuales / animaciones aprobadas', weight: 'medium', order: 5, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Revisión de calidad – Observaciones QA', weight: 'high', order: 6, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Validación de accesibilidad (si aplica)', weight: 'high', order: 7, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Acta de entrega a desarrollo', weight: 'critical', order: 8, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Reunión interna documentada', weight: 'medium', order: 9, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'ux_ui', title: 'Pendientes y dudas definidos', weight: 'high', order: 10, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  
+  // 4. PRODUCTO Y UI – CONTENIDO FINAL
+  { phase: 'content', title: 'Textos finales aprobados por cliente (no borradores)', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Textos revisados por Copy (si aplica)', weight: 'high', order: 2, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Textos revisados por SEO (si aplica)', weight: 'high', order: 3, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Idioma(s) definidos', weight: 'high', order: 4, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Material para traducción (si aplica)', weight: 'medium', order: 5, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Assets multimedia cargados en carpeta compartida', weight: 'critical', order: 6, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'content', title: 'Imágenes optimizadas para web', weight: 'high', order: 7, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  
+  // 5. PRODUCTO – REQUERIMIENTOS TÉCNICOS
+  { phase: 'technical', title: 'Dominio definido', weight: 'critical', order: 1, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Hosting / servidor confirmado', weight: 'critical', order: 2, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Accesos necesarios disponibles', weight: 'critical', order: 3, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Requerimientos especiales – Formularios', weight: 'high', order: 4, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Requerimientos especiales – Integraciones', weight: 'high', order: 5, technologies: ['all'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Requerimientos especiales – CMS', weight: 'high', order: 6, technologies: ['wordpress', 'webflow'], siteTypes: ['landing', 'corporate', 'ecommerce', 'blog'] },
+  { phase: 'technical', title: 'Estructura de base de datos', weight: 'high', order: 7, technologies: ['wordpress', 'custom'], siteTypes: ['ecommerce'] },
   
   // DESARROLLO
   { phase: 'development', title: 'Código limpio y comentado', weight: 'medium', order: 1, technologies: ['custom'], siteTypes: ['all'] },
