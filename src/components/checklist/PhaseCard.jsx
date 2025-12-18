@@ -134,7 +134,7 @@ export default function PhaseCard({
                     ref={provided.innerRef}
                     className="border-t pt-4 space-y-1"
                   >
-                    {items
+                    {normalizedItems
                       .slice()
                       .sort((a, b) => (a.order || 0) - (b.order || 0))
                       .map((item, index) => (
