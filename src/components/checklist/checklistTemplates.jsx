@@ -39,10 +39,11 @@ export const TECHNOLOGY_CONFIG = {
 };
 
 export const ROLE_CONFIG = {
-  developer: { name: 'Desarrollador', color: 'bg-purple-500', canComplete: ['development', 'architecture', 'performance', 'security'] },
-  qa: { name: 'QA', color: 'bg-green-500', canComplete: ['qa', 'responsive', 'seo_accessibility'] },
+  developer: { name: 'Desarrollador', color: 'bg-purple-500', canComplete: ['development', 'technical', 'performance', 'security'] },
+  qa: { name: 'QA', color: 'bg-green-500', canComplete: ['qa', 'responsive', 'seo_accessibility', 'ux_ui'] },
   web_leader: { name: 'Líder Web', color: 'bg-blue-500', canComplete: ['all'] },
-  product_owner: { name: 'Product Owner', color: 'bg-amber-500', canComplete: ['requirements', 'design', 'delivery'] }
+  product_owner: { name: 'Product Owner', color: 'bg-amber-500', canComplete: ['documentation', 'planning', 'content', 'delivery'] },
+  ux_ui: { name: 'UX/UI', color: 'bg-pink-500', canComplete: ['ux_ui', 'content'] }
 };
 
 // Plantilla base de checklist items
