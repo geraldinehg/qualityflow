@@ -41,7 +41,7 @@ export default function ProjectCard({ project, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="hover:shadow-lg transition-all duration-300 group">
+      <Card className="hover:shadow-lg transition-all duration-300 group h-full flex flex-col">
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -61,10 +61,12 @@ export default function ProjectCard({ project, index }) {
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-4">
-          {project.description && (
-            <p className="text-sm text-slate-600 line-clamp-2">{project.description}</p>
-          )}
+        <CardContent className="space-y-4 flex-1 flex flex-col">
+          <div className="h-10">
+            {project.description && (
+              <p className="text-sm text-slate-600 line-clamp-2">{project.description}</p>
+            )}
+          </div>
           
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="text-xs">
@@ -124,12 +126,14 @@ export default function ProjectCard({ project, index }) {
             )}
           </div>
           
-          <Link to={createPageUrl(`ProjectChecklist?id=${project.id}`)} className="block mt-4">
-            <Button className="w-full group-hover:bg-blue-600 transition-colors">
-              Ver Checklist
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </Link>
+          <div className="mt-auto pt-4">
+            <Link to={createPageUrl(`ProjectChecklist?id=${project.id}`)}>
+              <Button className="w-full group-hover:bg-blue-600 transition-colors">
+                Ver Checklist
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
