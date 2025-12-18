@@ -75,13 +75,22 @@ export default function ProjectChecklist() {
     queryFn: async () => {
       console.log('=== QUERY CHECKLIST ITEMS ===');
       console.log('ProjectId:', projectId);
+      console.log('Tipo de projectId:', typeof projectId);
       const items = await base44.entities.ChecklistItem.filter({ project_id: projectId });
-      console.log('Items obtenidos:', items.length, items);
+      console.log('Items obtenidos:', items.length);
+      console.log('Items completos:', items);
+      if (items.length > 0) {
+        console.log('Primer item - project_id:', items[0].project_id, 'tipo:', typeof items[0].project_id);
+        console.log('ProjectId buscado:', projectId, 'tipo:', typeof projectId);
+        console.log('¿Coinciden?:', items[0].project_id === projectId);
+      }
       return items;
     },
     enabled: !!projectId,
     refetchOnMount: true,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    cacheTime: 0
   });
   
   const { data: conflicts = [] } = useQuery({
