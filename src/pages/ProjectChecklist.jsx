@@ -442,12 +442,6 @@ export default function ProjectChecklist() {
                   >
                     {phaseOrder.map((phaseKey, index) => {
                      const allItems = itemsByPhase[phaseKey] || [];
-                     const filteredItems = filteredItemsByPhase[phaseKey] || [];
-
-                     // Mostrar todas las fases en vista 'all', en otras vistas solo si hay items filtrados
-                     if (viewMode !== 'all' && filteredItems.length === 0) {
-                       return null;
-                     }
 
                      return (
                        <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
