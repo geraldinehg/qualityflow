@@ -88,12 +88,13 @@ export default function ProjectChecklist() {
       if (!project || checklistItems.length > 0) return;
       
       const template = generateFilteredChecklist(project.site_type, project.technology);
-      const items = template.map(item => ({
+      const items = template.map((item, index) => ({
         project_id: projectId,
         phase: item.phase,
         title: item.title,
+        description: item.description || '',
         weight: item.weight,
-        order: item.order,
+        order: item.order || index,
         status: 'pending',
         applicable_technologies: item.technologies,
         applicable_site_types: item.siteTypes
@@ -103,6 +104,7 @@ export default function ProjectChecklist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+      toast.success(`${checklistItems.length || 'Checklist'} ítems generados correctamente`);
     }
   });
   
