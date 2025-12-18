@@ -46,6 +46,37 @@ export default function Dashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setIsCreateOpen(false);
+      toast.success('Proyecto creado correctamente');
+    }
+  });
+  
+  const deleteMutation = useMutation({
+    mutationFn: (projectId) => base44.entities.Project.delete(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Proyecto eliminado correctamente');
+    }
+  });
+  
+  const duplicateMutation = useMutation({
+    mutationFn: async (project) => {
+      const { id, created_date, updated_date, created_by, completion_percentage, critical_pending, has_conflicts, risk_level, ...projectData } = project;
+      const newProject = {
+        ...projectData,
+        name: `${projectData.name} (Copia)`,
+        status: 'draft'
+      };
+      return base44.entities.Project.create(newProject);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Proyecto duplicado correctamente');
+    }
+  });
+  
+  const updateOrderMutation = useMutation({
+    mutationFn: async ({ projectId, order }) => {
+      await base44.entities.Project.update(projectId, { order });
     }
   });
   
