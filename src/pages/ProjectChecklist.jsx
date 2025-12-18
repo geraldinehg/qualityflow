@@ -495,6 +495,7 @@ export default function ProjectChecklist() {
                     >
                       {phaseOrder.map((phaseKey, index) => {
                        const allItems = itemsByPhase[phaseKey] || [];
+                       console.log(`RENDER Fase ${phaseKey}:`, allItems.length, 'items');
 
                        return (
                          <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
