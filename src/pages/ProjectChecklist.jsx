@@ -85,9 +85,15 @@ export default function ProjectChecklist() {
   // Generar checklist inicial si no existe
   const initializeChecklistMutation = useMutation({
     mutationFn: async () => {
-      if (!project || checklistItems.length > 0) return;
+      if (!project) return;
       
       const template = generateFilteredChecklist(project.site_type, project.technology);
+      
+      if (template.length === 0) {
+        console.error('No se generaron ítems del template');
+        return;
+      }
+      
       const items = template.map((item, index) => ({
         project_id: projectId,
         phase: item.phase,
@@ -100,11 +106,20 @@ export default function ProjectChecklist() {
         applicable_site_types: item.siteTypes
       }));
       
-      await base44.entities.ChecklistItem.bulkCreate(items);
+      console.log('Creando items:', items.length);
+      const result = await base44.entities.ChecklistItem.bulkCreate(items);
+      console.log('Items creados:', result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
-      toast.success(`${checklistItems.length || 'Checklist'} ítems generados correctamente`);
+      if (data) {
+        toast.success(`${data.length || 'Checklist'} ítems generados correctamente`);
+      }
+    },
+    onError: (error) => {
+      console.error('Error al inicializar checklist:', error);
+      toast.error('Error al generar el checklist');
     }
   });
   
