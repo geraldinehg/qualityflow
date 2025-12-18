@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import ProjectCard from '../components/project/ProjectCard';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import RoleSelector from '../components/team/RoleSelector';
-import NotificationCenter from '../components/notifications/NotificationCenter';
-import { generateFilteredChecklist } from '../components/checklist/checklistTemplates';
 
 export default function Dashboard() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -44,35 +42,11 @@ export default function Dashboard() {
   });
   
   const createMutation = useMutation({
-    mutationFn: async (data) => {
-      // Crear el proyecto
-      const project = await base44.entities.Project.create(data);
-      
-      // Generar checklist automáticamente
-      const template = generateFilteredChecklist(data.site_type, data.technology);
-      
-      if (template.length > 0) {
-        const items = template.map((item, index) => ({
-          project_id: project.id,
-          phase: item.phase,
-          title: item.title,
-          description: item.description || '',
-          weight: item.weight,
-          order: item.order || index,
-          status: 'pending',
-          applicable_technologies: item.technologies,
-          applicable_site_types: item.siteTypes
-        }));
-        
-        await base44.entities.ChecklistItem.bulkCreate(items);
-      }
-      
-      return project;
-    },
+    mutationFn: (data) => base44.entities.Project.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setIsCreateOpen(false);
-      toast.success('Proyecto y checklist creados correctamente');
+      toast.success('Proyecto creado correctamente');
     }
   });
   
@@ -92,27 +66,7 @@ export default function Dashboard() {
         name: `${projectData.name} (Copia)`,
         status: 'draft'
       };
-      
-      // Crear el proyecto duplicado
-      const createdProject = await base44.entities.Project.create(newProject);
-      
-      // Copiar los checklist items del proyecto original
-      const originalItems = await base44.entities.ChecklistItem.filter({ project_id: project.id });
-      
-      if (originalItems.length > 0) {
-        const newItems = originalItems.map(item => {
-          const { id, created_date, updated_date, created_by, project_id, completed_by, completed_at, completed_by_role, ...itemData } = item;
-          return {
-            ...itemData,
-            project_id: createdProject.id,
-            status: 'pending'
-          };
-        });
-        
-        await base44.entities.ChecklistItem.bulkCreate(newItems);
-      }
-      
-      return createdProject;
+      return base44.entities.Project.create(newProject);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -184,7 +138,6 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {user && <NotificationCenter userEmail={user.email} />}
               <RoleSelector value={userRole} onChange={setUserRole} />
               <Button onClick={() => setIsCreateOpen(true)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />

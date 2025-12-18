@@ -24,8 +24,6 @@ import EditChecklistItemModal from '../components/checklist/EditChecklistItemMod
 import AddChecklistItemModal from '../components/checklist/AddChecklistItemModal';
 import EditProjectModal from '../components/project/EditProjectModal';
 import EditPhaseModal from '../components/checklist/EditPhaseModal';
-import NotificationCenter from '../components/notifications/NotificationCenter';
-import { NotificationService } from '../components/notifications/NotificationService';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -38,7 +36,7 @@ export default function ProjectChecklist() {
   const urlParams = new URLSearchParams(window.location.search);
   const projectId = urlParams.get('id');
   
-  const [expandedPhases, setExpandedPhases] = useState(['documentation']);
+  const [expandedPhases, setExpandedPhases] = useState(['requirements']);
   const [userRole, setUserRole] = useState(() => localStorage.getItem('userRole') || '');
   const [user, setUser] = useState(null);
   const [viewMode, setViewMode] = useState('all');
@@ -84,27 +82,44 @@ export default function ProjectChecklist() {
     enabled: !!projectId
   });
   
-
+  // Generar checklist inicial si no existe
+  const initializeChecklistMutation = useMutation({
+    mutationFn: async () => {
+      if (!project || checklistItems.length > 0) return;
+      
+      const template = generateFilteredChecklist(project.site_type, project.technology);
+      const items = template.map(item => ({
+        project_id: projectId,
+        phase: item.phase,
+        title: item.title,
+        weight: item.weight,
+        order: item.order,
+        status: 'pending',
+        applicable_technologies: item.technologies,
+        applicable_site_types: item.siteTypes
+      }));
+      
+      await base44.entities.ChecklistItem.bulkCreate(items);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
+    }
+  });
+  
+  useEffect(() => {
+    if (project && checklistItems.length === 0 && !itemsLoading) {
+      initializeChecklistMutation.mutate();
+    }
+  }, [project, checklistItems.length, itemsLoading]);
   
   const updateItemMutation = useMutation({
-    mutationFn: async ({ itemId, data, oldStatus, item }) => {
+    mutationFn: async ({ itemId, data }) => {
       const updateData = { ...data };
       if (data.status === 'completed') {
         updateData.completed_by = user?.email;
         updateData.completed_by_role = userRole;
       }
       await base44.entities.ChecklistItem.update(itemId, updateData);
-      
-      // Enviar notificación si cambió el estado
-      if (data.status && data.status !== oldStatus && project) {
-        await NotificationService.notifyChecklistUpdate(
-          project, 
-          item, 
-          oldStatus, 
-          data.status, 
-          user?.email
-        );
-      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['checklist-items', projectId] });
@@ -144,18 +159,13 @@ export default function ProjectChecklist() {
   });
   
   const resolveConflictMutation = useMutation({
-    mutationFn: async ({ conflictId, resolution, conflict }) => {
+    mutationFn: async ({ conflictId, resolution }) => {
       await base44.entities.Conflict.update(conflictId, {
         status: 'resolved',
         resolution,
         resolved_by: user?.email,
         resolved_at: new Date().toISOString()
       });
-      
-      // Notificar resolución
-      if (project && conflict) {
-        await NotificationService.notifyConflictResolved(project, conflict, resolution);
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conflicts', projectId] });
@@ -218,9 +228,7 @@ export default function ProjectChecklist() {
   const criticalPhases = project?.site_type ? SITE_TYPE_CONFIG[project.site_type]?.criticalPhases || [] : [];
   
   const handleItemUpdate = (itemId, data) => {
-    const item = checklistItems.find(i => i.id === itemId);
-    const oldStatus = item?.status;
-    updateItemMutation.mutate({ itemId, data, oldStatus, item });
+    updateItemMutation.mutate({ itemId, data });
   };
   
   const handleItemEdit = (item) => {
@@ -362,7 +370,6 @@ export default function ProjectChecklist() {
             </div>
             
             <div className="flex flex-wrap items-center gap-3">
-              {user && <NotificationCenter userEmail={user.email} />}
               <RoleSelector value={userRole} onChange={setUserRole} showLabel={false} />
               <Button 
                 variant="outline" 
@@ -413,75 +420,58 @@ export default function ProjectChecklist() {
                     conflict={conflict}
                     isLeader={userRole === 'web_leader'}
                     onResolve={(id, status, resolution) => 
-                      resolveConflictMutation.mutate({ conflictId: id, resolution, conflict })
+                      resolveConflictMutation.mutate({ conflictId: id, resolution })
                     }
                   />
                 ))}
               </div>
             )}
             
-            {/* Indicador de carga de checklist */}
-            {itemsLoading ? (
-              <div className="bg-white rounded-xl p-8 shadow-sm border text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-                <p className="text-slate-600">Cargando checklist del proyecto...</p>
-              </div>
-            ) : checklistItems.length === 0 ? (
-              <div className="bg-white rounded-xl p-8 shadow-sm border text-center">
-                <p className="text-slate-600 mb-4">No hay ítems en el checklist para este proyecto</p>
-              </div>
-            ) : null}
-            
             {/* Fases del checklist */}
-            {!itemsLoading && checklistItems.length > 0 && (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="phases" type="PHASE">
-                  {(provided) => (
-                    <div 
-                      {...provided.droppableProps} 
-                      ref={provided.innerRef}
-                      className="space-y-4"
-                    >
-                      {phaseOrder.map((phaseKey, index) => {
-                        const allItems = itemsByPhase[phaseKey] || [];
-                        const items = filteredItemsByPhase[phaseKey] || [];
-                        
-                        // Solo ocultar si no hay items en absoluto para esa fase
-                        if (allItems.length === 0) return null;
-
-                        return (
-                          <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                className={snapshot.isDragging ? 'opacity-50' : ''}
-                              >
-                                <PhaseCard
-                                  phase={phaseKey}
-                                  items={items}
-                                  isExpanded={expandedPhases.includes(phaseKey)}
-                                  onToggle={() => togglePhase(phaseKey)}
-                                  onItemUpdate={handleItemUpdate}
-                                  onItemEdit={handleItemEdit}
-                                  onAddItem={handleAddItem}
-                                  onEditPhase={handleEditPhase}
-                                  userRole={userRole}
-                                  isCriticalPhase={criticalPhases.includes(phaseKey)}
-                                  customPhaseName={project?.custom_phase_names?.[phaseKey]}
-                                  dragHandleProps={provided.dragHandleProps}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        );
-                      })}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="phases" type="PHASE">
+                {(provided) => (
+                  <div 
+                    {...provided.droppableProps} 
+                    ref={provided.innerRef}
+                    className="space-y-4"
+                  >
+                    {phaseOrder.map((phaseKey, index) => {
+                      const items = filteredItemsByPhase[phaseKey] || [];
+                      if (items.length === 0 && viewMode !== 'all') return null;
+                      
+                      return (
+                        <Draggable key={phaseKey} draggableId={phaseKey} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={snapshot.isDragging ? 'opacity-50' : ''}
+                            >
+                              <PhaseCard
+                                phase={phaseKey}
+                                items={itemsByPhase[phaseKey] || []}
+                                isExpanded={expandedPhases.includes(phaseKey)}
+                                onToggle={() => togglePhase(phaseKey)}
+                                onItemUpdate={handleItemUpdate}
+                                onItemEdit={handleItemEdit}
+                                onAddItem={handleAddItem}
+                                onEditPhase={handleEditPhase}
+                                userRole={userRole}
+                                isCriticalPhase={criticalPhases.includes(phaseKey)}
+                                customPhaseName={project?.custom_phase_names?.[phaseKey]}
+                                dragHandleProps={provided.dragHandleProps}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
           
           {/* Panel lateral - Resumen */}
