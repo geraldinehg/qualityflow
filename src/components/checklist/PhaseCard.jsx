@@ -10,7 +10,7 @@ import ChecklistItemRow from './ChecklistItemRow';
 import { PHASES } from './checklistTemplates';
 
 const iconMap = {
-  FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket
+  FileText, GitBranch, Palette, Code, Zap, Search, Smartphone, CheckSquare, Shield, Rocket, Calendar, Settings
 };
 
 export default function PhaseCard({ 
