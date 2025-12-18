@@ -105,7 +105,14 @@ export default function ProjectChecklist() {
   });
   
   useEffect(() => {
+    console.log('Init check:', { 
+      hasProject: !!project, 
+      itemsLength: checklistItems.length, 
+      itemsLoading, 
+      isPending: initializeChecklistMutation.isPending 
+    });
     if (project && checklistItems.length === 0 && !itemsLoading && !initializeChecklistMutation.isPending) {
+      console.log('Inicializando checklist...');
       initializeChecklistMutation.mutate();
     }
   }, [project, checklistItems.length, itemsLoading]);
@@ -203,8 +210,11 @@ export default function ProjectChecklist() {
     Object.keys(PHASES).forEach(phase => {
       grouped[phase] = checklistItems.filter(item => (item.phase || item.data?.phase) === phase);
     });
+    console.log('itemsByPhase:', grouped);
+    console.log('checklistItems:', checklistItems);
+    console.log('phaseOrder:', phaseOrder);
     return grouped;
-  }, [checklistItems]);
+  }, [checklistItems, phaseOrder]);
   
   // Filtrar por vista
   const filteredItemsByPhase = useMemo(() => {
