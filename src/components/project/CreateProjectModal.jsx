@@ -10,9 +10,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { SITE_TYPE_CONFIG, TECHNOLOGY_CONFIG } from '../checklist/checklistTemplates';
+import { SITE_TYPE_CONFIG } from '../checklist/checklistTemplates';
+import { useTechnologies } from '../checklist/useTechnologies';
 
 export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoading, initialData, isEditing }) {
+  const technologies = useTechnologies();
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -115,7 +118,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   <SelectValue placeholder="Seleccionar..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(TECHNOLOGY_CONFIG).map(([key, config]) => (
+                  {Object.entries(technologies).map(([key, config]) => (
                     <SelectItem key={key} value={key}>{config.name}</SelectItem>
                   ))}
                 </SelectContent>

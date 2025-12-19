@@ -14,9 +14,12 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { SITE_TYPE_CONFIG, TECHNOLOGY_CONFIG, PHASES, ROLE_CONFIG } from '../checklist/checklistTemplates';
+import { SITE_TYPE_CONFIG, PHASES, ROLE_CONFIG } from '../checklist/checklistTemplates';
+import { useTechnologies } from '../checklist/useTechnologies';
 
 export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, project, isLoading }) {
+  const technologies = useTechnologies();
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -139,7 +142,7 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(TECHNOLOGY_CONFIG).map(([key, config]) => (
+                    {Object.entries(technologies).map(([key, config]) => (
                       <SelectItem key={key} value={key}>{config.name}</SelectItem>
                     ))}
                   </SelectContent>

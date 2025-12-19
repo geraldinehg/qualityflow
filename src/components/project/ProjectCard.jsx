@@ -9,7 +9,8 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { SITE_TYPE_CONFIG, TECHNOLOGY_CONFIG } from '../checklist/checklistTemplates';
+import { SITE_TYPE_CONFIG } from '../checklist/checklistTemplates';
+import { useTechnologies } from '../checklist/useTechnologies';
 import { motion } from 'framer-motion';
 
 const STATUS_CONFIG = {

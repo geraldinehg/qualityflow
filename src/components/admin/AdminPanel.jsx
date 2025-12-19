@@ -9,18 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, UserPlus, Pencil, Trash2, Shield } from 'lucide-react';
+import { Users, UserPlus, Pencil, Trash2, Shield, Wrench, Plus } from 'lucide-react';
 import { ROLE_CONFIG } from '../checklist/checklistTemplates';
 
 export default function AdminPanel({ isOpen, onClose }) {
   const [newMember, setNewMember] = useState({ user_email: '', display_name: '', role: 'developer' });
   const [editingMember, setEditingMember] = useState(null);
+  const [newTechnology, setNewTechnology] = useState({ name: '', key: '', color: 'bg-slate-500' });
+  const [editingTechnology, setEditingTechnology] = useState(null);
   
   const queryClient = useQueryClient();
   
   const { data: teamMembers = [] } = useQuery({
     queryKey: ['team-members'],
     queryFn: () => base44.entities.TeamMember.list('-created_date'),
+    enabled: isOpen
+  });
+  
+  const { data: customTechnologies = [] } = useQuery({
+    queryKey: ['custom-technologies'],
+    queryFn: () => base44.entities.Technology.list('-created_date'),
     enabled: isOpen
   });
   
@@ -47,6 +55,29 @@ export default function AdminPanel({ isOpen, onClose }) {
     }
   });
   
+  const createTechnologyMutation = useMutation({
+    mutationFn: (data) => base44.entities.Technology.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-technologies'] });
+      setNewTechnology({ name: '', key: '', color: 'bg-slate-500' });
+    }
+  });
+  
+  const updateTechnologyMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Technology.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-technologies'] });
+      setEditingTechnology(null);
+    }
+  });
+  
+  const deleteTechnologyMutation = useMutation({
+    mutationFn: (id) => base44.entities.Technology.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['custom-technologies'] });
+    }
+  });
+  
   const handleCreateMember = (e) => {
     e.preventDefault();
     if (newMember.user_email && newMember.role) {
@@ -58,8 +89,21 @@ export default function AdminPanel({ isOpen, onClose }) {
     updateMemberMutation.mutate({ id: member.id, data: updates });
   };
   
+  const handleCreateTechnology = (e) => {
+    e.preventDefault();
+    if (newTechnology.name && newTechnology.key) {
+      createTechnologyMutation.mutate(newTechnology);
+    }
+  };
+  
+  const handleUpdateTechnology = (tech, updates) => {
+    updateTechnologyMutation.mutate({ id: tech.id, data: updates });
+  };
+  
   const activeMembers = teamMembers.filter(m => m.is_active);
   const inactiveMembers = teamMembers.filter(m => !m.is_active);
+  const activeTechnologies = customTechnologies.filter(t => t.is_active);
+  const inactiveTechnologies = customTechnologies.filter(t => !t.is_active);
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -72,10 +116,14 @@ export default function AdminPanel({ isOpen, onClose }) {
         </DialogHeader>
         
         <Tabs defaultValue="members" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="members">
               <Users className="h-4 w-4 mr-2" />
               Miembros del Equipo
+            </TabsTrigger>
+            <TabsTrigger value="technologies">
+              <Wrench className="h-4 w-4 mr-2" />
+              Tecnologías
             </TabsTrigger>
             <TabsTrigger value="roles">
               <Shield className="h-4 w-4 mr-2" />
@@ -272,6 +320,208 @@ export default function AdminPanel({ isOpen, onClose }) {
                 </div>
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="technologies" className="space-y-6 mt-6">
+            {/* Crear nueva tecnología */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Agregar Nueva Tecnología
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCreateTechnology} className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="techName">Nombre *</Label>
+                      <Input
+                        id="techName"
+                        value={newTechnology.name}
+                        onChange={(e) => setNewTechnology({ ...newTechnology, name: e.target.value })}
+                        placeholder="Ej: Laravel"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="techKey">Identificador *</Label>
+                      <Input
+                        id="techKey"
+                        value={newTechnology.key}
+                        onChange={(e) => setNewTechnology({ ...newTechnology, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                        placeholder="Ej: laravel"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="techColor">Color</Label>
+                      <Select
+                        value={newTechnology.color}
+                        onValueChange={(value) => setNewTechnology({ ...newTechnology, color: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bg-red-500">Rojo</SelectItem>
+                          <SelectItem value="bg-orange-500">Naranja</SelectItem>
+                          <SelectItem value="bg-yellow-500">Amarillo</SelectItem>
+                          <SelectItem value="bg-green-500">Verde</SelectItem>
+                          <SelectItem value="bg-blue-500">Azul</SelectItem>
+                          <SelectItem value="bg-indigo-500">Índigo</SelectItem>
+                          <SelectItem value="bg-purple-500">Púrpura</SelectItem>
+                          <SelectItem value="bg-pink-500">Rosa</SelectItem>
+                          <SelectItem value="bg-slate-500">Gris</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={!newTechnology.name || !newTechnology.key || createTechnologyMutation.isPending}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Tecnología
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+            
+            {/* Lista de tecnologías activas */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-900">Tecnologías Personalizadas ({activeTechnologies.length})</h3>
+              <div className="space-y-2">
+                {activeTechnologies.map((tech) => {
+                  const isEditing = editingTechnology?.id === tech.id;
+                  
+                  return (
+                    <Card key={tech.id}>
+                      <CardContent className="py-3">
+                        {isEditing ? (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-4 gap-3">
+                              <Input
+                                value={editingTechnology.name || ''}
+                                onChange={(e) => setEditingTechnology({ ...editingTechnology, name: e.target.value })}
+                                placeholder="Nombre"
+                              />
+                              <Input
+                                value={editingTechnology.key || ''}
+                                onChange={(e) => setEditingTechnology({ ...editingTechnology, key: e.target.value })}
+                                placeholder="Identificador"
+                              />
+                              <Select
+                                value={editingTechnology.color}
+                                onValueChange={(value) => setEditingTechnology({ ...editingTechnology, color: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="bg-red-500">Rojo</SelectItem>
+                                  <SelectItem value="bg-orange-500">Naranja</SelectItem>
+                                  <SelectItem value="bg-yellow-500">Amarillo</SelectItem>
+                                  <SelectItem value="bg-green-500">Verde</SelectItem>
+                                  <SelectItem value="bg-blue-500">Azul</SelectItem>
+                                  <SelectItem value="bg-indigo-500">Índigo</SelectItem>
+                                  <SelectItem value="bg-purple-500">Púrpura</SelectItem>
+                                  <SelectItem value="bg-pink-500">Rosa</SelectItem>
+                                  <SelectItem value="bg-slate-500">Gris</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateTechnology(tech, editingTechnology)}
+                                  disabled={updateTechnologyMutation.isPending}
+                                >
+                                  Guardar
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingTechnology(null)}
+                                >
+                                  Cancelar
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full ${tech.color} flex items-center justify-center`}>
+                                <Wrench className="h-5 w-5 text-white" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-900">{tech.name}</p>
+                                <p className="text-sm text-slate-500">{tech.key}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8"
+                                onClick={() => setEditingTechnology(tech)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-red-600 hover:text-red-700"
+                                onClick={() => {
+                                  if (confirm('¿Desactivar esta tecnología?')) {
+                                    handleUpdateTechnology(tech, { is_active: false });
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Tecnologías inactivas */}
+            {inactiveTechnologies.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-slate-500">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
+                <div className="space-y-2">
+                  {inactiveTechnologies.map((tech) => (
+                    <Card key={tech.id} className="opacity-60">
+                      <CardContent className="py-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <p className="text-sm text-slate-600">{tech.name}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUpdateTechnology(tech, { is_active: true })}
+                          >
+                            Reactivar
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+              <strong>ℹ️ Nota:</strong> Las tecnologías personalizadas se sumarán a las tecnologías predeterminadas (WordPress, Webflow, Custom, Shopify).
+            </div>
           </TabsContent>
           
           <TabsContent value="roles" className="space-y-4 mt-6">
