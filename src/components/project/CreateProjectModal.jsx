@@ -25,7 +25,11 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
   const [showAddProjectType, setShowAddProjectType] = useState(false);
   const [showAddFeeType, setShowAddFeeType] = useState(false);
   const [showAddClient, setShowAddClient] = useState(false);
+  const [showAddProductOwner, setShowAddProductOwner] = useState(false);
+  const [showAddTechnology, setShowAddTechnology] = useState(false);
   const [newItemName, setNewItemName] = useState('');
+  const [newPOEmail, setNewPOEmail] = useState('');
+  const [newPOName, setNewPOName] = useState('');
   
   const { data: projectTypes = [] } = useQuery({
     queryKey: ['project-types'],
@@ -109,6 +113,39 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     }
   });
   
+  const createProductOwnerMutation = useMutation({
+    mutationFn: ({ email, name }) => base44.entities.TeamMember.create({
+      user_email: email,
+      display_name: name,
+      role: 'product_owner',
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+      setFormData({ ...formData, product_owner_email: data.user_email });
+      setShowAddProductOwner(false);
+      setNewPOEmail('');
+      setNewPOName('');
+      toast.success('Product Owner creado');
+    }
+  });
+  
+  const createTechnologyMutation = useMutation({
+    mutationFn: (name) => base44.entities.Technology.create({
+      name,
+      key: name.toLowerCase().replace(/\s+/g, '_'),
+      color: 'bg-cyan-500',
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['technologies'] });
+      setFormData({ ...formData, technology: data.key });
+      setShowAddTechnology(false);
+      setNewItemName('');
+      toast.success('Tecnología creada');
+    }
+  });
+  
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -149,7 +186,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     });
   };
   
-  const isValid = formData.name && formData.site_type && formData.technology;
+  const isValid = formData.name && formData.project_type && formData.product_owner_email && formData.applicable_areas.length > 0;
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -184,7 +221,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           {/* Clasificación */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Tipo de Proyecto</Label>
+              <Label>Tipo de Proyecto *</Label>
               {showAddProjectType ? (
                 <div className="flex gap-2">
                   <Input
@@ -314,22 +351,81 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Product Owner</Label>
-              <Select
-                value={formData.product_owner_email}
-                onValueChange={(value) => setFormData({ ...formData, product_owner_email: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {teamMembers.filter(m => m.role === 'product_owner').map((member) => (
-                    <SelectItem key={member.id} value={member.user_email}>
-                      {member.display_name || member.user_email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Product Owner *</Label>
+              {showAddProductOwner ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Email..."
+                      type="email"
+                      value={newPOEmail}
+                      onChange={(e) => setNewPOEmail(e.target.value)}
+                      className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddProductOwner(false);
+                        setNewPOEmail('');
+                        setNewPOName('');
+                      }}
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Nombre..."
+                      value={newPOName}
+                      onChange={(e) => setNewPOName(e.target.value)}
+                      className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newPOEmail.trim() && newPOName.trim()) {
+                          createProductOwnerMutation.mutate({ email: newPOEmail, name: newPOName });
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => newPOEmail.trim() && newPOName.trim() && createProductOwnerMutation.mutate({ email: newPOEmail, name: newPOName })}
+                      disabled={createProductOwnerMutation.isPending}
+                      className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                    >
+                      {createProductOwnerMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.product_owner_email}
+                    onValueChange={(value) => setFormData({ ...formData, product_owner_email: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teamMembers.filter(m => m.role === 'product_owner').map((member) => (
+                        <SelectItem key={member.id} value={member.user_email}>
+                          {member.display_name || member.user_email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddProductOwner(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -416,20 +512,67 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
             
             <div className="space-y-2">
-              <Label>Tecnología *</Label>
-              <Select
-                value={formData.technology}
-                onValueChange={(value) => setFormData({ ...formData, technology: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(technologies).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>{config.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Tecnología</Label>
+              {showAddTechnology ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nombre de la tecnología..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        createTechnologyMutation.mutate(newItemName);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => newItemName.trim() && createTechnologyMutation.mutate(newItemName)}
+                    disabled={createTechnologyMutation.isPending}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    {createTechnologyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddTechnology(false);
+                      setNewItemName('');
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.technology}
+                    onValueChange={(value) => setFormData({ ...formData, technology: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(technologies).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>{config.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddTechnology(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           
