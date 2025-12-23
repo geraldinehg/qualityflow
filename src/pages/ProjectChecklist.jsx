@@ -650,6 +650,7 @@ export default function ProjectChecklist() {
             </div>
           </div>
         </div>
+        )}
       </main>
       
       {/* Modales */}
