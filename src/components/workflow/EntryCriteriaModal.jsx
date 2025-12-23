@@ -95,6 +95,14 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
 
   const mandatoryCriteria = criteria.filter(c => c.is_mandatory);
   const completedMandatory = mandatoryCriteria.filter(c => c.is_completed);
+  
+  // Agrupar criterios por área
+  const criteriaByArea = criteria.reduce((acc, criterion) => {
+    const area = criterion.area || 'Sin Área';
+    if (!acc[area]) acc[area] = [];
+    acc[area].push(criterion);
+    return acc;
+  }, {});
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -114,8 +122,14 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
             </div>
           )}
 
-          <div className="space-y-2">
-            {criteria.map((criterion) => (
+          <div className="space-y-4">
+            {Object.entries(criteriaByArea).map(([area, areaCriteria]) => (
+              <div key={area} className="space-y-2">
+                <h3 className="font-semibold text-sm text-slate-700 bg-slate-100 px-3 py-1.5 rounded">
+                  {area}
+                </h3>
+                <div className="space-y-2">
+                  {areaCriteria.map((criterion) => (
               <div key={criterion.id} className="border rounded-lg p-3 space-y-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -194,7 +208,9 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    </div>
                   </div>
+                ))}
                 </div>
               </div>
             ))}

@@ -12,6 +12,7 @@ import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import PhaseApprovalModal from './PhaseApprovalModal';
 import EntryCriteriaModal from './EntryCriteriaModal';
+import { DEFAULT_ENTRY_CRITERIA } from './entryCriteriaTemplates';
 
 const WORKFLOW_PHASES = {
   activation: {
@@ -163,6 +164,19 @@ export default function WorkflowTracker({ project, userRole }) {
         status: 'in_progress',
         started_at: new Date().toISOString()
       });
+    }
+
+    // Crear criterios de entrada predefinidos si la fase los tiene
+    const existingCriteria = getEntryCriteriaForPhase(phaseKey);
+    if (existingCriteria.length === 0 && DEFAULT_ENTRY_CRITERIA[phaseKey]) {
+      const criteriaToCreate = DEFAULT_ENTRY_CRITERIA[phaseKey].map(c => ({
+        project_id: project.id,
+        phase_key: phaseKey,
+        ...c
+      }));
+      
+      await base44.entities.EntryCriteria.bulkCreate(criteriaToCreate);
+      queryClient.invalidateQueries({ queryKey: ['entry-criteria'] });
     }
 
     await updateProjectMutation.mutateAsync({ current_workflow_phase: phaseKey });
