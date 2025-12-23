@@ -184,32 +184,48 @@ export default function WorkflowTracker({ project, userRole }) {
   };
 
   const handleApprovePhase = async (phaseKey, notes) => {
-    const user = await base44.auth.me();
-    const phaseData = getPhaseData(phaseKey);
-    
-    if (phaseData) {
-      await updatePhaseMutation.mutateAsync({
-        id: phaseData.id,
-        data: {
+    try {
+      const user = await base44.auth.me();
+      const phaseData = getPhaseData(phaseKey);
+      
+      if (phaseData) {
+        await updatePhaseMutation.mutateAsync({
+          id: phaseData.id,
+          data: {
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            completed_by: user.email,
+            approved_by: user.email,
+            approval_notes: notes
+          }
+        });
+      } else {
+        // Crear la fase si no existe
+        await createPhaseMutation.mutateAsync({
+          project_id: project.id,
+          phase_key: phaseKey,
           status: 'completed',
           completed_at: new Date().toISOString(),
           completed_by: user.email,
           approved_by: user.email,
           approval_notes: notes
-        }
-      });
-    }
+        });
+      }
 
-    // Avanzar al siguiente fase automáticamente
-    const currentOrder = WORKFLOW_PHASES[phaseKey].order;
-    const nextPhase = Object.keys(WORKFLOW_PHASES).find(k => WORKFLOW_PHASES[k].order === currentOrder + 1);
-    
-    if (nextPhase) {
-      await updateProjectMutation.mutateAsync({ current_workflow_phase: nextPhase });
-    }
+      // Avanzar al siguiente fase automáticamente
+      const currentOrder = WORKFLOW_PHASES[phaseKey].order;
+      const nextPhase = Object.keys(WORKFLOW_PHASES).find(k => WORKFLOW_PHASES[k].order === currentOrder + 1);
+      
+      if (nextPhase) {
+        await updateProjectMutation.mutateAsync({ current_workflow_phase: nextPhase });
+      }
 
-    setApprovingPhase(null);
-    toast.success('Fase aprobada correctamente');
+      setApprovingPhase(null);
+      toast.success('Fase aprobada correctamente');
+    } catch (error) {
+      console.error('Error al aprobar fase:', error);
+      toast.error('Error al aprobar la fase');
+    }
   };
 
   const canUserApprove = (phaseKey) => {
