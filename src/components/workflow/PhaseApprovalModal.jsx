@@ -66,10 +66,21 @@ export default function PhaseApprovalModal({ phase, phaseKey, isOpen, onClose, o
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isLoading} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={isLoading} 
+            className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white hover:text-white"
+          >
             Cancelar
           </Button>
-          <Button onClick={handleApprove} disabled={isLoading} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
+          <Button 
+            type="button" 
+            onClick={handleApprove} 
+            disabled={isLoading} 
+            className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white"
+          >
             {isLoading ? 'Aprobando...' : 'Aprobar Fase'}
           </Button>
         </DialogFooter>
