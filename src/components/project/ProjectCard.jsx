@@ -98,16 +98,16 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           </div>
           
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
               {siteTypeConfig?.name || project.site_type}
             </Badge>
             {project.has_conflicts && (
-              <Badge className="bg-orange-100 text-orange-700 border-0 text-xs">
+              <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/40 border text-xs">
                 Conflictos
               </Badge>
             )}
             {project.critical_pending > 0 && (
-              <Badge className="bg-red-100 text-red-700 border-0 text-xs">
+              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 border text-xs">
                 {project.critical_pending} críticos
               </Badge>
             )}
@@ -116,14 +116,14 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           {/* Progreso */}
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-gray-400">Progreso</span>
+              <span className="text-gray-300">Progreso</span>
               <span className="font-medium text-white">{project.completion_percentage?.toFixed(0) || 0}%</span>
             </div>
-            <Progress value={project.completion_percentage || 0} className="h-2" />
+            <Progress value={project.completion_percentage || 0} className="h-2 bg-white/20 [&>div]:bg-[#FF1B7E]" />
           </div>
           
           {/* Fechas y equipo */}
-          <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
             <div className="flex items-center gap-4">
               {project.target_date && (
                 <div className="flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
                   {daysRemaining !== null && (
                     <Badge 
                       variant="outline" 
-                      className={`ml-1 text-xs ${daysRemaining < 0 ? 'text-red-600 border-red-200' : daysRemaining < 3 ? 'text-amber-600 border-amber-200' : ''}`}
+                      className={`ml-1 text-xs ${daysRemaining < 0 ? 'text-red-400 border-red-500/40' : daysRemaining < 3 ? 'text-amber-400 border-amber-500/40' : 'text-gray-300 border-gray-600'}`}
                     >
                       {daysRemaining < 0 ? `${Math.abs(daysRemaining)}d vencido` : `${daysRemaining}d`}
                     </Badge>
@@ -150,7 +150,7 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
             {riskConfig && (
               <div className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full ${riskConfig.color}`} />
-                <span className="capitalize">{project.risk_level}</span>
+                <span className="capitalize text-gray-300">{project.risk_level}</span>
               </div>
             )}
           </div>
