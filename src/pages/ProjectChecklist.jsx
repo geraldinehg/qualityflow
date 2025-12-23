@@ -24,6 +24,7 @@ import EditChecklistItemModal from '../components/checklist/EditChecklistItemMod
 import AddChecklistItemModal from '../components/checklist/AddChecklistItemModal';
 import EditProjectModal from '../components/project/EditProjectModal';
 import EditPhaseModal from '../components/checklist/EditPhaseModal';
+import ProjectDocuments from '../components/project/ProjectDocuments';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -497,6 +498,9 @@ export default function ProjectChecklist() {
           
           {/* Panel lateral - Resumen */}
           <div className="space-y-6">
+            {/* Documentación */}
+            <ProjectDocuments projectId={projectId} />
+
             {risk && <RiskSummary risk={risk} project={project} />}
             
             {/* Fases críticas */}
