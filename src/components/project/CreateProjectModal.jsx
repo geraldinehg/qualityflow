@@ -27,6 +27,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddProductOwner, setShowAddProductOwner] = useState(false);
   const [showAddTechnology, setShowAddTechnology] = useState(false);
+  const [showAddSiteType, setShowAddSiteType] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newPOEmail, setNewPOEmail] = useState('');
   const [newPOName, setNewPOName] = useState('');
@@ -143,6 +144,27 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
       setShowAddTechnology(false);
       setNewItemName('');
       toast.success('Tecnología creada');
+    }
+  });
+  
+  const { data: siteTypes = [] } = useQuery({
+    queryKey: ['site-types'],
+    queryFn: () => base44.entities.SiteType.filter({ is_active: true }),
+    enabled: isOpen
+  });
+  
+  const createSiteTypeMutation = useMutation({
+    mutationFn: (name) => base44.entities.SiteType.create({
+      name,
+      key: name.toLowerCase().replace(/\s+/g, '_'),
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['site-types'] });
+      setFormData({ ...formData, site_type: data.key });
+      setShowAddSiteType(false);
+      setNewItemName('');
+      toast.success('Tipo de sitio creado');
     }
   });
   
@@ -495,20 +517,67 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Tipo de sitio *</Label>
-              <Select
-                value={formData.site_type}
-                onValueChange={(value) => setFormData({ ...formData, site_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(SITE_TYPE_CONFIG).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>{config.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Tipo de sitio</Label>
+              {showAddSiteType ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nombre del tipo de sitio..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        createSiteTypeMutation.mutate(newItemName);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => newItemName.trim() && createSiteTypeMutation.mutate(newItemName)}
+                    disabled={createSiteTypeMutation.isPending}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    {createSiteTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddSiteType(false);
+                      setNewItemName('');
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.site_type}
+                    onValueChange={(value) => setFormData({ ...formData, site_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {siteTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddSiteType(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
