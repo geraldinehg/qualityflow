@@ -494,8 +494,12 @@ export default function ProjectChecklist() {
         {activeTab === 'calendar' ? (
           <ProjectCalendar 
             project={project} 
-            onUpdatePhaseDurations={(durations) => {
-              updateProjectMutation.mutate({ phase_durations: durations });
+            onUpdatePhaseDurations={(data) => {
+              const { start_date, ...durations } = data;
+              updateProjectMutation.mutate({ 
+                phase_durations: durations,
+                start_date 
+              });
             }}
           />
         ) : (
