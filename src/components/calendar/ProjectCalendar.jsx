@@ -3,7 +3,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Calendar } from "@/components/ui/calendar";
 import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
@@ -23,16 +25,17 @@ const PHASES = [
 
 export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [startDate, setStartDate] = useState(project.start_date ? parseISO(project.start_date) : null);
   const [phaseDurations, setPhaseDurations] = useState(
     project.phase_durations || PHASES.reduce((acc, phase) => ({ ...acc, [phase.key]: 5 }), {})
   );
 
   // Calcular fechas de cada fase
   const phaseSchedule = useMemo(() => {
-    if (!project.start_date) return [];
+    if (!startDate) return [];
     
     const schedule = [];
-    let currentDate = parseISO(project.start_date);
+    let currentDate = startDate;
     
     PHASES.forEach(phase => {
       const duration = phaseDurations[phase.key] || 5;
@@ -49,7 +52,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
     });
     
     return schedule;
-  }, [project.start_date, phaseDurations]);
+  }, [startDate, phaseDurations]);
 
   // Días del mes actual
   const monthDays = useMemo(() => {
@@ -66,7 +69,10 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
   };
 
   const handleSave = () => {
-    onUpdatePhaseDurations(phaseDurations);
+    onUpdatePhaseDurations({
+      ...phaseDurations,
+      start_date: startDate ? format(startDate, 'yyyy-MM-dd') : null
+    });
   };
 
   const getPhaseForDay = (day) => {
@@ -89,6 +95,27 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Fecha de inicio */}
+          <div className="mb-6 pb-6 border-b">
+            <Label className="text-sm font-medium mb-2 block">Fecha de Inicio del Proyecto</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-64 justify-start font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "d 'de' MMMM, yyyy", { locale: es }) : "Seleccionar fecha"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {PHASES.map(phase => (
               <div key={phase.key} className="space-y-2">
@@ -118,7 +145,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+              <CalendarIcon className="h-5 w-5" />
               Cronograma del Proyecto
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -143,9 +170,9 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
           </div>
         </CardHeader>
         <CardContent>
-          {!project.start_date ? (
+          {!startDate ? (
             <div className="text-center py-8 text-slate-500">
-              Define una fecha de inicio en la configuración del proyecto para ver el cronograma
+              Define una fecha de inicio arriba para ver el cronograma
             </div>
           ) : (
             <div className="space-y-4">
@@ -202,7 +229,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
       </Card>
 
       {/* Resumen de fechas */}
-      {project.start_date && (
+      {startDate && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Resumen de Fases</CardTitle>
