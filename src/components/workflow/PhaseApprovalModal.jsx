@@ -8,9 +8,10 @@ import { CheckCircle2 } from 'lucide-react';
 export default function PhaseApprovalModal({ phase, phaseKey, isOpen, onClose, onApprove }) {
   const [notes, setNotes] = useState('');
 
-  const handleApprove = () => {
-    onApprove(phaseKey, notes);
+  const handleApprove = async () => {
+    await onApprove(phaseKey, notes);
     setNotes('');
+    onClose();
   };
 
   if (!phase) return null;
