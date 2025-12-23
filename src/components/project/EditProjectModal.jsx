@@ -375,6 +375,67 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                 </div>
               ))}
             </div>
+            
+            {formData.applicable_areas.length > 0 && (
+              <div className="space-y-3 mt-4">
+                <Label className="text-gray-300">Responsables por área</Label>
+                <p className="text-xs text-gray-400">Asigna un responsable para cada área seleccionada</p>
+                <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+                  {[
+                    { id: 'creativity', label: 'Creatividad', rolePrefix: 'creativity' },
+                    { id: 'software', label: 'Software/Desarrollo', rolePrefix: 'software' },
+                    { id: 'seo', label: 'SEO', rolePrefix: 'seo' },
+                    { id: 'marketing', label: 'Marketing', rolePrefix: 'marketing' },
+                    { id: 'paid', label: 'Paid Media', rolePrefix: 'paid' },
+                    { id: 'social', label: 'Social Media', rolePrefix: 'social' }
+                  ].filter(area => formData.applicable_areas.includes(area.id)).map(area => (
+                    <div key={area.id} className="flex items-center gap-3">
+                      <Label className="min-w-[140px] text-sm text-gray-400">{area.label}</Label>
+                      <Select
+                        value={formData.area_responsibles[area.id] || ''}
+                        onValueChange={(value) => setFormData({ 
+                          ...formData, 
+                          area_responsibles: { ...formData.area_responsibles, [area.id]: value }
+                        })}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Seleccionar responsable..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teamMembers
+                            .filter(m => 
+                              m.role === `leader_${area.rolePrefix}` || 
+                              m.role === area.rolePrefix
+                            )
+                            .map((member) => (
+                              <SelectItem key={member.id} value={member.user_email}>
+                                {member.display_name || member.user_email}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {(currentUserRole === 'product_owner' || currentUserRole?.startsWith('leader_') || currentUserRole === 'ceo_antpack' || currentUserRole === 'web_leader') && (
+              <div className="space-y-2 mt-4">
+                <Label className="text-gray-300">
+                  <DollarSign className="h-4 w-4 inline mr-1" />
+                  Valor del Proyecto
+                </Label>
+                <p className="text-xs text-gray-400">Este campo solo es visible para Product Owners y Líderes</p>
+                <Input
+                  type="number"
+                  value={formData.project_value}
+                  onChange={(e) => setFormData({ ...formData, project_value: e.target.value })}
+                  placeholder="Ej: 5000"
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+                />
+              </div>
+            )}
           </div>
           
           <Separator />
