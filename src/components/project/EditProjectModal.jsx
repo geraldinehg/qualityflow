@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, Trash2, UserPlus, X } from 'lucide-react';
+import { CalendarIcon, Loader2, Trash2, UserPlus, X, DollarSign } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import { useTechnologies } from '../checklist/useTechnologies';
 
 export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, project, isLoading }) {
   const technologies = useTechnologies();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -30,7 +32,9 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
     status: 'in_progress',
     target_date: null,
     phase_responsibles: {},
-    applicable_areas: []
+    applicable_areas: [],
+    area_responsibles: {},
+    project_value: ''
   });
   
   const { data: teamMembers = [] } = useQuery({
@@ -38,6 +42,22 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
     queryFn: () => base44.entities.TeamMember.filter({ is_active: true }),
     enabled: isOpen
   });
+  
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+        const member = teamMembers.find(m => m.user_email === user.email);
+        setCurrentUserRole(member?.role);
+      } catch (error) {
+        console.error('Error loading user:', error);
+      }
+    };
+    if (isOpen) {
+      loadUser();
+    }
+  }, [isOpen, teamMembers]);
   
   const { data: projectTypes = [] } = useQuery({
     queryKey: ['project-types'],
@@ -72,7 +92,9 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
         status: project.status || 'in_progress',
         target_date: project.target_date ? new Date(project.target_date) : null,
         phase_responsibles: project.phase_responsibles || {},
-        applicable_areas: project.applicable_areas || []
+        applicable_areas: project.applicable_areas || [],
+        area_responsibles: project.area_responsibles || {},
+        project_value: project.project_value || ''
       });
     }
   }, [project]);

@@ -67,8 +67,29 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     technology: '',
     impact_level: 'medium',
     target_date: null,
-    applicable_areas: []
+    applicable_areas: [],
+    area_responsibles: {},
+    project_value: ''
   });
+  
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+  
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+        const member = teamMembers.find(m => m.user_email === user.email);
+        setCurrentUserRole(member?.role);
+      } catch (error) {
+        console.error('Error loading user:', error);
+      }
+    };
+    if (isOpen) {
+      loadUser();
+    }
+  }, [isOpen, teamMembers]);
   
   const createProjectTypeMutation = useMutation({
     mutationFn: (name) => base44.entities.ProjectType.create({
@@ -191,7 +212,9 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
         technology: '',
         impact_level: 'medium',
         target_date: null,
-        applicable_areas: []
+        applicable_areas: [],
+        area_responsibles: {},
+        project_value: ''
       });
     }
   }, [initialData, isOpen]);
@@ -693,12 +716,12 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
             <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
               {[
-                { id: 'creativity', label: 'Creatividad' },
-                { id: 'software', label: 'Software/Desarrollo' },
-                { id: 'seo', label: 'SEO' },
-                { id: 'marketing', label: 'Marketing' },
-                { id: 'paid', label: 'Paid Media' },
-                { id: 'social', label: 'Social Media' }
+                { id: 'creativity', label: 'Creatividad', rolePrefix: 'leader_creativity' },
+                { id: 'software', label: 'Software/Desarrollo', rolePrefix: 'leader_software' },
+                { id: 'seo', label: 'SEO', rolePrefix: 'leader_seo' },
+                { id: 'marketing', label: 'Marketing', rolePrefix: 'leader_marketing' },
+                { id: 'paid', label: 'Paid Media', rolePrefix: 'leader_paid' },
+                { id: 'social', label: 'Social Media', rolePrefix: 'leader_social' }
               ].map(area => (
                 <div key={area.id} className="flex items-center space-x-2">
                   <Checkbox
@@ -711,9 +734,13 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                           applicable_areas: [...formData.applicable_areas, area.id] 
                         });
                       } else {
+                        const newAreas = formData.applicable_areas.filter(a => a !== area.id);
+                        const newResponsibles = { ...formData.area_responsibles };
+                        delete newResponsibles[area.id];
                         setFormData({ 
                           ...formData, 
-                          applicable_areas: formData.applicable_areas.filter(a => a !== area.id) 
+                          applicable_areas: newAreas,
+                          area_responsibles: newResponsibles
                         });
                       }
                     }}
@@ -729,6 +756,64 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
               ))}
             </div>
           </div>
+          
+          {formData.applicable_areas.length > 0 && (
+            <div className="space-y-3">
+              <Label className="text-gray-300">Responsables por área</Label>
+              <p className="text-xs text-gray-400">Asigna un responsable para cada área seleccionada</p>
+              <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+                {[
+                  { id: 'creativity', label: 'Creatividad', rolePrefix: 'creativity' },
+                  { id: 'software', label: 'Software/Desarrollo', rolePrefix: 'software' },
+                  { id: 'seo', label: 'SEO', rolePrefix: 'seo' },
+                  { id: 'marketing', label: 'Marketing', rolePrefix: 'marketing' },
+                  { id: 'paid', label: 'Paid Media', rolePrefix: 'paid' },
+                  { id: 'social', label: 'Social Media', rolePrefix: 'social' }
+                ].filter(area => formData.applicable_areas.includes(area.id)).map(area => (
+                  <div key={area.id} className="flex items-center gap-3">
+                    <Label className="min-w-[140px] text-sm text-gray-400">{area.label}</Label>
+                    <Select
+                      value={formData.area_responsibles[area.id] || ''}
+                      onValueChange={(value) => setFormData({ 
+                        ...formData, 
+                        area_responsibles: { ...formData.area_responsibles, [area.id]: value }
+                      })}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Seleccionar responsable..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teamMembers
+                          .filter(m => 
+                            m.role === `leader_${area.rolePrefix}` || 
+                            m.role === area.rolePrefix
+                          )
+                          .map((member) => (
+                            <SelectItem key={member.id} value={member.user_email}>
+                              {member.display_name || member.user_email}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {(currentUserRole === 'product_owner' || currentUserRole?.startsWith('leader_') || currentUserRole === 'ceo_antpack' || currentUserRole === 'web_leader') && (
+            <div className="space-y-2">
+              <Label className="text-gray-300">Valor del Proyecto</Label>
+              <p className="text-xs text-gray-400">Este campo solo es visible para Product Owners y Líderes</p>
+              <Input
+                type="number"
+                value={formData.project_value}
+                onChange={(e) => setFormData({ ...formData, project_value: e.target.value })}
+                placeholder="Ej: 5000"
+                className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+              />
+            </div>
+          )}
           
           <DialogFooter className="mt-6">
             <Button type="button" variant="outline" onClick={onClose} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
