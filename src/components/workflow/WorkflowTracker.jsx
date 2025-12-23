@@ -362,9 +362,9 @@ export default function WorkflowTracker({ project, userRole }) {
                         <Button
                           size="sm"
                           onClick={() => setApprovingPhase(phaseKey)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto bg-[#FF1B7E] hover:bg-[#e6156e] text-white"
                         >
-                          Aprobar
+                          Aprobar Fase
                         </Button>
                       )}
                     </div>

@@ -71,7 +71,7 @@ export default function PhaseApprovalModal({ phase, phaseKey, isOpen, onClose, o
             variant="outline" 
             onClick={onClose} 
             disabled={isLoading} 
-            className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white hover:text-white"
+            className="bg-white border-white hover:bg-gray-100 text-black hover:text-black"
           >
             Cancelar
           </Button>
