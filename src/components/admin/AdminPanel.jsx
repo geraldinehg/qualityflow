@@ -305,11 +305,11 @@ export default function AdminPanel({ isOpen, onClose }) {
                 <h3 className="text-sm font-semibold text-gray-400">Miembros Inactivos ({inactiveMembers.length})</h3>
                 <div className="space-y-2">
                   {inactiveMembers.map((member) => (
-                    <Card key={member.id} className="opacity-60">
+                    <Card key={member.id} className="opacity-60 bg-[#0a0a0a] border-[#2a2a2a]">
                       <CardContent className="py-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <p className="text-sm text-slate-600">{member.display_name || member.user_email}</p>
+                            <p className="text-sm text-gray-400">{member.display_name || member.user_email}</p>
                           </div>
                           <Button
                             size="sm"
@@ -503,11 +503,11 @@ export default function AdminPanel({ isOpen, onClose }) {
                 <h3 className="text-sm font-semibold text-gray-400">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
                 <div className="space-y-2">
                   {inactiveTechnologies.map((tech) => (
-                    <Card key={tech.id} className="opacity-60">
+                    <Card key={tech.id} className="opacity-60 bg-[#0a0a0a] border-[#2a2a2a]">
                       <CardContent className="py-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <p className="text-sm text-slate-600">{tech.name}</p>
+                            <p className="text-sm text-gray-400">{tech.name}</p>
                           </div>
                           <Button
                             size="sm"

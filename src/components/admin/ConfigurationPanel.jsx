@@ -80,25 +80,25 @@ export default function ConfigurationPanel() {
 
   return (
     <Tabs defaultValue="project-types" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="project-types">
+      <TabsList className="grid w-full grid-cols-3 bg-[#0a0a0a] border-[#2a2a2a]">
+        <TabsTrigger value="project-types" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
           <Briefcase className="h-4 w-4 mr-2" />
           Tipos de Proyecto
         </TabsTrigger>
-        <TabsTrigger value="fee-types">
+        <TabsTrigger value="fee-types" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
           <DollarSign className="h-4 w-4 mr-2" />
           Tipos de Fee
         </TabsTrigger>
-        <TabsTrigger value="clients">
+        <TabsTrigger value="clients" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
           <Building2 className="h-4 w-4 mr-2" />
           Clientes
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="project-types" className="space-y-4">
-        <Card>
+        <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
           <CardHeader>
-            <CardTitle className="text-base">Agregar Tipo de Proyecto</CardTitle>
+            <CardTitle className="text-base text-white">Agregar Tipo de Proyecto</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={(e) => { e.preventDefault(); createProjectTypeMutation.mutate(newProjectType); }} className="space-y-3">
@@ -138,11 +138,11 @@ export default function ConfigurationPanel() {
 
         <div className="space-y-2">
           {projectTypes.map((type) => (
-            <Card key={type.id}>
+            <Card key={type.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardContent className="py-3 flex items-center justify-between">
                 <div>
-                  <p className="font-medium">{type.name}</p>
-                  <p className="text-sm text-slate-500">{type.description || type.key}</p>
+                  <p className="font-medium text-white">{type.name}</p>
+                  <p className="text-sm text-gray-400">{type.description || type.key}</p>
                 </div>
                 <Button
                   size="icon"
@@ -159,9 +159,9 @@ export default function ConfigurationPanel() {
       </TabsContent>
 
       <TabsContent value="fee-types" className="space-y-4">
-        <Card>
+        <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
           <CardHeader>
-            <CardTitle className="text-base">Agregar Tipo de Fee</CardTitle>
+            <CardTitle className="text-base text-white">Agregar Tipo de Fee</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={(e) => { e.preventDefault(); createFeeTypeMutation.mutate(newFeeType); }} className="space-y-3">
@@ -193,9 +193,9 @@ export default function ConfigurationPanel() {
 
         <div className="space-y-2">
           {feeTypes.map((type) => (
-            <Card key={type.id}>
+            <Card key={type.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardContent className="py-3 flex items-center justify-between">
-                <p className="font-medium">{type.name}</p>
+                <p className="font-medium text-white">{type.name}</p>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -211,9 +211,9 @@ export default function ConfigurationPanel() {
       </TabsContent>
 
       <TabsContent value="clients" className="space-y-4">
-        <Card>
+        <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
           <CardHeader>
-            <CardTitle className="text-base">Agregar Cliente/Sociedad</CardTitle>
+            <CardTitle className="text-base text-white">Agregar Cliente/Sociedad</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={(e) => { e.preventDefault(); createClientMutation.mutate(newClient); }} className="space-y-3">
@@ -263,16 +263,16 @@ export default function ConfigurationPanel() {
 
         <div className="space-y-2">
           {clients.map((client) => (
-            <Card key={client.id}>
+            <Card key={client.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardContent className="py-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium">{client.name}</p>
+                    <p className="font-medium text-white">{client.name}</p>
                     {client.contact_email && (
-                      <p className="text-sm text-slate-500">{client.contact_email}</p>
+                      <p className="text-sm text-gray-400">{client.contact_email}</p>
                     )}
                     {client.contact_phone && (
-                      <p className="text-sm text-slate-500">{client.contact_phone}</p>
+                      <p className="text-sm text-gray-400">{client.contact_phone}</p>
                     )}
                   </div>
                   <Button
