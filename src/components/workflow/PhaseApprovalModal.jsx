@@ -7,11 +7,20 @@ import { CheckCircle2 } from 'lucide-react';
 
 export default function PhaseApprovalModal({ phase, phaseKey, isOpen, onClose, onApprove }) {
   const [notes, setNotes] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleApprove = async () => {
-    await onApprove(phaseKey, notes);
-    setNotes('');
-    onClose();
+    if (!phaseKey) return;
+    
+    setIsLoading(true);
+    try {
+      await onApprove(phaseKey, notes);
+      setNotes('');
+    } catch (error) {
+      console.error('Error in modal:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!phase) return null;
@@ -48,11 +57,11 @@ export default function PhaseApprovalModal({ phase, phaseKey, isOpen, onClose, o
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancelar
           </Button>
-          <Button onClick={handleApprove}>
-            Aprobar Fase
+          <Button onClick={handleApprove} disabled={isLoading}>
+            {isLoading ? 'Aprobando...' : 'Aprobar Fase'}
           </Button>
         </DialogFooter>
       </DialogContent>
