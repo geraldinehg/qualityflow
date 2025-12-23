@@ -17,59 +17,66 @@ import { DEFAULT_ENTRY_CRITERIA } from './entryCriteriaTemplates';
 const WORKFLOW_PHASES = {
   activation: {
     name: 'Activación/Checklist de Entrada',
-    approver: 'web_leader',
-    approverLabel: 'Líder Web',
+    approver: 'leader_product',
+    approverLabel: 'Líder Producto',
     hasEntryCriteria: true,
     order: 1
-  },
-  design: {
-    name: 'Diseño',
-    approver: 'leader_creativity',
-    approverLabel: 'Líder de Creatividad',
-    hasEntryCriteria: true,
-    order: 2
   },
   planning: {
     name: 'Planeación y Cronograma',
     approver: 'product_owner',
     approverLabel: 'Product Owner',
     hasEntryCriteria: true,
+    order: 2
+  },
+  design: {
+    name: 'Diseño',
+    approver: 'leader_creativity',
+    approverLabel: 'Líder de Creatividad',
+    hasEntryCriteria: true,
     order: 3
+  },
+  web_development: {
+    name: 'Desarrollo Web',
+    approver: 'web_leader',
+    approverLabel: 'Líder Web',
+    hasEntryCriteria: true,
+    order: 4
   },
   development: {
     name: 'Desarrollo + QA Intermedio',
-    approver: ['developer', 'qa'],
+    approver: ['leader_software', 'qa'],
     approverLabel: 'DEV / QA',
-    hasEntryCriteria: false,
-    order: 4
+    hasEntryCriteria: true,
+    order: 5
   },
   qa_complete: {
     name: 'QA Completo',
     approver: 'qa',
     approverLabel: 'QA',
     hasEntryCriteria: false,
-    order: 5
+    order: 6
   },
   content_upload: {
     name: 'Carga Final de Contenido',
-    approver: ['developer', 'product_owner'],
+    approver: ['leader_software', 'product_owner'],
     approverLabel: 'DEV / Producto',
     hasEntryCriteria: false,
-    order: 6
+    order: 7
   },
   final_approval: {
     name: 'Aprobación Final y Despliegue',
     approver: 'web_leader',
     approverLabel: 'Líder Web',
     hasEntryCriteria: true,
-    order: 7
+    order: 8
   },
   stabilization: {
     name: 'Estabilización / QA Post Producción',
     approver: 'qa',
     approverLabel: 'QA',
     hasEntryCriteria: false,
-    order: 8
+    order: 9
   }
 };
 

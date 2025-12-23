@@ -89,7 +89,7 @@ export default function ProjectChecklist() {
     mutationFn: async () => {
       if (!project || checklistItems.length > 0) return;
       
-      const template = generateFilteredChecklist(project.site_type, project.technology);
+      const template = generateFilteredChecklist(project.site_type, project.technology, project.applicable_areas);
       const items = template.map(item => ({
         project_id: projectId,
         phase: item.phase,
@@ -113,6 +113,21 @@ export default function ProjectChecklist() {
       initializeChecklistMutation.mutate();
     }
   }, [project, checklistItems.length, itemsLoading]);
+  
+  // Filtrar fases según áreas aplicables
+  const visiblePhases = useMemo(() => {
+    if (!project?.applicable_areas || project.applicable_areas.length === 0) {
+      return orderedPhases;
+    }
+    
+    return orderedPhases.filter(([phaseKey, phaseConfig]) => {
+      const phaseArea = phaseConfig.area;
+      // Siempre mostrar fases de producto, QA y las áreas aplicables
+      return phaseArea === 'product' || 
+             phaseArea === 'qa' || 
+             project.applicable_areas.includes(phaseArea);
+    });
+  }, [orderedPhases, project?.applicable_areas]);
   
   const updateItemMutation = useMutation({
     mutationFn: async ({ itemId, data }) => {
@@ -588,7 +603,7 @@ export default function ProjectChecklist() {
                     ref={provided.innerRef}
                     className="space-y-4"
                   >
-                    {orderedPhases.map(([phaseKey, phaseConfig], index) => {
+                    {visiblePhases.map(([phaseKey, phaseConfig], index) => {
                       const items = filteredItemsByPhase[phaseKey] || [];
                       if (items.length === 0 && viewMode !== 'all') return null;
                       
