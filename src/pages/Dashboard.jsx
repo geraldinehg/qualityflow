@@ -143,7 +143,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               <RoleSelector value={userRole} onChange={setUserRole} />
               {user?.role === 'admin' && (
-                <Button variant="outline" onClick={() => setShowAdminPanel(true)} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+                <Button onClick={() => setShowAdminPanel(true)} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
                   <Settings className="h-4 w-4 mr-2" />
                   Admin
                 </Button>
