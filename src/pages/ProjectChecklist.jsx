@@ -489,18 +489,17 @@ export default function ProjectChecklist() {
             <div className="flex flex-wrap items-center gap-3">
               <RoleSelector value={userRole} onChange={setUserRole} showLabel={false} />
               <Button 
-                variant="outline" 
                 size="sm" 
                 onClick={() => setIsEditingProject(true)}
-                className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white"
+                className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Editar Proyecto
               </Button>
-              <Button variant="outline" size="sm" onClick={expandAll} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+              <Button size="sm" onClick={expandAll} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
                 Expandir todo
               </Button>
-              <Button variant="outline" size="sm" onClick={collapseAll} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+              <Button size="sm" onClick={collapseAll} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
                 Colapsar todo
               </Button>
             </div>
