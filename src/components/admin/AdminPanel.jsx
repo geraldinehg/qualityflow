@@ -108,29 +108,29 @@ export default function AdminPanel({ isOpen, onClose }) {
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-[#1a1a1a] border-[#2a2a2a] text-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-600" />
+          <DialogTitle className="text-xl font-semibold flex items-center gap-2 text-white">
+            <Shield className="h-5 w-5 text-[#FF1B7E]" />
             Panel de Administración
           </DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="members" className="mt-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="members">
+          <TabsList className="grid w-full grid-cols-4 bg-[#0a0a0a] border-[#2a2a2a]">
+            <TabsTrigger value="members" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
               <Users className="h-4 w-4 mr-2" />
               Miembros del Equipo
             </TabsTrigger>
-            <TabsTrigger value="technologies">
+            <TabsTrigger value="technologies" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
               <Wrench className="h-4 w-4 mr-2" />
               Tecnologías
             </TabsTrigger>
-            <TabsTrigger value="configuration">
+            <TabsTrigger value="configuration" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
               <Settings className="h-4 w-4 mr-2" />
               Configuración
             </TabsTrigger>
-            <TabsTrigger value="roles">
+            <TabsTrigger value="roles" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
               <Shield className="h-4 w-4 mr-2" />
               Roles y Permisos
             </TabsTrigger>
@@ -138,10 +138,10 @@ export default function AdminPanel({ isOpen, onClose }) {
           
           <TabsContent value="members" className="space-y-6 mt-6">
             {/* Crear nuevo miembro */}
-            <Card>
+            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <UserPlus className="h-4 w-4" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <UserPlus className="h-4 w-4 text-[#FF1B7E]" />
                   Agregar Nuevo Miembro
                 </CardTitle>
               </CardHeader>
@@ -200,14 +200,14 @@ export default function AdminPanel({ isOpen, onClose }) {
             
             {/* Lista de miembros activos */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-900">Miembros Activos ({activeMembers.length})</h3>
+              <h3 className="text-sm font-semibold text-white">Miembros Activos ({activeMembers.length})</h3>
               <div className="space-y-2">
                 {activeMembers.map((member) => {
                   const roleConfig = ROLE_CONFIG[member.role];
                   const isEditing = editingMember?.id === member.id;
                   
                   return (
-                    <Card key={member.id}>
+                    <Card key={member.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
                       <CardContent className="py-3">
                         {isEditing ? (
                           <div className="space-y-3">
@@ -251,14 +251,14 @@ export default function AdminPanel({ isOpen, onClose }) {
                         ) : (
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                <Users className="h-5 w-5 text-slate-600" />
+                              <div className="w-10 h-10 rounded-full bg-[#FF1B7E]/10 flex items-center justify-center">
+                                <Users className="h-5 w-5 text-[#FF1B7E]" />
                               </div>
                               <div>
-                                <p className="font-medium text-slate-900">
+                                <p className="font-medium text-white">
                                   {member.display_name || member.user_email}
                                 </p>
-                                <p className="text-sm text-slate-500">{member.user_email}</p>
+                                <p className="text-sm text-gray-400">{member.user_email}</p>
                               </div>
                             </div>
                             
@@ -302,7 +302,7 @@ export default function AdminPanel({ isOpen, onClose }) {
             {/* Miembros inactivos */}
             {inactiveMembers.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-500">Miembros Inactivos ({inactiveMembers.length})</h3>
+                <h3 className="text-sm font-semibold text-gray-400">Miembros Inactivos ({inactiveMembers.length})</h3>
                 <div className="space-y-2">
                   {inactiveMembers.map((member) => (
                     <Card key={member.id} className="opacity-60">
@@ -329,10 +329,10 @@ export default function AdminPanel({ isOpen, onClose }) {
           
           <TabsContent value="technologies" className="space-y-6 mt-6">
             {/* Crear nueva tecnología */}
-            <Card>
+            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <Plus className="h-4 w-4 text-[#FF1B7E]" />
                   Agregar Nueva Tecnología
                 </CardTitle>
               </CardHeader>
@@ -396,13 +396,13 @@ export default function AdminPanel({ isOpen, onClose }) {
             
             {/* Lista de tecnologías activas */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-900">Tecnologías Personalizadas ({activeTechnologies.length})</h3>
+              <h3 className="text-sm font-semibold text-white">Tecnologías Personalizadas ({activeTechnologies.length})</h3>
               <div className="space-y-2">
                 {activeTechnologies.map((tech) => {
                   const isEditing = editingTechnology?.id === tech.id;
                   
                   return (
-                    <Card key={tech.id}>
+                    <Card key={tech.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
                       <CardContent className="py-3">
                         {isEditing ? (
                           <div className="space-y-3">
@@ -461,8 +461,8 @@ export default function AdminPanel({ isOpen, onClose }) {
                                 <Wrench className="h-5 w-5 text-white" />
                               </div>
                               <div>
-                                <p className="font-medium text-slate-900">{tech.name}</p>
-                                <p className="text-sm text-slate-500">{tech.key}</p>
+                                <p className="font-medium text-white">{tech.name}</p>
+                                <p className="text-sm text-gray-400">{tech.key}</p>
                               </div>
                             </div>
                             
@@ -500,7 +500,7 @@ export default function AdminPanel({ isOpen, onClose }) {
             {/* Tecnologías inactivas */}
             {inactiveTechnologies.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-500">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
+                <h3 className="text-sm font-semibold text-gray-400">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
                 <div className="space-y-2">
                   {inactiveTechnologies.map((tech) => (
                     <Card key={tech.id} className="opacity-60">
@@ -524,7 +524,7 @@ export default function AdminPanel({ isOpen, onClose }) {
               </div>
             )}
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+            <div className="bg-[#FF1B7E]/10 border border-[#FF1B7E]/30 rounded-lg p-4 text-sm text-[#FF1B7E]">
               <strong>ℹ️ Nota:</strong> Las tecnologías personalizadas se sumarán a las tecnologías predeterminadas (WordPress, Webflow, Custom, Shopify).
             </div>
           </TabsContent>
@@ -534,13 +534,13 @@ export default function AdminPanel({ isOpen, onClose }) {
           </TabsContent>
           
           <TabsContent value="roles" className="space-y-4 mt-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+            <div className="bg-[#FF1B7E]/10 border border-[#FF1B7E]/30 rounded-lg p-4 text-sm text-[#FF1B7E]">
               <strong>ℹ️ Información sobre roles:</strong> Los roles determinan qué acciones puede realizar cada miembro del equipo en los proyectos.
             </div>
             
             <div className="space-y-3">
               {Object.entries(ROLE_CONFIG).map(([key, config]) => (
-                <Card key={key}>
+                <Card key={key} className="bg-[#0a0a0a] border-[#2a2a2a]">
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                       <Badge className={`${config.color} text-white border-0`}>
@@ -550,10 +550,10 @@ export default function AdminPanel({ isOpen, onClose }) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-gray-300">
                         <strong>Permisos:</strong>
                       </p>
-                      <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
+                      <ul className="text-sm text-gray-400 list-disc list-inside space-y-1">
                         {config.canComplete && <li>Puede marcar ítems como completados</li>}
                         {config.canReportConflicts && <li>Puede reportar conflictos</li>}
                         {key === 'web_leader' && <li>Puede resolver conflictos</li>}
