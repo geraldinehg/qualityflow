@@ -12,7 +12,10 @@ export const PHASES = {
   responsive: { name: 'QA - Responsive', icon: 'Smartphone', order: 9, area: 'qa' },
   qa: { name: 'QA - Testing', icon: 'CheckSquare', order: 10, area: 'qa' },
   security: { name: 'Software - Seguridad', icon: 'Shield', order: 11, area: 'software' },
-  delivery: { name: 'Entrega Final', icon: 'Rocket', order: 12, area: 'product' }
+  marketing: { name: 'Marketing', icon: 'TrendingUp', order: 12, area: 'marketing' },
+  paid: { name: 'Paid Media', icon: 'DollarSign', order: 13, area: 'paid' },
+  social: { name: 'Social Media', icon: 'MessageCircle', order: 14, area: 'social' },
+  delivery: { name: 'Entrega Final', icon: 'Rocket', order: 15, area: 'product' }
 };
 
 export const WEIGHT_CONFIG = {
@@ -39,13 +42,20 @@ export const TECHNOLOGY_CONFIG = {
 };
 
 export const ROLE_CONFIG = {
+  ceo_antpack: { name: 'CEO', color: 'bg-gradient-to-r from-yellow-500 to-orange-500', canComplete: ['all'], isLeader: true, isCEO: true },
   web_leader: { name: 'Líder Web', color: 'bg-blue-500', canComplete: ['all'], isLeader: true },
   
-  leader_product: { name: 'Líder Producto', color: 'bg-amber-600', canComplete: ['documentation', 'planning'], isLeader: true },
+  leader_product: { name: 'Líder Producto', color: 'bg-amber-600', canComplete: ['documentation', 'planning', 'delivery'], isLeader: true },
   product_owner: { name: 'Product Owner', color: 'bg-amber-500', canComplete: ['documentation', 'planning'], isLeader: false },
   
   leader_creativity: { name: 'Líder Creatividad', color: 'bg-pink-600', canComplete: ['ux_ui', 'content'], isLeader: true },
   creativity: { name: 'Creatividad', color: 'bg-pink-500', canComplete: ['ux_ui', 'content'], isLeader: false },
+  
+  leader_software: { name: 'Líder Software', color: 'bg-purple-600', canComplete: ['technical', 'development', 'performance', 'security'], isLeader: true },
+  software: { name: 'Software', color: 'bg-purple-500', canComplete: ['technical', 'development', 'performance', 'security'], isLeader: false },
+  
+  leader_seo: { name: 'Líder SEO', color: 'bg-green-600', canComplete: ['seo_accessibility'], isLeader: true },
+  seo: { name: 'SEO', color: 'bg-green-500', canComplete: ['seo_accessibility'], isLeader: false },
   
   leader_marketing: { name: 'Líder Marketing', color: 'bg-indigo-600', canComplete: ['marketing'], isLeader: true },
   marketing: { name: 'Marketing', color: 'bg-indigo-500', canComplete: ['marketing'], isLeader: false },
@@ -55,12 +65,6 @@ export const ROLE_CONFIG = {
   
   leader_social: { name: 'Líder Social Media', color: 'bg-sky-600', canComplete: ['social'], isLeader: true },
   social: { name: 'Social Media', color: 'bg-sky-500', canComplete: ['social'], isLeader: false },
-  
-  leader_seo: { name: 'Líder SEO', color: 'bg-green-600', canComplete: ['seo_accessibility'], isLeader: true },
-  seo: { name: 'SEO', color: 'bg-green-500', canComplete: ['seo_accessibility'], isLeader: false },
-  
-  leader_software: { name: 'Líder Software', color: 'bg-purple-600', canComplete: ['technical', 'development', 'performance', 'security'], isLeader: true },
-  software: { name: 'Software', color: 'bg-purple-500', canComplete: ['technical', 'development', 'performance', 'security'], isLeader: false },
   
   qa: { name: 'QA', color: 'bg-red-500', canComplete: ['qa', 'responsive'], isLeader: false }
 };
@@ -178,14 +182,22 @@ export const CHECKLIST_TEMPLATE = [
   { phase: 'delivery', title: 'Aprobación final del cliente', weight: 'critical', order: 5, technologies: ['all'], siteTypes: ['all'] }
 ];
 
-// Función para generar checklist filtrado
-export function generateFilteredChecklist(siteType, technology) {
+// Función para generar checklist filtrado por tipo, tecnología y áreas aplicables
+export function generateFilteredChecklist(siteType, technology, applicableAreas = []) {
   const criticalPhases = SITE_TYPE_CONFIG[siteType]?.criticalPhases || [];
   
   return CHECKLIST_TEMPLATE.filter(item => {
     const techMatch = item.technologies.includes('all') || item.technologies.includes(technology);
     const siteMatch = item.siteTypes.includes('all') || item.siteTypes.includes(siteType);
-    return techMatch && siteMatch;
+    
+    // Filtrar por áreas aplicables
+    const phaseArea = PHASES[item.phase]?.area;
+    const areaMatch = !applicableAreas || applicableAreas.length === 0 || 
+                      phaseArea === 'product' || // Siempre incluir fases de producto
+                      phaseArea === 'qa' || // Siempre incluir QA
+                      applicableAreas.includes(phaseArea);
+    
+    return techMatch && siteMatch && areaMatch;
   }).map(item => {
     // Aumentar peso si la fase es crítica para este tipo de sitio
     let adjustedWeight = item.weight;
