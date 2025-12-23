@@ -44,17 +44,17 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="hover:shadow-lg transition-all duration-300 group h-full flex flex-col">
+      <Card className="bg-[#1a1a1a] border-[#2a2a2a] hover:shadow-lg hover:shadow-[#FF1B7E]/10 transition-all duration-300 group h-full flex flex-col">
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <div className={`w-2 h-2 rounded-full ${techConfig?.color || 'bg-slate-400'}`} />
-                <span className="text-xs text-slate-500 uppercase tracking-wide">
+                <div className={`w-2 h-2 rounded-full ${techConfig?.color || 'bg-gray-400'}`} />
+                <span className="text-xs text-gray-400 uppercase tracking-wide">
                   {techConfig?.name || project.technology}
                 </span>
               </div>
-              <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
+              <CardTitle className="text-lg font-semibold text-white group-hover:text-[#FF1B7E] transition-colors">
                 {project.name}
               </CardTitle>
             </div>
@@ -93,7 +93,7 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
         <CardContent className="space-y-4 flex-1 flex flex-col">
           <div className="h-10">
             {project.description && (
-              <p className="text-sm text-slate-600 line-clamp-2">{project.description}</p>
+              <p className="text-sm text-gray-400 line-clamp-2">{project.description}</p>
             )}
           </div>
           
@@ -116,14 +116,14 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           {/* Progreso */}
           <div>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-500">Progreso</span>
-              <span className="font-medium">{project.completion_percentage?.toFixed(0) || 0}%</span>
+              <span className="text-gray-400">Progreso</span>
+              <span className="font-medium text-white">{project.completion_percentage?.toFixed(0) || 0}%</span>
             </div>
             <Progress value={project.completion_percentage || 0} className="h-2" />
           </div>
           
           {/* Fechas y equipo */}
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+          <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
             <div className="flex items-center gap-4">
               {project.target_date && (
                 <div className="flex items-center gap-1">
@@ -157,7 +157,7 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           
           <div className="mt-auto pt-4">
             <Link to={createPageUrl(`ProjectChecklist?id=${project.id}`)}>
-              <Button className="w-full group-hover:bg-blue-600 transition-colors">
+              <Button className="w-full bg-[#FF1B7E] hover:bg-white hover:text-black text-white transition-colors">
                 Ver Checklist
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
