@@ -234,21 +234,28 @@ export default function ProjectChecklist() {
   };
   
   const handleItemEdit = (item) => {
-    // Verificar permisos: solo el líder del área puede editar
-    if (userRole === 'web_leader') {
-      setEditingItem(item);
-      return;
-    }
-    
     const roleConfig = ROLE_CONFIG[userRole];
     if (!roleConfig) {
       toast.error('Rol no válido');
       return;
     }
     
+    // Web leader puede editar todo
+    if (userRole === 'web_leader') {
+      setEditingItem(item);
+      return;
+    }
+    
+    // Verificar si puede editar esta fase
     const canEditPhase = roleConfig.canComplete.includes('all') || roleConfig.canComplete.includes(item.phase);
     if (!canEditPhase) {
       toast.error('No tienes permisos para editar ítems de esta fase');
+      return;
+    }
+    
+    // Solo líderes pueden editar, los demás solo pueden marcar como completado
+    if (!roleConfig.isLeader) {
+      toast.error('Solo los líderes pueden editar ítems. Puedes marcarlos como completados');
       return;
     }
     
@@ -269,15 +276,22 @@ export default function ProjectChecklist() {
   };
   
   const handleDeleteItem = (itemId) => {
-    // Verificar permisos
     const item = checklistItems.find(i => i.id === itemId);
     if (!item) return;
     
+    const roleConfig = ROLE_CONFIG[userRole];
+    
+    // Web leader puede eliminar todo
     if (userRole !== 'web_leader') {
-      const roleConfig = ROLE_CONFIG[userRole];
       const canEditPhase = roleConfig?.canComplete.includes('all') || roleConfig?.canComplete.includes(item.phase);
       if (!canEditPhase) {
         toast.error('No tienes permisos para eliminar ítems de esta fase');
+        return;
+      }
+      
+      // Solo líderes pueden eliminar
+      if (!roleConfig?.isLeader) {
+        toast.error('Solo los líderes pueden eliminar ítems');
         return;
       }
     }
@@ -286,21 +300,27 @@ export default function ProjectChecklist() {
   };
   
   const handleAddItem = (phase) => {
-    // Verificar permisos: solo el líder del área puede agregar
-    if (userRole === 'web_leader') {
-      setAddingToPhase(phase);
-      return;
-    }
-    
     const roleConfig = ROLE_CONFIG[userRole];
     if (!roleConfig) {
       toast.error('Rol no válido');
       return;
     }
     
+    // Web leader puede agregar en cualquier fase
+    if (userRole === 'web_leader') {
+      setAddingToPhase(phase);
+      return;
+    }
+    
     const canEditPhase = roleConfig.canComplete.includes('all') || roleConfig.canComplete.includes(phase);
     if (!canEditPhase) {
       toast.error('No tienes permisos para agregar ítems en esta fase');
+      return;
+    }
+    
+    // Solo líderes pueden agregar
+    if (!roleConfig.isLeader) {
+      toast.error('Solo los líderes pueden agregar ítems');
       return;
     }
     
@@ -359,12 +379,19 @@ export default function ProjectChecklist() {
   const handleItemReorder = async (phase, result) => {
     if (!result.destination) return;
     
+    const roleConfig = ROLE_CONFIG[userRole];
+    
     // Verificar permisos
     if (userRole !== 'web_leader') {
-      const roleConfig = ROLE_CONFIG[userRole];
       const canEditPhase = roleConfig?.canComplete.includes('all') || roleConfig?.canComplete.includes(phase);
       if (!canEditPhase) {
         toast.error('No tienes permisos para reordenar ítems de esta fase');
+        return;
+      }
+      
+      // Solo líderes pueden reordenar
+      if (!roleConfig?.isLeader) {
+        toast.error('Solo los líderes pueden reordenar ítems');
         return;
       }
     }
@@ -526,10 +553,12 @@ export default function ProjectChecklist() {
               {/* Permisos de edición */}
               <div className="bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>Permisos de edición:</strong> {ROLE_CONFIG[userRole]?.name || 'No definido'}
+                  <strong>Rol:</strong> {ROLE_CONFIG[userRole]?.name || 'No definido'}
                   {userRole === 'web_leader' ? 
                     ' - Puedes editar y reordenar todas las fases' : 
-                    ` - Solo puedes editar ítems de: ${ROLE_CONFIG[userRole]?.canComplete.join(', ')}`
+                    ROLE_CONFIG[userRole]?.isLeader ?
+                      ' - Líder: Puedes editar ítems de tu área' :
+                      ' - Puedes marcar ítems de tu área como completados (sin edición)'
                   }
                 </p>
               </div>
