@@ -130,87 +130,88 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
                 </h3>
                 <div className="space-y-2">
                   {areaCriteria.map((criterion) => (
-              <div key={criterion.id} className="border rounded-lg p-3 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    <button
-                      onClick={() => handleToggleComplete(criterion)}
-                      className="mt-1"
-                    >
-                      {criterion.is_completed ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-slate-300" />
-                      )}
-                    </button>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm">{criterion.title}</p>
-                        {criterion.is_mandatory && (
-                          <Badge variant="outline" className="text-xs">Obligatorio</Badge>
-                        )}
-                        {criterion.area && (
-                          <Badge variant="secondary" className="text-xs">{criterion.area}</Badge>
-                        )}
+                    <div key={criterion.id} className="border rounded-lg p-3 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <button
+                            onClick={() => handleToggleComplete(criterion)}
+                            className="mt-1"
+                          >
+                            {criterion.is_completed ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-slate-300" />
+                            )}
+                          </button>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium text-sm">{criterion.title}</p>
+                              {criterion.is_mandatory && (
+                                <Badge variant="outline" className="text-xs">Obligatorio</Badge>
+                              )}
+                              {criterion.area && (
+                                <Badge variant="secondary" className="text-xs">{criterion.area}</Badge>
+                              )}
+                            </div>
+                            {criterion.description && (
+                              <p className="text-xs text-slate-600">{criterion.description}</p>
+                            )}
+                            {criterion.is_completed && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                Completado por {criterion.completed_by} • {format(new Date(criterion.completed_at), "d MMM yyyy", { locale: es })}
+                              </p>
+                            )}
+                            {criterion.document_url && (
+                              <a
+                                href={criterion.document_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1"
+                              >
+                                <FileText className="h-3 w-3" />
+                                Ver documento adjunto
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <label htmlFor={`upload-${criterion.id}`}>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              asChild
+                            >
+                              <span>
+                                <Upload className="h-4 w-4" />
+                              </span>
+                            </Button>
+                          </label>
+                          <input
+                            id={`upload-${criterion.id}`}
+                            type="file"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) handleUploadDocument(criterion, file);
+                            }}
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-red-600"
+                            onClick={() => {
+                              if (confirm('¿Eliminar este criterio?')) {
+                                deleteMutation.mutate(criterion.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      {criterion.description && (
-                        <p className="text-xs text-slate-600">{criterion.description}</p>
-                      )}
-                      {criterion.is_completed && (
-                        <p className="text-xs text-slate-500 mt-1">
-                          Completado por {criterion.completed_by} • {format(new Date(criterion.completed_at), "d MMM yyyy", { locale: es })}
-                        </p>
-                      )}
-                      {criterion.document_url && (
-                        <a
-                          href={criterion.document_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1"
-                        >
-                          <FileText className="h-3 w-3" />
-                          Ver documento adjunto
-                        </a>
-                      )}
                     </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <label htmlFor={`upload-${criterion.id}`}>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        asChild
-                      >
-                        <span>
-                          <Upload className="h-4 w-4" />
-                        </span>
-                      </Button>
-                    </label>
-                    <input
-                      id={`upload-${criterion.id}`}
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) handleUploadDocument(criterion, file);
-                      }}
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-red-600"
-                      onClick={() => {
-                        if (confirm('¿Eliminar este criterio?')) {
-                          deleteMutation.mutate(criterion.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               </div>
             ))}
