@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Loader2, Trash2, UserPlus, X } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -28,7 +29,8 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
     impact_level: 'medium',
     status: 'in_progress',
     target_date: null,
-    phase_responsibles: {}
+    phase_responsibles: {},
+    applicable_areas: []
   });
   
   const { data: teamMembers = [] } = useQuery({
@@ -69,7 +71,8 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
         impact_level: project.impact_level || 'medium',
         status: project.status || 'in_progress',
         target_date: project.target_date ? new Date(project.target_date) : null,
-        phase_responsibles: project.phase_responsibles || {}
+        phase_responsibles: project.phase_responsibles || {},
+        applicable_areas: project.applicable_areas || []
       });
     }
   }, [project]);
@@ -307,6 +310,48 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                   </PopoverContent>
                 </Popover>
               </div>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <Label className="text-gray-300">Áreas que aplican para este proyecto</Label>
+            <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
+            <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+              {[
+                { id: 'creativity', label: 'Creatividad' },
+                { id: 'software', label: 'Software/Desarrollo' },
+                { id: 'seo', label: 'SEO' },
+                { id: 'marketing', label: 'Marketing' },
+                { id: 'paid', label: 'Paid Media' },
+                { id: 'social', label: 'Social Media' }
+              ].map(area => (
+                <div key={area.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`edit-${area.id}`}
+                    checked={formData.applicable_areas.includes(area.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData({ 
+                          ...formData, 
+                          applicable_areas: [...formData.applicable_areas, area.id] 
+                        });
+                      } else {
+                        setFormData({ 
+                          ...formData, 
+                          applicable_areas: formData.applicable_areas.filter(a => a !== area.id) 
+                        });
+                      }
+                    }}
+                    className="border-gray-600 data-[state=checked]:bg-[#FF1B7E] data-[state=checked]:border-[#FF1B7E]"
+                  />
+                  <label
+                    htmlFor={`edit-${area.id}`}
+                    className="text-sm text-gray-300 cursor-pointer"
+                  >
+                    {area.label}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
           

@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, CheckSquare } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SITE_TYPE_CONFIG } from '../checklist/checklistTemplates';
@@ -52,7 +53,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     site_type: '',
     technology: '',
     impact_level: 'medium',
-    target_date: null
+    target_date: null,
+    applicable_areas: []
   });
   
   useEffect(() => {
@@ -63,7 +65,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
         site_type: initialData.site_type || '',
         technology: initialData.technology || '',
         impact_level: initialData.impact_level || 'medium',
-        target_date: initialData.target_date ? new Date(initialData.target_date) : null
+        target_date: initialData.target_date ? new Date(initialData.target_date) : null,
+        applicable_areas: initialData.applicable_areas || []
       });
     } else {
       setFormData({
@@ -76,7 +79,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
         site_type: '',
         technology: '',
         impact_level: 'medium',
-        target_date: null
+        target_date: null,
+        applicable_areas: []
       });
     }
   }, [initialData, isOpen]);
@@ -276,6 +280,48 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <Label className="text-gray-300">Áreas que aplican para este proyecto *</Label>
+            <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
+            <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+              {[
+                { id: 'creativity', label: 'Creatividad' },
+                { id: 'software', label: 'Software/Desarrollo' },
+                { id: 'seo', label: 'SEO' },
+                { id: 'marketing', label: 'Marketing' },
+                { id: 'paid', label: 'Paid Media' },
+                { id: 'social', label: 'Social Media' }
+              ].map(area => (
+                <div key={area.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={area.id}
+                    checked={formData.applicable_areas.includes(area.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData({ 
+                          ...formData, 
+                          applicable_areas: [...formData.applicable_areas, area.id] 
+                        });
+                      } else {
+                        setFormData({ 
+                          ...formData, 
+                          applicable_areas: formData.applicable_areas.filter(a => a !== area.id) 
+                        });
+                      }
+                    }}
+                    className="border-gray-600 data-[state=checked]:bg-[#FF1B7E] data-[state=checked]:border-[#FF1B7E]"
+                  />
+                  <label
+                    htmlFor={area.id}
+                    className="text-sm text-gray-300 cursor-pointer"
+                  >
+                    {area.label}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
           
