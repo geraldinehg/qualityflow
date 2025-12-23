@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, CheckSquare } from 'lucide-react';
+import { CalendarIcon, Loader2, CheckSquare, Plus } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SITE_TYPE_CONFIG } from '../checklist/checklistTemplates';
@@ -18,6 +20,12 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoading, initialData, isEditing }) {
   const technologies = useTechnologies();
+  const queryClient = useQueryClient();
+  
+  const [showAddProjectType, setShowAddProjectType] = useState(false);
+  const [showAddFeeType, setShowAddFeeType] = useState(false);
+  const [showAddClient, setShowAddClient] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
   
   const { data: projectTypes = [] } = useQuery({
     queryKey: ['project-types'],
@@ -55,6 +63,50 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     impact_level: 'medium',
     target_date: null,
     applicable_areas: []
+  });
+  
+  const createProjectTypeMutation = useMutation({
+    mutationFn: (name) => base44.entities.ProjectType.create({
+      name,
+      key: name.toLowerCase().replace(/\s+/g, '_'),
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['project-types'] });
+      setFormData({ ...formData, project_type: data.key });
+      setShowAddProjectType(false);
+      setNewItemName('');
+      toast.success('Tipo de proyecto creado');
+    }
+  });
+  
+  const createFeeTypeMutation = useMutation({
+    mutationFn: (name) => base44.entities.FeeType.create({
+      name,
+      key: name.toLowerCase().replace(/\s+/g, '_'),
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['fee-types'] });
+      setFormData({ ...formData, fee_type: data.key });
+      setShowAddFeeType(false);
+      setNewItemName('');
+      toast.success('Tipo de fee creado');
+    }
+  });
+  
+  const createClientMutation = useMutation({
+    mutationFn: (name) => base44.entities.Client.create({
+      name,
+      is_active: true
+    }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      setFormData({ ...formData, client_id: data.id });
+      setShowAddClient(false);
+      setNewItemName('');
+      toast.success('Cliente creado');
+    }
   });
   
   useEffect(() => {
@@ -133,36 +185,130 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Proyecto</Label>
-              <Select
-                value={formData.project_type}
-                onValueChange={(value) => setFormData({ ...formData, project_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {projectTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {showAddProjectType ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nombre del tipo..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        createProjectTypeMutation.mutate(newItemName);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => newItemName.trim() && createProjectTypeMutation.mutate(newItemName)}
+                    disabled={createProjectTypeMutation.isPending}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    {createProjectTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddProjectType(false);
+                      setNewItemName('');
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.project_type}
+                    onValueChange={(value) => setFormData({ ...formData, project_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projectTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddProjectType(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
               <Label>Tipo de Fee</Label>
-              <Select
-                value={formData.fee_type}
-                onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {feeTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {showAddFeeType ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nombre del tipo..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        createFeeTypeMutation.mutate(newItemName);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => newItemName.trim() && createFeeTypeMutation.mutate(newItemName)}
+                    disabled={createFeeTypeMutation.isPending}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    {createFeeTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddFeeType(false);
+                      setNewItemName('');
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.fee_type}
+                    onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {feeTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddFeeType(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           
@@ -188,19 +334,66 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             
             <div className="space-y-2">
               <Label>Cliente / Sociedad</Label>
-              <Select
-                value={formData.client_id}
-                onValueChange={(value) => setFormData({ ...formData, client_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {showAddClient ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nombre del cliente..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        createClientMutation.mutate(newItemName);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => newItemName.trim() && createClientMutation.mutate(newItemName)}
+                    disabled={createClientMutation.isPending}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    {createClientMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddClient(false);
+                      setNewItemName('');
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.client_id}
+                    onValueChange={(value) => setFormData({ ...formData, client_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowAddClient(true)}
+                    className="flex-shrink-0 border-[#2a2a2a] hover:bg-[#2a2a2a]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           
