@@ -54,7 +54,7 @@ const WORKFLOW_PHASES = {
     name: 'Aprobación Final y Despliegue',
     approver: ['web_leader', 'product_owner'],
     approverLabel: 'Líder Web / PO / Cliente',
-    hasEntryCriteria: false,
+    hasEntryCriteria: true,
     order: 6
   },
   stabilization: {
@@ -126,16 +126,16 @@ export default function WorkflowTracker({ project, userRole }) {
         return { canAdvance: false, reason: `La fase "${WORKFLOW_PHASES[prevKey].name}" debe completarse primero` };
       }
 
-      // REGLA CRÍTICA: Validar criterios de entrada de activación antes de avanzar a desarrollo
-      if (prevKey === 'activation' && phaseKey === 'development') {
-        const activationCriteria = getEntryCriteriaForPhase('activation');
-        const mandatoryCriteria = activationCriteria.filter(c => c.is_mandatory);
+      // Validar criterios de entrada obligatorios de fases anteriores
+      if (WORKFLOW_PHASES[prevKey].hasEntryCriteria) {
+        const criteria = getEntryCriteriaForPhase(prevKey);
+        const mandatoryCriteria = criteria.filter(c => c.is_mandatory);
         const completedMandatory = mandatoryCriteria.filter(c => c.is_completed);
         
-        if (completedMandatory.length < mandatoryCriteria.length) {
+        if (mandatoryCriteria.length > 0 && completedMandatory.length < mandatoryCriteria.length) {
           return { 
             canAdvance: false, 
-            reason: `Debe completar todos los criterios de entrada obligatorios (${completedMandatory.length}/${mandatoryCriteria.length})` 
+            reason: `Debe completar todos los criterios de "${WORKFLOW_PHASES[prevKey].name}" (${completedMandatory.length}/${mandatoryCriteria.length})` 
           };
         }
       }
