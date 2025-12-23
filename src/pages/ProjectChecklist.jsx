@@ -638,9 +638,9 @@ export default function ProjectChecklist() {
             {risk && <RiskSummary risk={risk} project={project} />}
             
             {/* Fases críticas */}
-            <div className="bg-white rounded-xl p-4 shadow-sm border">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+              <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-[#FF1B7E]" />
                 Fases críticas para este proyecto
               </h3>
               <div className="space-y-2">
@@ -648,16 +648,16 @@ export default function ProjectChecklist() {
                   const items = itemsByPhase[phase] || [];
                   const completed = items.filter(i => i.status === 'completed').length;
                   const progress = items.length > 0 ? (completed / items.length) * 100 : 0;
-                  
+
                   return (
                     <div key={phase} className="flex items-center gap-3">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-700">
+                        <p className="text-sm font-medium text-gray-300">
                           {PHASES[phase]?.name}
                         </p>
-                        <Progress value={progress} className="h-1.5 mt-1" />
+                        <Progress value={progress} className="h-1.5 mt-1 bg-white/20 [&>div]:bg-[#FF1B7E]" />
                       </div>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
                         {completed}/{items.length}
                       </Badge>
                     </div>
@@ -667,16 +667,15 @@ export default function ProjectChecklist() {
             </div>
             
             {/* Acciones */}
-            <div className="bg-white rounded-xl p-4 shadow-sm border space-y-3">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 space-y-3">
               <Button 
-                className="w-full" 
+                className={`w-full ${risk?.canDeliver ? 'bg-[#FF1B7E] hover:bg-[#e6156e] text-white' : 'bg-[#2a2a2a] text-gray-400'}`}
                 disabled={!risk?.canDeliver}
-                variant={risk?.canDeliver ? 'default' : 'secondary'}
               >
                 <Send className="h-4 w-4 mr-2" />
                 {risk?.canDeliver ? 'Marcar como Entregado' : 'Entrega Bloqueada'}
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
                 <Download className="h-4 w-4 mr-2" />
                 Exportar Reporte
               </Button>
