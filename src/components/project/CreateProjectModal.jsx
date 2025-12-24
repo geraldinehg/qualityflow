@@ -231,7 +231,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     });
   };
   
-  const isValid = formData.name && formData.project_type && formData.product_owner_email && formData.applicable_areas.length > 0 && formData.site_type && formData.technology;
+  const isValid = formData.name && formData.project_type && formData.product_owner_email && formData.applicable_areas.length > 0;
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -540,7 +540,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-white">Tipo de sitio *</Label>
+              <Label className="text-white">Tipo de sitio</Label>
               {showAddSiteType ? (
                 <div className="flex gap-2">
                   <Input
@@ -604,7 +604,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
             
             <div className="space-y-2">
-              <Label className="text-white">Tecnología *</Label>
+              <Label className="text-white">Tecnología</Label>
               {showAddTechnology ? (
                 <div className="flex gap-2">
                   <Input
