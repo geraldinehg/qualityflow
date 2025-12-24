@@ -314,7 +314,7 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                 <Label>Fecha objetivo</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start font-normal">
+                    <Button variant="outline" className="w-full justify-start font-normal bg-white text-black hover:bg-gray-100">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.target_date 
                         ? format(formData.target_date, "d MMM yyyy", { locale: es })
@@ -326,7 +326,10 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                     <Calendar
                       mode="single"
                       selected={formData.target_date}
-                      onSelect={(date) => setFormData({ ...formData, target_date: date })}
+                      onSelect={(date) => {
+                        setFormData({ ...formData, target_date: date });
+                        document.body.click();
+                      }}
                       initialFocus
                     />
                   </PopoverContent>

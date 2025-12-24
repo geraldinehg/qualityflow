@@ -700,7 +700,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
               <Label className="text-white">Fecha objetivo</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start font-normal">
+                  <Button variant="outline" className="w-full justify-start font-normal bg-white text-black hover:bg-gray-100">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.target_date 
                       ? format(formData.target_date, "d MMM yyyy", { locale: es })
@@ -712,7 +712,11 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   <Calendar
                     mode="single"
                     selected={formData.target_date}
-                    onSelect={(date) => setFormData({ ...formData, target_date: date })}
+                    onSelect={(date) => {
+                      setFormData({ ...formData, target_date: date });
+                      // Cerrar el popover
+                      document.body.click();
+                    }}
                     initialFocus
                   />
                 </PopoverContent>

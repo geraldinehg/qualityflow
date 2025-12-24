@@ -255,16 +255,16 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
                 <Label htmlFor="mandatory" className="text-sm">Criterio obligatorio</Label>
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleCreate} disabled={!newCriteria.title} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
+                <Button onClick={handleCreate} disabled={!newCriteria.title} className="bg-white hover:bg-gray-100 text-black">
                   Agregar
                 </Button>
-                <Button variant="outline" onClick={() => setIsAdding(false)} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+                <Button variant="outline" onClick={() => setIsAdding(false)} className="border-white hover:bg-gray-100 text-white hover:text-black">
                   Cancelar
                 </Button>
               </div>
             </div>
           ) : (
-            <Button onClick={() => setIsAdding(true)} variant="outline" className="w-full border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+            <Button onClick={() => setIsAdding(true)} variant="outline" className="w-full border-white hover:bg-gray-100 text-white hover:text-black">
               <Plus className="h-4 w-4 mr-2" />
               Agregar Criterio
             </Button>
