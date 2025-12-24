@@ -221,14 +221,23 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate({
+    const data = {
       ...formData,
       target_date: formData.target_date ? format(formData.target_date, 'yyyy-MM-dd') : null,
       status: 'in_progress',
       completion_percentage: 0,
       critical_pending: 0,
       has_conflicts: false
-    });
+    };
+    
+    // Solo incluir project_value si tiene un valor válido
+    if (!formData.project_value || formData.project_value === '') {
+      delete data.project_value;
+    } else {
+      data.project_value = parseFloat(formData.project_value);
+    }
+    
+    onCreate(data);
   };
   
   const isValid = formData.name && formData.project_type && formData.product_owner_email && formData.applicable_areas.length > 0;
