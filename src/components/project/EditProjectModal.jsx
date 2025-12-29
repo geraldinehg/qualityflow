@@ -513,10 +513,10 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               Eliminar Proyecto
             </Button>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={onClose} className="border-white hover:bg-gray-100 text-white hover:text-black">
+              <Button type="button" onClick={onClose} className="bg-white hover:bg-gray-100 text-black border-white">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={!isValid || isLoading} className="bg-white hover:bg-gray-100 text-black">
+              <Button type="submit" disabled={!isValid || isLoading} className="bg-gray-200 hover:bg-gray-300 text-black">
                 {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Guardar Cambios
               </Button>
