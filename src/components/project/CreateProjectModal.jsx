@@ -322,134 +322,68 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           </div>
           
           {/* Clasificación */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-white">Tipo de Proyecto *</Label>
-              {showAddProjectType ? (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nombre del tipo..."
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newItemName.trim()) {
-                        createProjectTypeMutation.mutate(newItemName);
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => newItemName.trim() && createProjectTypeMutation.mutate(newItemName)}
-                    disabled={createProjectTypeMutation.isPending}
-                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-                  >
-                    {createProjectTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setShowAddProjectType(false);
-                      setNewItemName('');
-                    }}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Select
-                    value={formData.project_type}
-                    onValueChange={(value) => setFormData({ ...formData, project_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projectTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setShowAddProjectType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-white">Tipo de Fee</Label>
-              {showAddFeeType ? (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nombre del tipo..."
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newItemName.trim()) {
-                        createFeeTypeMutation.mutate(newItemName);
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => newItemName.trim() && createFeeTypeMutation.mutate(newItemName)}
-                    disabled={createFeeTypeMutation.isPending}
-                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-                  >
-                    {createFeeTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setShowAddFeeType(false);
-                      setNewItemName('');
-                    }}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Select
-                    value={formData.fee_type}
-                    onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {feeTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setShowAddFeeType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label className="text-white">Tipo de Proyecto *</Label>
+            {showAddProjectType ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nombre del tipo..."
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newItemName.trim()) {
+                      createProjectTypeMutation.mutate(newItemName);
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => newItemName.trim() && createProjectTypeMutation.mutate(newItemName)}
+                  disabled={createProjectTypeMutation.isPending}
+                  className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                >
+                  {createProjectTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddProjectType(false);
+                    setNewItemName('');
+                  }}
+                >
+                  ✕
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Select
+                  value={formData.project_type}
+                  onValueChange={(value) => setFormData({ ...formData, project_type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setShowAddProjectType(true)}
+                  className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -596,135 +530,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-white">Tipo de sitio</Label>
-              {showAddSiteType ? (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nombre del tipo de sitio..."
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newItemName.trim()) {
-                        createSiteTypeMutation.mutate(newItemName);
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => newItemName.trim() && createSiteTypeMutation.mutate(newItemName)}
-                    disabled={createSiteTypeMutation.isPending}
-                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-                  >
-                    {createSiteTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setShowAddSiteType(false);
-                      setNewItemName('');
-                    }}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Select
-                    value={formData.site_type}
-                    onValueChange={(value) => setFormData({ ...formData, site_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {siteTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setShowAddSiteType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-white">Tecnología</Label>
-              {showAddTechnology ? (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nombre de la tecnología..."
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newItemName.trim()) {
-                        createTechnologyMutation.mutate(newItemName);
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => newItemName.trim() && createTechnologyMutation.mutate(newItemName)}
-                    disabled={createTechnologyMutation.isPending}
-                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-                  >
-                    {createTechnologyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setShowAddTechnology(false);
-                      setNewItemName('');
-                    }}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Select
-                    value={formData.technology}
-                    onValueChange={(value) => setFormData({ ...formData, technology: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(technologies).map(([key, config]) => (
-                        <SelectItem key={key} value={key}>{config.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setShowAddTechnology(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
+
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
