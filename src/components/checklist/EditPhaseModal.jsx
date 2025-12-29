@@ -60,7 +60,7 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
               variant="outline" 
               size="sm"
               onClick={handleReset}
-              className="w-full"
+              className="w-full border-white hover:bg-gray-100 text-white hover:text-black"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Restaurar nombre original
@@ -86,10 +86,10 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
               Eliminar Fase
             </Button>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button type="button" variant="outline" onClick={handleClose} className="border-white hover:bg-gray-100 text-white hover:text-black">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={!isValid || isLoading}>
+              <Button type="submit" disabled={!isValid || isLoading} className="bg-white hover:bg-gray-100 text-black">
                 {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Guardar
               </Button>

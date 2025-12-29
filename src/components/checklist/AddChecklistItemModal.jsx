@@ -108,10 +108,10 @@ export default function AddChecklistItemModal({ phase, projectId, isOpen, onClos
           </div>
           
           <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={handleClose} className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+            <Button type="button" variant="outline" onClick={handleClose} className="border-white hover:bg-gray-100 text-white hover:text-black">
               Cancelar
             </Button>
-            <Button type="submit" disabled={!isValid || isLoading} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
+            <Button type="submit" disabled={!isValid || isLoading} className="bg-white hover:bg-gray-100 text-black">
               {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Agregar Ítem
             </Button>

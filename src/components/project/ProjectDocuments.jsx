@@ -99,7 +99,7 @@ export default function ProjectDocuments({ projectId }) {
             <FileText className="h-5 w-5 text-[#FF1B7E]" />
             Documentación del Proyecto
           </CardTitle>
-          <Button size="sm" onClick={() => setIsUploadOpen(true)}>
+          <Button size="sm" onClick={() => setIsUploadOpen(true)} className="bg-white hover:bg-gray-100 text-black">
             <Plus className="h-4 w-4 mr-2" />
             Subir Documento
           </Button>
@@ -222,10 +222,10 @@ export default function ProjectDocuments({ projectId }) {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsUploadOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsUploadOpen(false)} className="border-white hover:bg-gray-100 text-white hover:text-black">
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={!formData.name || !formData.file || uploading}>
+                <Button type="submit" disabled={!formData.name || !formData.file || uploading} className="bg-white hover:bg-gray-100 text-black">
                   {uploading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   Subir
                 </Button>
