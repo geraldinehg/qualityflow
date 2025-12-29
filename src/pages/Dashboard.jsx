@@ -64,11 +64,6 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
   const [editingProject, setEditingProject] = useState(null);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   
-  // Mostrar pantalla de login si no hay usuario
-  if (user === null) {
-    return <LoginScreen />;
-  }
-  
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Project.create(data),
     onSuccess: () => {
