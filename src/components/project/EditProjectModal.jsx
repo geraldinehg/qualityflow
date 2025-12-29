@@ -343,11 +343,13 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
             <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
               {[
-                { id: 'creativity', label: 'Creatividad' },
-                { id: 'software', label: 'Software/Desarrollo' },
+                { id: 'ux', label: 'UX' },
+                { id: 'ui', label: 'UI' },
                 { id: 'seo', label: 'SEO' },
-                { id: 'marketing', label: 'Marketing' },
                 { id: 'paid', label: 'Paid Media' },
+                { id: 'software', label: 'Software/Desarrollo' },
+                { id: 'web_dev', label: 'Desarrollo web' },
+                { id: 'marketing', label: 'Marketing' },
                 { id: 'social', label: 'Social Media' }
               ].map(area => (
                 <div key={area.id} className="flex items-center space-x-2">
@@ -385,11 +387,13 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                 <p className="text-xs text-gray-400">Asigna un responsable para cada área seleccionada</p>
                 <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
                   {[
-                    { id: 'creativity', label: 'Creatividad', rolePrefix: 'creativity' },
-                    { id: 'software', label: 'Software/Desarrollo', rolePrefix: 'software' },
+                    { id: 'ux', label: 'UX', rolePrefix: 'ux' },
+                    { id: 'ui', label: 'UI', rolePrefix: 'ui' },
                     { id: 'seo', label: 'SEO', rolePrefix: 'seo' },
-                    { id: 'marketing', label: 'Marketing', rolePrefix: 'marketing' },
                     { id: 'paid', label: 'Paid Media', rolePrefix: 'paid' },
+                    { id: 'software', label: 'Software/Desarrollo', rolePrefix: 'software' },
+                    { id: 'web_dev', label: 'Desarrollo web', rolePrefix: 'web_dev' },
+                    { id: 'marketing', label: 'Marketing', rolePrefix: 'marketing' },
                     { id: 'social', label: 'Social Media', rolePrefix: 'social' }
                   ].filter(area => formData.applicable_areas.includes(area.id)).map(area => (
                     <div key={area.id} className="flex items-center gap-3">

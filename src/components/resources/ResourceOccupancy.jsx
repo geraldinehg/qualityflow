@@ -10,11 +10,13 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 const AREA_LABELS = {
-  creativity: 'Creatividad',
-  software: 'Software/Desarrollo',
+  ux: 'UX',
+  ui: 'UI',
   seo: 'SEO',
-  marketing: 'Marketing',
   paid: 'Paid Media',
+  software: 'Software/Desarrollo',
+  web_dev: 'Desarrollo web',
+  marketing: 'Marketing',
   social: 'Social Media'
 };
 
