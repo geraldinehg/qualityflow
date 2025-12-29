@@ -168,13 +168,13 @@ export default function ProjectDocuments({ projectId }) {
         )}
 
         <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-          <DialogContent>
+          <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] text-white">
             <DialogHeader>
-              <DialogTitle>Subir Documento</DialogTitle>
+              <DialogTitle className="text-white">Subir Documento</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUpload} className="space-y-4">
               <div className="space-y-2">
-                <Label>Tipo de Documento *</Label>
+                <Label className="text-white">Tipo de Documento *</Label>
                 <Select
                   value={formData.document_type}
                   onValueChange={(value) => setFormData({ ...formData, document_type: value })}
@@ -191,41 +191,43 @@ export default function ProjectDocuments({ projectId }) {
               </div>
 
               <div className="space-y-2">
-                <Label>Nombre del Documento *</Label>
+                <Label className="text-white">Nombre del Documento *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Propuesta Final v2"
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Archivo *</Label>
+                <Label className="text-white">Archivo *</Label>
                 <Input
                   type="file"
                   onChange={handleFileSelect}
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png"
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-gray-400">
                   Formatos permitidos: PDF, Word, Excel, PowerPoint, Imágenes
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Notas (Opcional)</Label>
+                <Label className="text-white">Notas (Opcional)</Label>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Notas adicionales sobre el documento"
-                  className="h-20"
+                  className="h-20 bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsUploadOpen(false)} className="border-white hover:bg-gray-100 text-white hover:text-black">
+                <Button type="button" onClick={() => setIsUploadOpen(false)} className="bg-white hover:bg-gray-100 text-black border-white">
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={!formData.name || !formData.file || uploading} className="bg-white hover:bg-gray-100 text-black">
+                <Button type="submit" disabled={!formData.name || !formData.file || uploading} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
                   {uploading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   Subir
                 </Button>
