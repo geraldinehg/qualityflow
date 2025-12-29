@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Loader2, CheckSquare, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -770,10 +771,14 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
+          </>
+          )}
           
-          <div className="space-y-3">
-            <Label className="text-white">Áreas que aplican para este proyecto *</Label>
+          {/* PASO 2: Áreas y Responsables */}
+          {currentStep === 2 && (
+            <>
+              <div className="space-y-3">
+                <Label className="text-white">Áreas que aplican para este proyecto *</Label>
             <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
             <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
               {[
@@ -860,48 +865,48 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                 ))}
               </div>
             </div>
+              )}
+              
+              {(currentUserRole === 'product_owner' || currentUserRole?.startsWith('leader_') || currentUserRole === 'ceo_antpack' || currentUserRole === 'web_leader') && (
+                <div className="space-y-2">
+                  <Label className="text-white">Valor del Proyecto</Label>
+                  <p className="text-xs text-gray-400">Este campo solo es visible para Product Owners y Líderes</p>
+                  <Input
+                    type="number"
+                    value={formData.project_value}
+                    onChange={(e) => setFormData({ ...formData, project_value: e.target.value })}
+                    placeholder="Ej: 5000"
+                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+                  />
+                </div>
+              )}
+            </>
           )}
           
-          {(currentUserRole === 'product_owner' || currentUserRole?.startsWith('leader_') || currentUserRole === 'ceo_antpack' || currentUserRole === 'web_leader') && (
-            <div className="space-y-2">
-              <Label className="text-white">Valor del Proyecto</Label>
-              <p className="text-xs text-gray-400">Este campo solo es visible para Product Owners y Líderes</p>
-              <Input
-                type="number"
-                value={formData.project_value}
-                onChange={(e) => setFormData({ ...formData, project_value: e.target.value })}
-                placeholder="Ej: 5000"
-                className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
-                />
-                </div>
-                )}
-                </>
-                )}
-
-                <DialogFooter className="mt-6 flex justify-between">
-                <div>
-                {currentStep === 2 && (
+          <DialogFooter className="mt-6 flex justify-between">
+            <div>
+              {currentStep === 2 && (
                 <Button type="button" onClick={handleBack} className="bg-white hover:bg-gray-100 text-black border-white">
                   Atrás
                 </Button>
-                )}
-                </div>
-                <div className="flex gap-2">
-                <Button type="button" onClick={onClose} className="bg-white hover:bg-gray-100 text-black border-white">
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" onClick={onClose} className="bg-white hover:bg-gray-100 text-black border-white">
                 Cancelar
-                </Button>
-                {currentStep === 1 ? (
+              </Button>
+              {currentStep === 1 ? (
                 <Button type="button" onClick={handleNext} disabled={!isStep1Valid} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
                   Siguiente
                 </Button>
-                ) : (
+              ) : (
                 <Button type="submit" disabled={!isValid || isLoading} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
                   {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   {isEditing ? 'Guardar Cambios' : 'Crear Proyecto'}
                 </Button>
-                )}
-                </div>
-                </DialogFooter>
+              )}
+            </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
