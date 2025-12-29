@@ -35,8 +35,15 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
   
   useEffect(() => {
     const loadUser = async () => {
-      const u = await base44.auth.me();
-      setUser(u);
+      try {
+        const u = await base44.auth.me();
+        setUser(u);
+      } catch (error) {
+        // Si el usuario no está autenticado, redirigir al login
+        if (error.message?.includes('not authenticated')) {
+          window.location.href = createPageUrl('Login');
+        }
+      }
     };
     loadUser();
   }, []);
