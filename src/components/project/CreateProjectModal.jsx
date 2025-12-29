@@ -379,7 +379,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddProjectType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -443,7 +443,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddFeeType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -523,7 +523,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddProductOwner(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -587,7 +587,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddClient(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -653,7 +653,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddSiteType(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -717,7 +717,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                     size="icon"
                     variant="outline"
                     onClick={() => setShowAddTechnology(true)}
-                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-gray-200 hover:text-white"
+                    className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
