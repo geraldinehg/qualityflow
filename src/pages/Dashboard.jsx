@@ -14,14 +14,14 @@ import AdminPanel from '../components/admin/AdminPanel';
 import RoleSelector from '../components/team/RoleSelector';
 import ResourceOccupancy from '../components/resources/ResourceOccupancy';
 import GeneralSchedules from '../components/schedule/GeneralSchedules';
+import DashboardHome from '../components/dashboard/DashboardHome';
 
-export default function Dashboard() {
+export default function Dashboard({ currentSection = 'dashboard', onSectionChange }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [userRole, setUserRole] = useState(() => localStorage.getItem('userRole') || '');
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('projects');
   
   const queryClient = useQueryClient();
   
@@ -129,58 +129,58 @@ export default function Dashboard() {
     completed: projects.filter(p => p.status === 'completed').length
   };
   
-  return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] sticky top-0 z-10 backdrop-blur-sm bg-opacity-90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
-                CONTROL DE <span className="text-[#FF1B7E]">CALIDAD</span>
-              </h1>
-              <p className="text-sm text-gray-400 mt-1">
-                Gestiona los checklists de tus proyectos digitales con el mejor craft
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <RoleSelector value={userRole} onChange={setUserRole} />
-              {user?.role === 'admin' && (
-                <Button onClick={() => setShowAdminPanel(true)} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Admin
-                </Button>
-              )}
-              <Button onClick={() => setIsCreateOpen(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white shadow-lg shadow-[#FF1B7E]/20">
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo Proyecto
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs principales */}
-        <div className="mb-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-[#0a0a0a] border-[#2a2a2a]">
-              <TabsTrigger value="projects" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-                Proyectos
-              </TabsTrigger>
-              <TabsTrigger value="occupancy" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-                Ocupación de Recursos
-              </TabsTrigger>
-              <TabsTrigger value="schedules" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-                Cronogramas Generales
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+  // Home Dashboard
+  if (currentSection === 'dashboard') {
+    return <DashboardHome onNavigate={onSectionChange} />;
+  }
 
-        {activeTab === 'schedules' ? (
-          <GeneralSchedules />
-        ) : activeTab === 'projects' ? (
+  // Vista de Cronogramas
+  if (currentSection === 'schedules') {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">Cronogramas Generales</h2>
+        </div>
+        <GeneralSchedules />
+      </div>
+    );
+  }
+
+  // Vista de Ocupación de Recursos
+  if (currentSection === 'resources') {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">Ocupación de Recursos</h2>
+        </div>
+        <ResourceOccupancy />
+      </div>
+    );
+  }
+
+  // Vista de Proyectos
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Gestión de Proyectos</h2>
+        <div className="flex items-center gap-3">
+          <RoleSelector value={userRole} onChange={setUserRole} />
+          {user?.role === 'admin' && (
+            <Button onClick={() => setShowAdminPanel(true)} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+              <Settings className="h-4 w-4 mr-2" />
+              Admin
+            </Button>
+          )}
+          <Button onClick={() => setIsCreateOpen(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white shadow-lg shadow-[#FF1B7E]/20">
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Proyecto
+          </Button>
+        </div>
+      </div>
+      
+      <div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">(
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -316,11 +316,7 @@ export default function Dashboard() {
             </AnimatePresence>
           </div>
         )}
-          </>
-        ) : (
-          <ResourceOccupancy />
-        )}
-      </main>
+      </div>
       
       <CreateProjectModal
         isOpen={isCreateOpen}
