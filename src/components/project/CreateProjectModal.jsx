@@ -287,47 +287,47 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#1a1a1a] border-[#2a2a2a] text-white">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold text-white">
+            <DialogTitle className="text-xl font-semibold text-[var(--text-primary)]">
               {isEditing ? 'Editar Proyecto' : 'Nuevo Proyecto'}
             </DialogTitle>
             <div className="flex items-center gap-2">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                currentStep === 1 ? "bg-[#FF1B7E] text-white" : "bg-[#2a2a2a] text-gray-400"
+                currentStep === 1 ? "bg-[#FF1B7E] text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
               )}>
                 1
               </div>
-              <div className="w-8 h-0.5 bg-[#2a2a2a]" />
+              <div className="w-8 h-0.5 bg-[var(--border-primary)]" />
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                currentStep === 2 ? "bg-[#FF1B7E] text-white" : "bg-[#2a2a2a] text-gray-400"
+                currentStep === 2 ? "bg-[#FF1B7E] text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
               )}>
                 2
               </div>
-              <div className="w-8 h-0.5 bg-[#2a2a2a]" />
+              <div className="w-8 h-0.5 bg-[var(--border-primary)]" />
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                currentStep === 3 ? "bg-[#FF1B7E] text-white" : "bg-[#2a2a2a] text-gray-400"
+                currentStep === 3 ? "bg-[#FF1B7E] text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
               )}>
                 3
               </div>
             </div>
           </div>
           {currentStep === 1 && (
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-[var(--text-secondary)] mt-2">
               Paso 1: Completa los datos básicos del proyecto
             </p>
           )}
           {currentStep === 2 && (
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-[var(--text-secondary)] mt-2">
               Paso 2: Asigna las áreas y selecciona los responsables
             </p>
           )}
           {currentStep === 3 && (
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-[var(--text-secondary)] mt-2">
               Paso 3: Adjunta el brief del proyecto (opcional)
             </p>
           )}
@@ -338,37 +338,37 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           {currentStep === 1 && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-white">Nombre del proyecto *</Label>
+                <Label htmlFor="name" className="text-[var(--text-primary)]">Nombre del proyecto *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ej: Landing Campaña Verano"
-              className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+              className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[#FF1B7E]"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-white">Descripción</Label>
+            <Label htmlFor="description" className="text-[var(--text-primary)]">Descripción</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Breve descripción del proyecto..."
-              className="h-20 bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+              className="h-20 bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[#FF1B7E]"
             />
           </div>
           
           {/* Clasificación */}
           <div className="space-y-2">
-            <Label className="text-white">Tipo de Proyecto *</Label>
+            <Label className="text-[var(--text-primary)]">Tipo de Proyecto *</Label>
             {showAddProjectType ? (
               <div className="flex gap-2">
                 <Input
                   placeholder="Nombre del tipo..."
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                  className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && newItemName.trim()) {
                       createProjectTypeMutation.mutate(newItemName);
@@ -426,7 +426,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-white">Product Owner *</Label>
+              <Label className="text-[var(--text-primary)]">Product Owner *</Label>
               {showAddProductOwner ? (
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -435,7 +435,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                       type="email"
                       value={newPOEmail}
                       onChange={(e) => setNewPOEmail(e.target.value)}
-                      className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                      className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                     />
                     <Button
                       type="button"
@@ -455,7 +455,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                       placeholder="Nombre..."
                       value={newPOName}
                       onChange={(e) => setNewPOName(e.target.value)}
-                      className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                      className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && newPOEmail.trim() && newPOName.trim()) {
                           createProductOwnerMutation.mutate({ email: newPOEmail, name: newPOName });
@@ -504,14 +504,14 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
             
             <div className="space-y-2">
-              <Label className="text-white">Cliente / Sociedad</Label>
+              <Label className="text-[var(--text-primary)]">Cliente / Sociedad</Label>
               {showAddClient ? (
                 <div className="flex gap-2">
                   <Input
                     placeholder="Nombre del cliente..."
                     value={newItemName}
                     onChange={(e) => setNewItemName(e.target.value)}
-                    className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && newItemName.trim()) {
                         createClientMutation.mutate(newItemName);
@@ -572,7 +572,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-white">Nivel de impacto</Label>
+              <Label className="text-[var(--text-primary)]">Nivel de impacto</Label>
               <Select
                 value={formData.impact_level}
                 onValueChange={(value) => setFormData({ ...formData, impact_level: value })}
@@ -590,7 +590,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
             
             <div className="space-y-2">
-              <Label className="text-white">Fecha objetivo</Label>
+              <Label className="text-[var(--text-primary)]">Fecha objetivo</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start font-normal bg-white text-black hover:bg-gray-100">
@@ -625,14 +625,14 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
               {formData.applicable_areas.includes('software') && (
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
-                    <Label className="text-white">Tipo de sitio</Label>
+                    <Label className="text-[var(--text-primary)]">Tipo de sitio</Label>
                     {showAddSiteType ? (
                       <div className="flex gap-2">
                         <Input
                           placeholder="Nombre del tipo de sitio..."
                           value={newItemName}
                           onChange={(e) => setNewItemName(e.target.value)}
-                          className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                          className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && newItemName.trim()) {
                               createSiteTypeMutation.mutate(newItemName);
@@ -689,14 +689,14 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-white">Tecnología</Label>
+                    <Label className="text-[var(--text-primary)]">Tecnología</Label>
                     {showAddTechnology ? (
                       <div className="flex gap-2">
                         <Input
                           placeholder="Nombre de la tecnología..."
                           value={newItemName}
                           onChange={(e) => setNewItemName(e.target.value)}
-                          className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                          className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && newItemName.trim()) {
                               createTechnologyMutation.mutate(newItemName);
@@ -755,9 +755,9 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
               )}
               
               <div className="space-y-3">
-                <Label className="text-white">Áreas que aplican para este proyecto *</Label>
-            <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
-            <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+                <Label className="text-[var(--text-primary)]">Áreas que aplican para este proyecto *</Label>
+            <p className="text-xs text-[var(--text-secondary)]">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
+            <div className="grid grid-cols-2 gap-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg">
               {[
                 { id: 'ux', label: 'UX', rolePrefix: 'ux' },
                 { id: 'ui', label: 'UI', rolePrefix: 'ui' },
@@ -793,7 +793,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   />
                   <label
                     htmlFor={area.id}
-                    className="text-sm text-gray-300 cursor-pointer"
+                    className="text-sm text-[var(--text-primary)] cursor-pointer"
                   >
                     {area.label}
                   </label>
@@ -804,9 +804,9 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           
           {formData.applicable_areas.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-white">Responsables por área</Label>
-              <p className="text-xs text-gray-400">Asigna un responsable para cada área seleccionada</p>
-              <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+              <Label className="text-[var(--text-primary)]">Responsables por área</Label>
+              <p className="text-xs text-[var(--text-secondary)]">Asigna un responsable para cada área seleccionada</p>
+              <div className="space-y-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg">
                 {[
                   { id: 'ux', label: 'UX', rolePrefix: 'ux' },
                   { id: 'ui', label: 'UI', rolePrefix: 'ui' },
@@ -818,7 +818,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   { id: 'social', label: 'Social Media', rolePrefix: 'social' }
                 ].filter(area => formData.applicable_areas.includes(area.id)).map(area => (
                   <div key={area.id} className="flex items-center gap-3">
-                    <Label className="min-w-[140px] text-sm text-gray-400">{area.label}</Label>
+                    <Label className="min-w-[140px] text-sm text-[var(--text-secondary)]">{area.label}</Label>
                     <Select
                       value={formData.area_responsibles[area.id] || ''}
                       onValueChange={(value) => setFormData({ 
@@ -868,20 +868,20 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
           {currentStep === 3 && (
             <div className="space-y-4">
               <div className="space-y-3">
-                <Label className="text-white">Brief del Proyecto</Label>
-                <p className="text-xs text-gray-400">
+                <Label className="text-[var(--text-primary)]">Brief del Proyecto</Label>
+                <p className="text-xs text-[var(--text-secondary)]">
                   Selecciona el brief del proyecto desde tu Google Drive
                 </p>
                 
                 {selectedBrief ? (
-                  <div className="p-4 bg-[#0a0a0a] border border-[#FF1B7E]/40 rounded-lg">
+                  <div className="p-4 bg-[var(--bg-primary)] border border-[#FF1B7E]/40 rounded-lg">
                     <div className="flex items-start gap-3">
                       <FileText className="h-5 w-5 text-[#FF1B7E] flex-shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                           {selectedBrief.name}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-[var(--text-secondary)] mt-1">
                           Archivo seleccionado de Google Drive
                         </p>
                       </div>
@@ -890,7 +890,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                         size="sm"
                         variant="ghost"
                         onClick={() => setSelectedBrief(null)}
-                        className="text-gray-400 hover:text-white"
+                        className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                       >
                         Cambiar
                       </Button>
@@ -900,11 +900,11 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
                   <Button
                     type="button"
                     onClick={() => setShowGoogleDrivePicker(true)}
-                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] hover:border-[#FF1B7E] text-white h-24"
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border-primary)] hover:border-[#FF1B7E] text-[var(--text-primary)] h-24"
                     variant="outline"
                   >
                     <div className="flex flex-col items-center gap-2">
-                      <FileText className="h-8 w-8 text-gray-400" />
+                      <FileText className="h-8 w-8 text-[var(--text-secondary)]" />
                       <span className="text-sm">Seleccionar desde Google Drive</span>
                     </div>
                   </Button>

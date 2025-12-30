@@ -146,19 +146,19 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
               <Users className="h-4 w-4 mr-2" />
               Miembros
             </TabsTrigger>
-            <TabsTrigger value="statistics" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
+            <TabsTrigger value="statistics" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-[var(--text-secondary)]">
               <Users className="h-4 w-4 mr-2" />
               Estadísticas
             </TabsTrigger>
-            <TabsTrigger value="technologies" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
+            <TabsTrigger value="technologies" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-[var(--text-secondary)]">
               <Wrench className="h-4 w-4 mr-2" />
               Tecnologías
             </TabsTrigger>
-            <TabsTrigger value="configuration" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
+            <TabsTrigger value="configuration" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-[var(--text-secondary)]">
               <Settings className="h-4 w-4 mr-2" />
               Configuración
             </TabsTrigger>
-            <TabsTrigger value="roles" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-gray-400">
+            <TabsTrigger value="roles" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white text-[var(--text-secondary)]">
               <Shield className="h-4 w-4 mr-2" />
               Roles
             </TabsTrigger>
@@ -166,16 +166,16 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
           
           <TabsContent value="members" className="space-y-6 mt-6">
             {/* Usuarios del Sistema */}
-            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
+            <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2 text-white">
+                <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
                   <Users className="h-4 w-4 text-[#FF1B7E]" />
                   Usuarios del Sistema
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Todos los usuarios registrados en el sistema. Asigna un rol a cada usuario para definir sus permisos.
                   </p>
                   
@@ -187,7 +187,7 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                       const isEditing = editingMember?.email === user.email;
                       
                       return (
-                        <Card key={user.id} className="bg-[#1a1a1a] border-[#2a2a2a]">
+                        <Card key={user.id} className="bg-[var(--bg-secondary)] border-[var(--border-secondary)]">
                           <CardContent className="py-3">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -195,10 +195,10 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                                   <Users className="h-5 w-5 text-[#FF1B7E]" />
                                 </div>
                                 <div>
-                                  <p className="font-medium text-white">
+                                  <p className="font-medium text-[var(--text-primary)]">
                                     {user.full_name || user.email}
                                   </p>
-                                  <p className="text-sm text-gray-400">{user.email}</p>
+                                  <p className="text-sm text-[var(--text-secondary)]">{user.email}</p>
                                 </div>
                               </div>
                               
@@ -276,15 +276,15 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
             </Card>
             
             {/* Configuración de Roles (TeamMembers del equipo técnico) */}
-            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
+            <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2 text-white">
+                <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
                   <UserPlus className="h-4 w-4 text-[#FF1B7E]" />
                   Miembros del Equipo Técnico
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
                   Miembros técnicos adicionales para asignar como responsables en fases y áreas específicas.
                 </p>
                 
@@ -344,9 +344,9 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                     const roleConfig = ROLE_CONFIG[member.role];
                     
                     return (
-                      <div key={member.id} className="flex items-center justify-between p-3 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a]">
+                      <div key={member.id} className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]">
                         <div className="flex items-center gap-3">
-                          <p className="text-sm text-white">{member.display_name || member.user_email}</p>
+                          <p className="text-sm text-[var(--text-primary)]">{member.display_name || member.user_email}</p>
                           <Badge className={`${roleConfig?.color || 'bg-slate-600'} text-white border-0 text-xs`}>
                             {roleConfig?.name || member.role}
                           </Badge>
@@ -374,7 +374,7 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
           <TabsContent value="statistics" className="space-y-6 mt-6">
             {/* Estadísticas por miembro */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Estadísticas de Rendimiento</h3>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">Estadísticas de Rendimiento</h3>
               
               {activeMembers.map((member) => {
                 // Obtener proyectos donde es responsable
@@ -404,7 +404,7 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                 const roleConfig = ROLE_CONFIG[member.role];
                 
                 return (
-                  <Card key={member.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
+                  <Card key={member.id} className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -412,7 +412,7 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                             <Users className="h-6 w-6 text-[#FF1B7E]" />
                           </div>
                           <div className="flex-1">
-                            <p className="font-semibold text-white text-lg">
+                            <p className="font-semibold text-[var(--text-primary)] text-lg">
                               {member.display_name || member.user_email}
                             </p>
                             {editingStatsRole?.id === member.id ? (
@@ -471,7 +471,7 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                           <p className="text-3xl font-bold text-[#FF1B7E]">
                             {Math.round(completionRate)}%
                           </p>
-                          <p className="text-xs text-gray-400">Tasa de cumplimiento</p>
+                          <p className="text-xs text-[var(--text-secondary)]">Tasa de cumplimiento</p>
                         </div>
                       </div>
                     </CardHeader>
@@ -479,44 +479,44 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                       {/* Barra de progreso */}
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Progreso general</span>
-                          <span className="text-white font-medium">
+                          <span className="text-[var(--text-secondary)]">Progreso general</span>
+                          <span className="text-[var(--text-primary)] font-medium">
                             {completedItems.length} / {memberItems.length} ítems
                           </span>
                         </div>
-                        <Progress value={completionRate} className="h-2 bg-[#2a2a2a] [&>div]:bg-[#FF1B7E]" />
+                        <Progress value={completionRate} className="h-2 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E]" />
                       </div>
                       
                       {/* Estadísticas */}
                       <div className="grid grid-cols-4 gap-4">
-                        <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
+                        <div className="bg-[var(--bg-secondary)] rounded-lg p-3 border border-[var(--border-secondary)]">
                           <div className="flex items-center gap-2 mb-1">
                             <TrendingUp className="h-4 w-4 text-blue-400" />
-                            <p className="text-xs text-gray-400">Proyectos</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Proyectos</p>
                           </div>
-                          <p className="text-2xl font-bold text-white">{memberProjects.length}</p>
+                          <p className="text-2xl font-bold text-[var(--text-primary)]">{memberProjects.length}</p>
                         </div>
                         
-                        <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
+                        <div className="bg-[var(--bg-secondary)] rounded-lg p-3 border border-[var(--border-secondary)]">
                           <div className="flex items-center gap-2 mb-1">
                             <CheckCircle2 className="h-4 w-4 text-green-400" />
-                            <p className="text-xs text-gray-400">Completados</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Completados</p>
                           </div>
                           <p className="text-2xl font-bold text-green-400">{completedItems.length}</p>
                         </div>
                         
-                        <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
+                        <div className="bg-[var(--bg-secondary)] rounded-lg p-3 border border-[var(--border-secondary)]">
                           <div className="flex items-center gap-2 mb-1">
                             <Clock className="h-4 w-4 text-yellow-400" />
-                            <p className="text-xs text-gray-400">Pendientes</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Pendientes</p>
                           </div>
                           <p className="text-2xl font-bold text-yellow-400">{pendingItems.length}</p>
                         </div>
                         
-                        <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
+                        <div className="bg-[var(--bg-secondary)] rounded-lg p-3 border border-[var(--border-secondary)]">
                           <div className="flex items-center gap-2 mb-1">
                             <AlertCircle className="h-4 w-4 text-red-400" />
-                            <p className="text-xs text-gray-400">Críticos</p>
+                            <p className="text-xs text-[var(--text-secondary)]">Críticos</p>
                           </div>
                           <p className="text-2xl font-bold text-red-400">{criticalPending.length}</p>
                         </div>
@@ -525,11 +525,11 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                       {/* Lista de proyectos asignados */}
                       {memberProjects.length > 0 && (
                         <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-400">Proyectos asignados:</p>
+                          <p className="text-sm font-medium text-[var(--text-secondary)]">Proyectos asignados:</p>
                           <div className="space-y-1">
                             {memberProjects.map(project => (
-                              <div key={project.id} className="flex items-center justify-between p-2 bg-[#1a1a1a] rounded border border-[#2a2a2a]">
-                                <p className="text-sm text-white">{project.name}</p>
+                              <div key={project.id} className="flex items-center justify-between p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border-secondary)]">
+                                <p className="text-sm text-[var(--text-primary)]">{project.name}</p>
                                 <Badge variant="outline" className="text-xs">
                                   {Math.round(project.completion_percentage || 0)}%
                                 </Badge>
@@ -545,8 +545,8 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
               
               {activeMembers.length === 0 && (
                 <div className="text-center py-12">
-                  <Users className="h-12 w-12 mx-auto text-gray-500 mb-4" />
-                  <p className="text-gray-400">No hay miembros del equipo registrados</p>
+                  <Users className="h-12 w-12 mx-auto text-[var(--text-tertiary)] mb-4" />
+                  <p className="text-[var(--text-secondary)]">No hay miembros del equipo registrados</p>
                 </div>
               )}
             </div>
@@ -554,9 +554,9 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
           
           <TabsContent value="technologies" className="space-y-6 mt-6">
             {/* Crear nueva tecnología */}
-            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
+            <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2 text-white">
+                <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
                   <Plus className="h-4 w-4 text-[#FF1B7E]" />
                   Agregar Nueva Tecnología
                 </CardTitle>
@@ -622,13 +622,13 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
             
             {/* Lista de tecnologías activas */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-white">Tecnologías Personalizadas ({activeTechnologies.length})</h3>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Tecnologías Personalizadas ({activeTechnologies.length})</h3>
               <div className="space-y-2">
                 {activeTechnologies.map((tech) => {
                   const isEditing = editingTechnology?.id === tech.id;
                   
                   return (
-                    <Card key={tech.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
+                    <Card key={tech.id} className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
                       <CardContent className="py-3">
                         {isEditing ? (
                           <div className="space-y-3">
@@ -689,8 +689,8 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                                 <Wrench className="h-5 w-5 text-white" />
                               </div>
                               <div>
-                                <p className="font-medium text-white">{tech.name}</p>
-                                <p className="text-sm text-gray-400">{tech.key}</p>
+                                <p className="font-medium text-[var(--text-primary)]">{tech.name}</p>
+                                <p className="text-sm text-[var(--text-secondary)]">{tech.key}</p>
                               </div>
                             </div>
                             
@@ -728,14 +728,14 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
             {/* Tecnologías inactivas */}
             {inactiveTechnologies.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-400">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)]">Tecnologías Inactivas ({inactiveTechnologies.length})</h3>
                 <div className="space-y-2">
                   {inactiveTechnologies.map((tech) => (
-                    <Card key={tech.id} className="opacity-60 bg-[#0a0a0a] border-[#2a2a2a]">
+                    <Card key={tech.id} className="opacity-60 bg-[var(--bg-primary)] border-[var(--border-primary)]">
                       <CardContent className="py-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <p className="text-sm text-gray-400">{tech.name}</p>
+                            <p className="text-sm text-[var(--text-secondary)]">{tech.name}</p>
                           </div>
                           <Button
                             size="sm"
