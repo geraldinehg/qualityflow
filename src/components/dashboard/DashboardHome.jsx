@@ -67,7 +67,7 @@ export default function DashboardHome({ onNavigate }) {
     <div className="space-y-8">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-[#FF1B7E] to-[#e6156e] rounded-2xl p-8 text-white">
-        <h1 className="text-3xl font-bold mb-2">Bienvenido al Control de Calidad</h1>
+        <h1 className="text-3xl font-bold mb-2">Project Manager</h1>
         <p className="text-white/80">Gestiona tus proyectos y recursos de forma eficiente</p>
       </div>
 
