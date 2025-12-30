@@ -9,10 +9,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Obtener el token de acceso de Google Drive del usuario actual
-    const accessToken = await base44.connectors.getAccessToken('googledrive');
-    
     const { action, fileId } = await req.json();
+    
+    // Obtener el token de acceso de Google Drive usando el app connector autorizado
+    const accessToken = await base44.asServiceRole.connectors.getAccessToken('googledrive');
     
     if (action === 'getFileMetadata' && fileId) {
       // Obtener metadata del archivo
