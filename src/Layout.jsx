@@ -16,6 +16,20 @@ export default function Layout({ children, currentPageName }) {
         if (isAuth) {
           const u = await base44.auth.me();
           setUser(u);
+          
+          // Notificar nuevo usuario si no tiene TeamMember
+          try {
+            const members = await base44.entities.TeamMember.filter({ user_email: u.email });
+            if (members.length === 0) {
+              // Usuario nuevo, enviar notificación
+              await base44.functions.invoke('notifyNewUser', {
+                userEmail: u.email,
+                userName: u.full_name
+              });
+            }
+          } catch (error) {
+            console.error('Error checking user:', error);
+          }
         } else {
           setUser(null);
         }

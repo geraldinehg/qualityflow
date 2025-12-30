@@ -5,12 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, LayoutGrid, List, Filter, AlertTriangle, CheckCircle2, Clock, Settings } from 'lucide-react';
+import { Plus, Search, LayoutGrid, List, Filter, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProjectCard from '../components/project/ProjectCard';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import EditProjectModal from '../components/project/EditProjectModal';
-import AdminPanel from '../components/admin/AdminPanel';
 import RoleSelector from '../components/team/RoleSelector';
 import ResourceOccupancy from '../components/resources/ResourceOccupancy';
 import GeneralSchedules from '../components/schedule/GeneralSchedules';
@@ -46,7 +45,6 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
   });
   
   const [editingProject, setEditingProject] = useState(null);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Project.create(data),
@@ -178,12 +176,6 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
         <h2 className="text-2xl font-bold text-white">Gestión de Proyectos</h2>
         <div className="flex items-center gap-3">
           <RoleSelector value={userRole} onChange={setUserRole} />
-          {user?.role === 'admin' && (
-            <Button onClick={() => setShowAdminPanel(true)} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
-              <Settings className="h-4 w-4 mr-2" />
-              Admin
-            </Button>
-          )}
           <Button onClick={() => setIsCreateOpen(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white shadow-lg shadow-[#FF1B7E]/20">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Proyecto
@@ -350,10 +342,6 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
         />
       )}
       
-      <AdminPanel
-        isOpen={showAdminPanel}
-        onClose={() => setShowAdminPanel(false)}
-      />
-    </div>
-  );
-}
+      </div>
+      );
+      }
