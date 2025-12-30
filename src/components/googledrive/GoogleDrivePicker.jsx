@@ -3,13 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FileText, Loader2 } from 'lucide-react';
 
-const GOOGLE_API_KEY = 'AIzaSyCkR9kgTPHoyP37z3rKpF4HBjT5f1DqPMM';
-const GOOGLE_CLIENT_ID = '879882925174-f5o6vd9u3qlkqr6r5k9e7l3d0q5j4n3c.apps.googleusercontent.com';
-
 export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
   const [loading, setLoading] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
-  const [pickerInited, setPickerInited] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -19,32 +15,29 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
 
   const loadGooglePicker = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Obtener access token del usuario
+      // Obtener access token del usuario actual
       const token = await base44.connectors.getAccessToken('googledrive');
-      setAccessToken(token);
       
-      // Cargar Google Picker API
-      if (!window.gapi) {
-        await loadScript('https://apis.google.com/js/api.js');
-      }
+      // Cargar scripts de Google Picker
+      await loadScript('https://apis.google.com/js/api.js');
+      await new Promise(resolve => window.gapi.load('picker', resolve));
       
-      if (!window.google?.picker) {
-        await loadScript('https://accounts.google.com/gsi/client');
-      }
-      
-      setPickerInited(true);
+      // Abrir el picker
       openPicker(token);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading Google Picker:', error);
-    } finally {
+      setError('No se pudo conectar con Google Drive. Intenta de nuevo.');
       setLoading(false);
     }
   };
 
   const loadScript = (src) => {
     return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
         resolve();
         return;
       }
@@ -57,12 +50,9 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
   };
 
   const openPicker = (token) => {
-    if (!window.google?.picker) return;
-    
     const picker = new window.google.picker.PickerBuilder()
       .addView(window.google.picker.ViewId.DOCS)
       .setOAuthToken(token)
-      .setDeveloperKey(GOOGLE_API_KEY)
       .setCallback((data) => {
         if (data.action === window.google.picker.Action.PICKED) {
           const file = data.docs[0];
@@ -73,6 +63,8 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
             mimeType: file.mimeType,
             thumbnailLink: file.iconUrl
           });
+          onClose();
+        } else if (data.action === window.google.picker.Action.CANCEL) {
           onClose();
         }
       })
@@ -91,21 +83,37 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
             </div>
             Google Drive
           </DialogTitle>
-          <p className="text-sm text-gray-400 mt-2">Selecciona un archivo de tu cuenta</p>
+          <p className="text-sm text-gray-400 mt-2">Selecciona archivos de tu Google Drive</p>
         </DialogHeader>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="h-10 w-10 animate-spin text-[#4285F4] mb-4" />
-            <p className="text-sm text-gray-400">Abriendo Google Drive...</p>
+            <p className="text-sm text-gray-400">Cargando Google Drive...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-10 w-10 text-red-500" />
+            </div>
+            <p className="text-sm text-red-400 mb-4">{error}</p>
+            <button 
+              onClick={() => loadGooglePicker()}
+              className="text-sm text-[#4285F4] hover:underline"
+            >
+              Intentar de nuevo
+            </button>
           </div>
         ) : (
           <div className="text-center py-8 text-gray-400">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4285F4]/10 to-[#34A853]/10 flex items-center justify-center mx-auto mb-4">
               <FileText className="h-10 w-10 text-[#4285F4]" />
             </div>
-            <p className="text-sm text-gray-300">
-              Se abrirá una ventana de Google Drive para seleccionar archivos
+            <p className="text-sm text-gray-300 mb-2">
+              Se abrirá el selector de Google Drive
+            </p>
+            <p className="text-xs text-gray-500">
+              Selecciona los archivos de tu cuenta
             </p>
           </div>
         )}
