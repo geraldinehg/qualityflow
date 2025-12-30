@@ -210,20 +210,20 @@ export default function PhaseCard({
   return (
     <>
       <Card className={cn(
-        "bg-[#1a1a1a] border-[#2a2a2a] overflow-hidden transition-all duration-300",
+        "bg-[var(--bg-secondary)] border-[var(--border-primary)] overflow-hidden transition-all duration-300",
         isCriticalPhase && 'ring-2 ring-[#FF1B7E]/40',
         isDragging && 'shadow-lg opacity-80',
         isWorkflowCompleted && "border-green-500/40 bg-green-500/5",
         isWorkflowInProgress && "border-blue-500/40 bg-blue-500/5"
       )}>
-        <CardHeader className="hover:bg-[#2a2a2a]/50 transition-colors py-4">
+        <CardHeader className="hover:bg-[var(--bg-hover)] transition-colors py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
               <div 
                 {...dragHandleProps}
-                className="cursor-grab active:cursor-grabbing p-1 hover:bg-[#2a2a2a] rounded transition-colors"
+                className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--bg-hover)] rounded transition-colors"
               >
-                <GripVertical className="h-5 w-5 text-gray-400" />
+                <GripVertical className="h-5 w-5 text-[var(--text-secondary)]" />
               </div>
               
               {/* Indicador de estado workflow */}
@@ -240,11 +240,11 @@ export default function PhaseCard({
               )}
               
               <div className="cursor-pointer flex items-center gap-3 flex-1" onClick={onToggle}>
-                <div className={`p-2 rounded-lg ${isCriticalPhase ? 'bg-[#FF1B7E]/20' : 'bg-[#0a0a0a]'}`}>
-                  <Icon className={`h-5 w-5 ${isCriticalPhase ? 'text-[#FF1B7E]' : 'text-gray-400'}`} />
+                <div className={`p-2 rounded-lg ${isCriticalPhase ? 'bg-[#FF1B7E]/20' : 'bg-[var(--bg-primary)]'}`}>
+                  <Icon className={`h-5 w-5 ${isCriticalPhase ? 'text-[#FF1B7E]' : 'text-[var(--text-secondary)]'}`} />
                 </div>
                 <div>
-                  <CardTitle className="text-base font-semibold flex items-center gap-2 flex-wrap text-white">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2 flex-wrap text-[var(--text-primary)]">
                     {displayName}
                     {isCriticalPhase && (
                       <Badge variant="outline" className="text-xs bg-[#FF1B7E]/20 text-[#FF1B7E] border-[#FF1B7E]/40">
@@ -257,7 +257,7 @@ export default function PhaseCard({
                       </Badge>
                     )}
                   </CardTitle>
-                  <div className="flex items-center gap-2 flex-wrap text-sm text-gray-400 mt-0.5">
+                  <div className="flex items-center gap-2 flex-wrap text-sm text-[var(--text-secondary)] mt-0.5">
                     <span>{completed} de {total} completados</span>
                     {workflowConfig && (
                       <span className="text-xs">• Aprobador: {workflowConfig.approverLabel}</span>
@@ -271,13 +271,13 @@ export default function PhaseCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 hover:bg-[#2a2a2a]"
+                className="h-8 w-8 hover:bg-[var(--bg-hover)]"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEditPhase(phase);
                 }}
               >
-                <Edit2 className="h-4 w-4 text-gray-400" />
+                <Edit2 className="h-4 w-4 text-[var(--text-secondary)]" />
               </Button>
               {hasCritical && (
                 <Badge className="bg-red-500/20 text-red-400 border-red-500/40 border text-xs">
@@ -290,16 +290,16 @@ export default function PhaseCard({
                 </Badge>
               )}
               <div className="w-24">
-                <Progress value={progress} className="h-2 bg-white/20 [&>div]:bg-[#FF1B7E]" />
+                <Progress value={progress} className="h-2 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E]" />
               </div>
-              <span className="text-sm font-medium text-white w-12">
+              <span className="text-sm font-medium text-[var(--text-primary)] w-12">
                 {progress.toFixed(0)}%
               </span>
               <div className="cursor-pointer" onClick={onToggle}>
                 {isExpanded ? (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-[var(--text-secondary)]" />
                 ) : (
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                  <ChevronRight className="h-5 w-5 text-[var(--text-secondary)]" />
                 )}
               </div>
             </div>
@@ -317,7 +317,7 @@ export default function PhaseCard({
               <CardContent className="pt-0 pb-4">
                 {/* Controles de workflow */}
                 {workflowConfig && (
-                  <div className="mb-4 pb-4 border-b border-[#2a2a2a] space-y-2">
+                  <div className="mb-4 pb-4 border-b border-[var(--border-primary)] space-y-2">
                     {workflowConfig.hasEntryCriteria && (
                       <Button
                         size="sm"
@@ -390,11 +390,11 @@ export default function PhaseCard({
                 </DragDropContext>
                 
                 {/* Botón para agregar nuevo ítem */}
-                <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
+                <div className="mt-3 pt-3 border-t border-[var(--border-primary)]">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="w-full text-gray-300 border-[#2a2a2a] hover:bg-[#2a2a2a] hover:text-white"
+                    className="w-full text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                     onClick={() => onAddItem(phase)}
                   >
                     <Plus className="h-4 w-4 mr-2" />

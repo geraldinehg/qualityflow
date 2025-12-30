@@ -50,17 +50,17 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
   return (
     <div className={`
       flex items-start gap-3 p-3 rounded-lg transition-all group
-      ${isCompleted ? 'bg-green-50/50' : ''}
-      ${isConflict ? 'bg-orange-50 border border-orange-200' : ''}
-      ${isNotApplicable ? 'bg-slate-50 opacity-60' : ''}
-      ${isDragging ? 'shadow-lg opacity-80 bg-slate-100' : ''}
-      hover:bg-slate-50
+      ${isCompleted ? 'bg-green-500/10' : 'bg-[var(--bg-primary)]'}
+      ${isConflict ? 'bg-orange-500/10 border border-orange-500/40' : ''}
+      ${isNotApplicable ? 'opacity-60' : ''}
+      ${isDragging ? 'shadow-lg opacity-80' : ''}
+      hover:bg-[var(--bg-hover)]
     `}>
       <div 
         {...dragHandleProps}
         className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <GripVertical className="h-5 w-5 text-slate-400 mt-0.5" />
+        <GripVertical className="h-5 w-5 text-[var(--text-tertiary)] mt-0.5" />
       </div>
       
       <Checkbox
@@ -73,16 +73,16 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <p className={`text-sm font-medium ${isCompleted ? 'line-through text-slate-400' : 'text-slate-700'} ${isNotApplicable ? 'line-through' : ''}`}>
+            <p className={`text-sm font-medium ${isCompleted ? 'line-through text-[var(--text-tertiary)]' : 'text-[var(--text-primary)]'} ${isNotApplicable ? 'line-through' : ''}`}>
               {item.title}
             </p>
             {item.description && (
-              <p className="text-xs text-slate-500 mt-0.5">{item.description}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">{item.description}</p>
             )}
             
             {/* Metadatos de completado */}
             {isCompleted && item.completed_by && (
-              <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 mt-2 text-xs text-[var(--text-tertiary)]">
                 <User className="h-3 w-3" />
                 <span>{item.completed_by}</span>
                 {roleConfig && (
@@ -126,7 +126,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                 </div>
               </div>
             ) : item.notes && (
-              <p className="text-xs text-slate-500 mt-2 italic bg-slate-100 p-2 rounded">
+              <p className="text-xs text-[var(--text-secondary)] mt-2 italic bg-[var(--bg-tertiary)] p-2 rounded">
                 💬 {item.notes}
               </p>
             )}
@@ -146,7 +146,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                     className="h-7 w-7"
                     onClick={() => onEdit(item)}
                   >
-                    <Edit className="h-4 w-4 text-slate-400" />
+                    <Edit className="h-4 w-4 text-[var(--text-tertiary)]" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Editar ítem</TooltipContent>
@@ -162,7 +162,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                     className="h-7 w-7"
                     onClick={() => setShowNotes(!showNotes)}
                   >
-                    <MessageSquare className="h-4 w-4 text-slate-400" />
+                    <MessageSquare className="h-4 w-4 text-[var(--text-tertiary)]" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Agregar nota</TooltipContent>
@@ -178,7 +178,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                     className={`h-7 w-7 ${isNotApplicable ? 'bg-slate-200' : ''}`}
                     onClick={handleMarkNotApplicable}
                   >
-                    <X className="h-4 w-4 text-slate-400" />
+                    <X className="h-4 w-4 text-[var(--text-tertiary)]" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Marcar como N/A</TooltipContent>

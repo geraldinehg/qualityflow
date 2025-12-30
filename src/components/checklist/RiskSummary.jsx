@@ -37,10 +37,10 @@ export default function RiskSummary({ risk, project }) {
   const Icon = riskConfig.icon;
   
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
+    <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2 text-white">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2 text-[var(--text-primary)]">
             <Icon className={`h-5 w-5 text-[#FF1B7E]`} />
             Resumen del Proyecto
           </CardTitle>
@@ -53,34 +53,34 @@ export default function RiskSummary({ risk, project }) {
         {/* Progreso general */}
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-300">Progreso General</span>
-            <span className="font-semibold text-white">{risk.completionRate.toFixed(0)}%</span>
+            <span className="text-[var(--text-secondary)]">Progreso General</span>
+            <span className="font-semibold text-[var(--text-primary)]">{risk.completionRate.toFixed(0)}%</span>
           </div>
-          <Progress value={risk.completionRate} className="h-3 bg-white/20 [&>div]:bg-[#FF1B7E]" />
+          <Progress value={risk.completionRate} className="h-3 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E]" />
         </div>
         
         {/* Métricas rápidas */}
         <div className="grid grid-cols-3 gap-3">
           <motion.div 
-            className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3 text-center"
+            className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3 text-center"
             whileHover={{ scale: 1.02 }}
           >
             <p className="text-2xl font-bold text-red-400">{risk.criticalPending}</p>
-            <p className="text-xs text-gray-400">Críticos pendientes</p>
+            <p className="text-xs text-[var(--text-secondary)]">Críticos pendientes</p>
           </motion.div>
           <motion.div 
-            className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3 text-center"
+            className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3 text-center"
             whileHover={{ scale: 1.02 }}
           >
             <p className="text-2xl font-bold text-amber-400">{risk.highPending}</p>
-            <p className="text-xs text-gray-400">Alta prioridad</p>
+            <p className="text-xs text-[var(--text-secondary)]">Alta prioridad</p>
           </motion.div>
           <motion.div 
-            className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3 text-center"
+            className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3 text-center"
             whileHover={{ scale: 1.02 }}
           >
             <p className="text-2xl font-bold text-orange-400">{risk.conflicts}</p>
-            <p className="text-xs text-gray-400">Conflictos</p>
+            <p className="text-xs text-[var(--text-secondary)]">Conflictos</p>
           </motion.div>
         </div>
         
@@ -108,14 +108,14 @@ export default function RiskSummary({ risk, project }) {
         {/* Motivos del riesgo */}
         {risk.reasons.length > 0 && (
           <div>
-            <p className="text-sm font-medium text-white mb-2 flex items-center gap-2">
+            <p className="text-sm font-medium text-[var(--text-primary)] mb-2 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-[#FF1B7E]" />
               Motivos del riesgo
             </p>
             <ul className="space-y-1">
               {risk.reasons.map((reason, idx) => (
-                <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
-                  <span className="text-gray-500">•</span>
+                <li key={idx} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
+                  <span className="text-[var(--text-tertiary)]">•</span>
                   {reason}
                 </li>
               ))}
@@ -125,14 +125,14 @@ export default function RiskSummary({ risk, project }) {
         
         {/* Recomendaciones */}
         {risk.recommendations.length > 0 && (
-          <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
-            <p className="text-sm font-medium text-white mb-2 flex items-center gap-2">
+          <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3">
+            <p className="text-sm font-medium text-[var(--text-primary)] mb-2 flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-[#FF1B7E]" />
               Recomendaciones
             </p>
             <ul className="space-y-1">
               {risk.recommendations.map((rec, idx) => (
-                <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+                <li key={idx} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                   <TrendingUp className="h-3 w-3 text-green-400 mt-1 flex-shrink-0" />
                   {rec}
                 </li>
