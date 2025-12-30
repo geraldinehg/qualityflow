@@ -107,7 +107,7 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
         </div>
 
         <DialogFooter>
-          <Button onClick={onClose} variant="outline" className="border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+          <Button onClick={onClose} variant="outline" className="bg-white hover:bg-gray-100 text-black border-white">
             Cancelar
           </Button>
           <Button 
