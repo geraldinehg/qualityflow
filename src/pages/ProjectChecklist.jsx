@@ -546,7 +546,7 @@ export default function ProjectChecklist() {
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Checklist */}
+            {/* Checklist y Workflow unificado */}
             <div className="lg:col-span-2 space-y-4">
               {/* Filtros de vista */}
               <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
@@ -629,6 +629,7 @@ export default function ProjectChecklist() {
                                 customPhaseName={project?.custom_phase_names?.[phaseKey]}
                                 dragHandleProps={provided.dragHandleProps}
                                 isDragging={snapshot.isDragging}
+                                project={project}
                               />
                             </div>
                           )}
@@ -644,9 +645,6 @@ export default function ProjectChecklist() {
           
           {/* Panel lateral - Resumen */}
           <div className="space-y-6">
-            {/* Workflow */}
-            <WorkflowTracker project={project} userRole={userRole} />
-
             {/* Documentación */}
             <ProjectDocuments projectId={projectId} />
 
