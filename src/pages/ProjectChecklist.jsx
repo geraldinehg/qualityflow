@@ -463,8 +463,8 @@ export default function ProjectChecklist() {
   
   if (projectLoading || !project) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E]" />
       </div>
     );
   }
@@ -473,27 +473,27 @@ export default function ProjectChecklist() {
   const techConfig = TECHNOLOGY_CONFIG[project.technology];
   
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] sticky top-0 z-10 backdrop-blur-sm bg-opacity-90">
+      <header className="bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] sticky top-0 z-10 backdrop-blur-sm bg-opacity-90">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-start gap-4">
               <Link to={createPageUrl('Dashboard')}>
-                <Button variant="ghost" size="icon" className="mt-1 text-gray-400 hover:text-white hover:bg-[#2a2a2a]">
+                <Button variant="ghost" size="icon" className="mt-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]">
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
               </Link>
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <div className={`w-2 h-2 rounded-full ${techConfig?.color || 'bg-gray-400'}`} />
-                  <span className="text-xs text-gray-400 uppercase tracking-wide">
+                  <span className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">
                     {techConfig?.name} • {siteTypeConfig?.name}
                   </span>
                 </div>
-                <h1 className="text-xl font-bold text-white">{project.name}</h1>
+                <h1 className="text-xl font-bold text-[var(--text-primary)]">{project.name}</h1>
                 {project.target_date && (
-                  <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
+                  <div className="flex items-center gap-2 mt-1 text-sm text-[var(--text-secondary)]">
                     <Calendar className="h-4 w-4" />
                     <span>Entrega: {format(new Date(project.target_date), "d MMMM yyyy", { locale: es })}</span>
                   </div>
@@ -506,15 +506,15 @@ export default function ProjectChecklist() {
               <Button 
                 size="sm" 
                 onClick={() => setIsEditingProject(true)}
-                className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white"
+                className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Editar Proyecto
               </Button>
-              <Button size="sm" onClick={expandAll} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+              <Button size="sm" onClick={expandAll} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)]">
                 Expandir todo
               </Button>
-              <Button size="sm" onClick={collapseAll} className="bg-[#1a1a1a] border border-[#2a2a2a] hover:bg-[#2a2a2a] text-white">
+              <Button size="sm" onClick={collapseAll} className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)]">
                 Colapsar todo
               </Button>
             </div>
@@ -549,9 +549,9 @@ export default function ProjectChecklist() {
             {/* Checklist y Workflow unificado */}
             <div className="lg:col-span-2 space-y-4">
               {/* Filtros de vista */}
-              <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl p-4">
                 <Tabs value={viewMode} onValueChange={setViewMode}>
-                  <TabsList className="bg-[#0a0a0a] border-[#2a2a2a]">
+                  <TabsList className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
                     <TabsTrigger value="all" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
                       Todos los ítems
                     </TabsTrigger>
@@ -566,8 +566,8 @@ export default function ProjectChecklist() {
               </div>
 
               {/* Permisos de edición */}
-              <div className="bg-[#1a1a1a] border border-[#FF1B7E]/20 rounded-xl p-4">
-                <p className="text-sm text-gray-300">
+              <div className="bg-[var(--bg-secondary)] border border-[#FF1B7E]/20 rounded-xl p-4">
+                <p className="text-sm text-[var(--text-primary)]">
                   <strong className="text-[#FF1B7E]">Rol:</strong> {ROLE_CONFIG[userRole]?.name || 'No definido'}
                   {userRole === 'web_leader' ? 
                     ' - Puedes editar y reordenar todas las fases' : 
@@ -651,8 +651,8 @@ export default function ProjectChecklist() {
             {risk && <RiskSummary risk={risk} project={project} />}
             
             {/* Fases críticas */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
-              <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl p-4">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-[#FF1B7E]" />
                 Fases críticas para este proyecto
               </h3>
@@ -665,12 +665,12 @@ export default function ProjectChecklist() {
                   return (
                     <div key={phase} className="flex items-center gap-3">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-300">
+                        <p className="text-sm font-medium text-[var(--text-primary)]">
                           {PHASES[phase]?.name}
                         </p>
-                        <Progress value={progress} className="h-1.5 mt-1 bg-white/20 [&>div]:bg-[#FF1B7E]" />
+                        <Progress value={progress} className="h-1.5 mt-1 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E]" />
                       </div>
-                      <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
+                      <Badge variant="outline" className="text-xs border-[var(--border-secondary)] text-[var(--text-secondary)]">
                         {completed}/{items.length}
                       </Badge>
                     </div>
@@ -680,9 +680,9 @@ export default function ProjectChecklist() {
             </div>
             
             {/* Acciones */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 space-y-3">
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl p-4 space-y-3">
               <Button 
-                className={`w-full ${risk?.canDeliver ? 'bg-[#FF1B7E] hover:bg-[#e6156e] text-white' : 'bg-[#2a2a2a] text-gray-400'}`}
+                className={`w-full ${risk?.canDeliver ? 'bg-[#FF1B7E] hover:bg-[#e6156e] text-white' : 'bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]'}`}
                 disabled={!risk?.canDeliver}
               >
                 <Send className="h-4 w-4 mr-2" />
