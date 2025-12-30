@@ -102,7 +102,7 @@ export default function TasksViewDynamic({ projectId }) {
     createMutation.mutate({
       ...newTask,
       project_id: projectId,
-      order: tasks.length,
+      order: tasks?.length || 0,
       due_date: newTask.due_date ? format(newTask.due_date, 'yyyy-MM-dd') : null
     });
   };
@@ -235,8 +235,8 @@ export default function TasksViewDynamic({ projectId }) {
     return acc;
   }, {});
 
-  const sortedTasks = [...tasks].sort((a, b) => a.order - b.order);
-  const enabledFields = config.enabled_fields || {};
+  const sortedTasks = [...(tasks || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const enabledFields = config?.enabled_fields || {};
 
   return (
     <div className="space-y-6">
@@ -244,7 +244,7 @@ export default function TasksViewDynamic({ projectId }) {
         <div>
           <h2 className="text-xl font-semibold text-[var(--text-primary)]">Tareas del Proyecto</h2>
           <p className="text-sm text-[var(--text-secondary)]">
-            {tasks.length} {tasks.length === 1 ? 'tarea' : 'tareas'}
+            {tasks?.length || 0} {(tasks?.length || 0) === 1 ? 'tarea' : 'tareas'}
           </p>
         </div>
         <Button onClick={() => setIsCreating(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
@@ -454,7 +454,7 @@ export default function TasksViewDynamic({ projectId }) {
           })}
         </AnimatePresence>
 
-        {tasks.length === 0 && !isCreating && (
+        {(tasks?.length || 0) === 0 && !isCreating && (
           <div className="text-center py-12">
             <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="h-8 w-8 text-[var(--text-tertiary)]" />

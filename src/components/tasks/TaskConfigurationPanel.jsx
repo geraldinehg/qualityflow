@@ -170,7 +170,7 @@ export default function TaskConfigurationPanel() {
   };
   
   const handleRemoveStatus = (index) => {
-    const statuses = [...config.custom_statuses];
+    const statuses = [...(config?.custom_statuses || [])];
     statuses.splice(index, 1);
     setConfig({ ...config, custom_statuses: statuses });
   };
@@ -189,7 +189,7 @@ export default function TaskConfigurationPanel() {
   };
   
   const handleRemovePriority = (index) => {
-    const priorities = [...config.custom_priorities];
+    const priorities = [...(config?.custom_priorities || [])];
     priorities.splice(index, 1);
     setConfig({ ...config, custom_priorities: priorities });
   };
@@ -202,7 +202,7 @@ export default function TaskConfigurationPanel() {
     
     setConfig({
       ...config,
-      custom_fields: [...(config.custom_fields || []), { ...newCustomField }]
+      custom_fields: [...(config?.custom_fields || []), { ...newCustomField }]
     });
     setNewCustomField({ key: '', label: '', type: 'text', required: false, options: [] });
   };
@@ -516,7 +516,7 @@ export default function TaskConfigurationPanel() {
                         <div className="flex gap-2">
                           <Input
                             placeholder="Nueva opción"
-                            value={index === config.custom_fields.length - 1 ? newOption : ''}
+                            value={index === (config?.custom_fields?.length ?? 0) - 1 ? newOption : ''}
                             onChange={(e) => setNewOption(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
