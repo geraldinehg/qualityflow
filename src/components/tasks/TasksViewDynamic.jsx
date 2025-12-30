@@ -217,7 +217,7 @@ export default function TasksViewDynamic({ projectId }) {
     }
   };
 
-  if (!config || !config.module_enabled) {
+  if (!config || config.module_enabled === false) {
     return (
       <div className="text-center py-12">
         <p className="text-[var(--text-secondary)]">El módulo de tareas está deshabilitado</p>
