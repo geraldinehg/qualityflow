@@ -94,34 +94,49 @@ export default function ProjectDocuments({ projectId }) {
   }, {});
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
+    <Card className="bg-gradient-to-br from-[#1a1a1a] to-[#141414] border-[#2a2a2a] shadow-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2 text-white">
-            <FileText className="h-5 w-5 text-[#FF1B7E]" />
+          <CardTitle className="text-base flex items-center gap-3 text-white">
+            <div className="w-10 h-10 rounded-xl bg-[#FF1B7E]/10 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-[#FF1B7E]" />
+            </div>
             Documentación del Proyecto
           </CardTitle>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => setShowGoogleDrivePicker(true)} className="bg-white hover:bg-gray-100 text-black">
-              <FileText className="h-4 w-4 mr-2" />
-              Google Drive
-            </Button>
-            <Button size="sm" onClick={() => setIsUploadOpen(true)} className="bg-white hover:bg-gray-100 text-black">
-              <Plus className="h-4 w-4 mr-2" />
-              Subir Archivo
-            </Button>
-          </div>
         </div>
       </CardHeader>
       <CardContent>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Button
+            size="sm"
+            onClick={() => setShowGoogleDrivePicker(true)}
+            className="bg-gradient-to-r from-[#4285F4] to-[#34A853] hover:from-[#3367D6] hover:to-[#2D8E47] text-white border-0 shadow-lg"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Google Drive
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setIsUploadOpen(true)}
+            className="bg-white hover:bg-gray-100 text-black border-white shadow-md"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Subir Archivo
+          </Button>
+        </div>
+
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-[#FF1B7E] mb-3" />
+            <p className="text-sm text-gray-400">Cargando documentos...</p>
           </div>
         ) : documents.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <FileText className="h-12 w-12 mx-auto mb-2 text-gray-600" />
-            <p className="text-sm">No hay documentos subidos</p>
+          <div className="text-center py-12 border-2 border-dashed border-[#2a2a2a] rounded-xl bg-[#0a0a0a]/50">
+            <div className="w-20 h-20 rounded-full bg-[#2a2a2a]/30 flex items-center justify-center mx-auto mb-4">
+              <FileText className="h-10 w-10 text-gray-600" />
+            </div>
+            <p className="text-sm font-medium text-gray-300 mb-1">No hay documentos subidos</p>
+            <p className="text-xs text-gray-500">Sube archivos o vincula desde Google Drive</p>
           </div>
         ) : (
           <div className="space-y-4">

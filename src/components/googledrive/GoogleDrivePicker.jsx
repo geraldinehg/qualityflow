@@ -81,9 +81,13 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl bg-[#1a1a1a] border-[#2a2a2a] text-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">
-            Seleccionar archivo de Google Drive
+          <DialogTitle className="text-xl font-semibold text-white flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4285F4] to-[#34A853] flex items-center justify-center shadow-lg">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
+            Google Drive
           </DialogTitle>
+          <p className="text-sm text-gray-400 mt-2">Selecciona un archivo de tu cuenta</p>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -98,16 +102,24 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-[#FF1B7E]" />
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="h-10 w-10 animate-spin text-[#4285F4] mb-4" />
+              <p className="text-sm text-gray-400">Conectando con tu Google Drive...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[400px] border border-[#2a2a2a] rounded-lg p-2">
+            <ScrollArea className="h-[420px] border border-[#2a2a2a] rounded-xl p-3 bg-[#0a0a0a]/50">
               <div className="space-y-2">
                 {filteredFiles.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">
-                    <FileText className="h-12 w-12 mx-auto mb-2 text-gray-600" />
-                    <p>No se encontraron archivos</p>
+                  <div className="text-center py-16 text-gray-400">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4285F4]/10 to-[#34A853]/10 flex items-center justify-center mx-auto mb-4">
+                      <FileText className="h-10 w-10 text-gray-600" />
+                    </div>
+                    <p className="text-base font-medium text-gray-300 mb-1">
+                      {searchQuery ? 'No se encontraron archivos' : 'No hay archivos disponibles'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {searchQuery ? 'Intenta con otro término' : 'Sube archivos a tu Google Drive primero'}
+                    </p>
                   </div>
                 ) : (
                   filteredFiles.map((file) => {
@@ -118,24 +130,34 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
                       <button
                         key={file.id}
                         onClick={() => setSelectedFile(file)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                        className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all group ${
                           isSelected 
-                            ? 'bg-[#FF1B7E]/20 border-[#FF1B7E]' 
-                            : 'bg-[#0a0a0a] border-[#2a2a2a] hover:bg-[#2a2a2a]/50'
+                            ? 'bg-gradient-to-r from-[#4285F4]/20 to-[#34A853]/20 border-[#4285F4] shadow-lg shadow-[#4285F4]/20' 
+                            : 'bg-[#0a0a0a] border-[#2a2a2a] hover:border-[#4285F4]/50 hover:bg-[#2a2a2a]/30'
                         }`}
                       >
-                        <Icon className="h-5 w-5 text-gray-400" />
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          isSelected 
+                            ? 'bg-gradient-to-br from-[#4285F4] to-[#34A853]' 
+                            : 'bg-[#1a1a1a] group-hover:bg-[#2a2a2a]'
+                        }`}>
+                          <Icon className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-gray-400'}`} />
+                        </div>
                         <div className="flex-1 text-left min-w-0">
                           <p className="text-sm font-medium text-white truncate">
                             {file.name}
                           </p>
                           <p className="text-xs text-gray-400">
-                            Modificado: {new Date(file.modifiedTime).toLocaleDateString('es-ES')}
+                            {new Date(file.modifiedTime).toLocaleDateString('es-ES', { 
+                              day: 'numeric', 
+                              month: 'short', 
+                              year: 'numeric' 
+                            })}
                           </p>
                         </div>
                         {isSelected && (
-                          <Badge className="bg-[#FF1B7E] text-white">
-                            Seleccionado
+                          <Badge className="bg-[#4285F4] text-white border-0 shadow-lg">
+                            ✓ Seleccionado
                           </Badge>
                         )}
                       </button>
