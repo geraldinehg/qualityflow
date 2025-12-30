@@ -130,27 +130,24 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
                 </h3>
                 <div className="space-y-2">
                   {areaCriteria.map((criterion) => (
-                    <div key={criterion.id} className="border border-[#2a2a2a] rounded-lg p-3 space-y-2">
-                      <div className="flex items-start gap-3">
-                        <button
-                          onClick={() => handleToggleComplete(criterion)}
-                          className="mt-1"
-                        >
-                          {criterion.is_completed ? (
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <Circle className="h-5 w-5 text-slate-300" />
-                          )}
-                        </button>
-                        <div className="flex-1 space-y-2">
-                          <div>
+                    <div key={criterion.id} className="border border-[#2a2a2a] rounded-lg p-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <button
+                            onClick={() => handleToggleComplete(criterion)}
+                            className="mt-1"
+                          >
+                            {criterion.is_completed ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-slate-300" />
+                            )}
+                          </button>
+                          <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium text-sm text-white">{criterion.title}</p>
                               {criterion.is_mandatory && (
                                 <Badge className="bg-[#FF1B7E] text-white border-0 text-xs">Obligatorio</Badge>
-                              )}
-                              {criterion.area && (
-                                <Badge variant="secondary" className="text-xs bg-[#2a2a2a] text-white">{criterion.area}</Badge>
                               )}
                             </div>
                             {criterion.description && (
@@ -173,43 +170,41 @@ export default function EntryCriteriaModal({ projectId, phaseKey, phaseName, isO
                               </a>
                             )}
                           </div>
-                          <div className="flex gap-2">
-                            <label htmlFor={`upload-${criterion.id}`}>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 border-[#2a2a2a] hover:bg-[#2a2a2a] text-white"
-                                asChild
-                              >
-                                <span className="flex items-center gap-1">
-                                  <Upload className="h-3 w-3" />
-                                  Adjuntar
-                                </span>
-                              </Button>
-                            </label>
-                            <input
-                              id={`upload-${criterion.id}`}
-                              type="file"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) handleUploadDocument(criterion, file);
-                              }}
-                            />
+                        </div>
+                        <div className="flex gap-1">
+                          <label htmlFor={`upload-${criterion.id}`}>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 border-red-600/30 hover:bg-red-600/10 text-red-600"
-                              onClick={() => {
-                                if (confirm('¿Eliminar este criterio?')) {
-                                  deleteMutation.mutate(criterion.id);
-                                }
-                              }}
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              asChild
                             >
-                              <Trash2 className="h-3 w-3 mr-1" />
-                              Eliminar
+                              <span>
+                                <Upload className="h-4 w-4" />
+                              </span>
                             </Button>
-                          </div>
+                          </label>
+                          <input
+                            id={`upload-${criterion.id}`}
+                            type="file"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) handleUploadDocument(criterion, file);
+                            }}
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-red-600"
+                            onClick={() => {
+                              if (confirm('¿Eliminar este criterio?')) {
+                                deleteMutation.mutate(criterion.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
