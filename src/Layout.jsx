@@ -8,7 +8,13 @@ export default function Layout({ children, currentPageName }) {
   const [currentSection, setCurrentSection] = React.useState('dashboard');
   const [sidebarAction, setSidebarAction] = React.useState(null);
   const [user, setUser] = React.useState(undefined);
+  const [theme, setTheme] = React.useState(() => localStorage.getItem('theme') || 'dark');
   
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   React.useEffect(() => {
     const loadUser = async () => {
       try {
@@ -50,33 +56,69 @@ export default function Layout({ children, currentPageName }) {
     return null;
   }
   
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   // Si estamos en una página específica (no Dashboard), no mostrar el layout de navegación
   const isProjectPage = currentPageName === 'ProjectChecklist';
   
   if (isProjectPage) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[var(--bg-primary)]">
         <style>{`
           :root {
             --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
             --primary-magenta: #FF1B7E;
-            --dark-bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --border-color: #2a2a2a;
           }
+          
+          /* Dark Mode */
+          [data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --bg-hover: rgba(42, 42, 42, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --border-primary: #2a2a2a;
+            --border-secondary: #3f3f46;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --particle-opacity: 0.3;
+            --particle-color: white;
+          }
+          
+          /* Light Mode */
+          [data-theme="light"] {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f3f5;
+            --bg-hover: rgba(241, 243, 245, 0.8);
+            --text-primary: #1a1a1a;
+            --text-secondary: #52525b;
+            --text-tertiary: #71717a;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --particle-opacity: 0.15;
+            --particle-color: #1a1a1a;
+          }
+          
           body {
             font-family: var(--font-sans);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background: #0a0a0a;
-            color: #ffffff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
           }
+          
           ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
           }
           ::-webkit-scrollbar-track {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
           }
           ::-webkit-scrollbar-thumb {
             background: #FF1B7E;
@@ -85,9 +127,11 @@ export default function Layout({ children, currentPageName }) {
           ::-webkit-scrollbar-thumb:hover {
             background: #e6156e;
           }
+          
           * {
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
           }
+          
           .particle-bg {
             position: fixed;
             top: 0;
@@ -95,16 +139,17 @@ export default function Layout({ children, currentPageName }) {
             width: 100%;
             height: 100%;
             pointer-events: none;
-            opacity: 0.3;
+            opacity: var(--particle-opacity);
             background-image: 
-              radial-gradient(2px 2px at 20% 30%, white, transparent),
-              radial-gradient(2px 2px at 60% 70%, white, transparent),
-              radial-gradient(1px 1px at 50% 50%, white, transparent),
-              radial-gradient(1px 1px at 80% 10%, white, transparent),
-              radial-gradient(1px 1px at 90% 60%, white, transparent);
+              radial-gradient(2px 2px at 20% 30%, var(--particle-color), transparent),
+              radial-gradient(2px 2px at 60% 70%, var(--particle-color), transparent),
+              radial-gradient(1px 1px at 50% 50%, var(--particle-color), transparent),
+              radial-gradient(1px 1px at 80% 10%, var(--particle-color), transparent),
+              radial-gradient(1px 1px at 90% 60%, var(--particle-color), transparent);
             background-size: 200% 200%;
             animation: particle-drift 20s ease-in-out infinite;
           }
+          
           @keyframes particle-drift {
             0%, 100% { background-position: 0% 0%; }
             50% { background-position: 100% 100%; }
@@ -117,28 +162,60 @@ export default function Layout({ children, currentPageName }) {
   }
   
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       <style>{`
         :root {
           --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
           --primary-magenta: #FF1B7E;
-          --dark-bg: #0a0a0a;
-          --card-bg: #1a1a1a;
-          --border-color: #2a2a2a;
         }
+        
+        /* Dark Mode */
+        [data-theme="dark"] {
+          --bg-primary: #0a0a0a;
+          --bg-secondary: #1a1a1a;
+          --bg-tertiary: #2a2a2a;
+          --bg-hover: rgba(42, 42, 42, 0.5);
+          --text-primary: #ffffff;
+          --text-secondary: #a1a1aa;
+          --text-tertiary: #71717a;
+          --border-primary: #2a2a2a;
+          --border-secondary: #3f3f46;
+          --shadow: rgba(0, 0, 0, 0.5);
+          --particle-opacity: 0.3;
+          --particle-color: white;
+        }
+        
+        /* Light Mode */
+        [data-theme="light"] {
+          --bg-primary: #f8f9fa;
+          --bg-secondary: #ffffff;
+          --bg-tertiary: #f1f3f5;
+          --bg-hover: rgba(241, 243, 245, 0.8);
+          --text-primary: #1a1a1a;
+          --text-secondary: #52525b;
+          --text-tertiary: #71717a;
+          --border-primary: #e5e7eb;
+          --border-secondary: #d1d5db;
+          --shadow: rgba(0, 0, 0, 0.1);
+          --particle-opacity: 0.15;
+          --particle-color: #1a1a1a;
+        }
+        
         body {
           font-family: var(--font-sans);
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          background: #0a0a0a;
-          color: #ffffff;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          transition: background 0.3s ease, color 0.3s ease;
         }
+        
         ::-webkit-scrollbar {
           width: 6px;
           height: 6px;
         }
         ::-webkit-scrollbar-track {
-          background: #1a1a1a;
+          background: var(--bg-secondary);
         }
         ::-webkit-scrollbar-thumb {
           background: #FF1B7E;
@@ -147,9 +224,11 @@ export default function Layout({ children, currentPageName }) {
         ::-webkit-scrollbar-thumb:hover {
           background: #e6156e;
         }
+        
         * {
           transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .particle-bg {
           position: fixed;
           top: 0;
@@ -157,16 +236,17 @@ export default function Layout({ children, currentPageName }) {
           width: 100%;
           height: 100%;
           pointer-events: none;
-          opacity: 0.3;
+          opacity: var(--particle-opacity);
           background-image: 
-            radial-gradient(2px 2px at 20% 30%, white, transparent),
-            radial-gradient(2px 2px at 60% 70%, white, transparent),
-            radial-gradient(1px 1px at 50% 50%, white, transparent),
-            radial-gradient(1px 1px at 80% 10%, white, transparent),
-            radial-gradient(1px 1px at 90% 60%, white, transparent);
+            radial-gradient(2px 2px at 20% 30%, var(--particle-color), transparent),
+            radial-gradient(2px 2px at 60% 70%, var(--particle-color), transparent),
+            radial-gradient(1px 1px at 50% 50%, var(--particle-color), transparent),
+            radial-gradient(1px 1px at 80% 10%, var(--particle-color), transparent),
+            radial-gradient(1px 1px at 90% 60%, var(--particle-color), transparent);
           background-size: 200% 200%;
           animation: particle-drift 20s ease-in-out infinite;
         }
+        
         @keyframes particle-drift {
           0%, 100% { background-position: 0% 0%; }
           50% { background-position: 100% 100%; }
@@ -183,8 +263,23 @@ export default function Layout({ children, currentPageName }) {
 
         <div className="flex-1 flex flex-col">
           {/* Top Bar */}
-          <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] sticky top-0 z-10">
-            <div className="flex items-center justify-end px-6 py-3">
+          <header className="bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] sticky top-0 z-10">
+            <div className="flex items-center justify-end px-6 py-3 gap-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+                title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              >
+                {theme === 'dark' ? (
+                  <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
               <UserProfileMenu />
             </div>
           </header>
