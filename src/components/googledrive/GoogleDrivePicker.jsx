@@ -1,35 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { FileText, Loader2 } from 'lucide-react';
+
+const GOOGLE_CLIENT_ID = '879882925174-f5o6vd9u3qlkqr6r5k9e7l3d0q5j4n3c.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 
 export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [tokenClient, setTokenClient] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
-      loadGooglePicker();
+      initializeGoogleAuth();
     }
   }, [isOpen]);
 
-  const loadGooglePicker = async () => {
+  const initializeGoogleAuth = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Obtener access token del usuario actual
-      const token = await base44.connectors.getAccessToken('googledrive');
-      
-      // Cargar scripts de Google Picker
+      await loadScript('https://accounts.google.com/gsi/client');
       await loadScript('https://apis.google.com/js/api.js');
-      await new Promise(resolve => window.gapi.load('picker', resolve));
       
-      // Abrir el picker
-      openPicker(token);
-      setLoading(false);
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        callback: (response) => {
+          if (response.access_token) {
+            loadPicker(response.access_token);
+          }
+        },
+      });
+      
+      setTokenClient(client);
+      client.requestAccessToken();
     } catch (error) {
-      console.error('Error loading Google Picker:', error);
-      setError('No se pudo conectar con Google Drive. Intenta de nuevo.');
+      console.error('Error initializing Google Auth:', error);
+      setError('No se pudo conectar con Google Drive.');
       setLoading(false);
     }
   };
@@ -49,7 +58,9 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
     });
   };
 
-  const openPicker = (token) => {
+  const loadPicker = async (token) => {
+    await new Promise(resolve => window.gapi.load('picker', resolve));
+    
     const picker = new window.google.picker.PickerBuilder()
       .addView(window.google.picker.ViewId.DOCS)
       .setOAuthToken(token)
@@ -71,6 +82,7 @@ export default function GoogleDrivePicker({ isOpen, onClose, onSelect }) {
       .build();
     
     picker.setVisible(true);
+    setLoading(false);
   };
 
   return (
