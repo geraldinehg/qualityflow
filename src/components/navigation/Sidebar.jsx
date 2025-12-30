@@ -138,9 +138,9 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
                     : "text-gray-400 hover:text-white hover:bg-[#2a2a2a]"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
+                <div className="flex items-center gap-3 text-left">
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="text-left">{item.label}</span>
                 </div>
                 {hasSubMenu && (
                   isExpanded ? 
