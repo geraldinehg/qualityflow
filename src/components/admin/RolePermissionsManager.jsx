@@ -66,6 +66,20 @@ const DEFAULT_PERMISSIONS = {
     can_access_admin: false,
     can_approve_phases: true,
     can_resolve_conflicts: true
+  },
+  administrador: {
+    can_access_dashboard: true,
+    can_access_projects: true,
+    can_create_projects: true,
+    can_edit_projects: true,
+    can_delete_projects: true,
+    can_access_resources: true,
+    can_access_schedules: true,
+    can_access_team: true,
+    can_access_reports: true,
+    can_access_admin: true,
+    can_approve_phases: true,
+    can_resolve_conflicts: true
   }
 };
 
