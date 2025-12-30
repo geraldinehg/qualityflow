@@ -193,7 +193,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
         </button>
         
         {/* Admin Panel - Solo para administradores */}
-        {currentUser && (currentUser.email === 'luis.restrepo@antpack.co' || currentUser.email === 'geraldine.hurtado@antpack.co') && (
+        {currentUser && (currentUser.role === 'admin' || currentUser.email === 'luis.restrepo@antpack.co' || currentUser.email === 'geraldine.hurtado@antpack.co') && (
           <button
             onClick={() => setShowAdminPanel(true)}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-[#2a2a2a] text-white hover:bg-[#FF1B7E] hover:shadow-lg hover:shadow-[#FF1B7E]/20 transition-all"

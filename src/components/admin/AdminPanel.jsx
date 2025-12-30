@@ -30,6 +30,15 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
     enabled: isOpen
   });
   
+  const { data: systemUsers = [] } = useQuery({
+    queryKey: ['system-users'],
+    queryFn: async () => {
+      const users = await base44.entities.User.list('-created_date');
+      return users;
+    },
+    enabled: isOpen
+  });
+  
   const { data: customTechnologies = [] } = useQuery({
     queryKey: ['custom-technologies'],
     queryFn: () => base44.entities.Technology.list('-created_date'),
@@ -156,16 +165,130 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
           </TabsList>
           
           <TabsContent value="members" className="space-y-6 mt-6">
-            {/* Crear nuevo miembro */}
+            {/* Usuarios del Sistema */}
+            <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <Users className="h-4 w-4 text-[#FF1B7E]" />
+                  Usuarios del Sistema
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-400">
+                    Todos los usuarios registrados en el sistema. Asigna un rol a cada usuario para definir sus permisos.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    {systemUsers.map((user) => {
+                      const member = teamMembers.find(m => m.user_email === user.email);
+                      const currentRole = member?.role || 'sin_asignar';
+                      const roleConfig = ROLE_CONFIG[currentRole];
+                      const isEditing = editingMember?.email === user.email;
+                      
+                      return (
+                        <Card key={user.id} className="bg-[#1a1a1a] border-[#2a2a2a]">
+                          <CardContent className="py-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-[#FF1B7E]/10 flex items-center justify-center">
+                                  <Users className="h-5 w-5 text-[#FF1B7E]" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-white">
+                                    {user.full_name || user.email}
+                                  </p>
+                                  <p className="text-sm text-gray-400">{user.email}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-3">
+                                {isEditing ? (
+                                  <div className="flex items-center gap-2">
+                                    <Select
+                                      value={editingMember.role}
+                                      onValueChange={(value) => setEditingMember({ ...editingMember, role: value })}
+                                    >
+                                      <SelectTrigger className="w-48">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {Object.entries(ROLE_CONFIG).map(([key, config]) => (
+                                          <SelectItem key={key} value={key}>{config.name}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Button
+                                      size="sm"
+                                      onClick={async () => {
+                                        if (member) {
+                                          await updateMemberMutation.mutateAsync({ 
+                                            id: member.id, 
+                                            data: { role: editingMember.role } 
+                                          });
+                                        } else {
+                                          await createMemberMutation.mutateAsync({
+                                            user_email: user.email,
+                                            display_name: user.full_name,
+                                            role: editingMember.role,
+                                            is_active: true
+                                          });
+                                        }
+                                        setEditingMember(null);
+                                      }}
+                                      disabled={updateMemberMutation.isPending || createMemberMutation.isPending}
+                                      className="bg-white hover:bg-gray-100 text-black"
+                                    >
+                                      Guardar
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => setEditingMember(null)}
+                                    >
+                                      ✕
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <Badge className={`${roleConfig?.color || 'bg-gray-600'} text-white border-0`}>
+                                      {roleConfig?.name || 'Sin asignar'}
+                                    </Badge>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-8 w-8"
+                                      onClick={() => setEditingMember({ email: user.email, role: currentRole })}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Configuración de Roles (TeamMembers del equipo técnico) */}
             <Card className="bg-[#0a0a0a] border-[#2a2a2a]">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2 text-white">
                   <UserPlus className="h-4 w-4 text-[#FF1B7E]" />
-                  Agregar Nuevo Miembro
+                  Miembros del Equipo Técnico
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleCreateMember} className="space-y-4">
+                <p className="text-sm text-gray-400 mb-4">
+                  Miembros técnicos adicionales para asignar como responsables en fases y áreas específicas.
+                </p>
+                
+                <form onSubmit={handleCreateMember} className="space-y-4 mb-6">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email *</Label>
@@ -215,139 +338,37 @@ export default function AdminPanel({ isOpen, onClose, defaultTab = 'members' }) 
                     Agregar Miembro
                   </Button>
                 </form>
+                
+                <div className="space-y-2">
+                  {activeMembers.map((member) => {
+                    const roleConfig = ROLE_CONFIG[member.role];
+                    
+                    return (
+                      <div key={member.id} className="flex items-center justify-between p-3 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a]">
+                        <div className="flex items-center gap-3">
+                          <p className="text-sm text-white">{member.display_name || member.user_email}</p>
+                          <Badge className={`${roleConfig?.color || 'bg-slate-600'} text-white border-0 text-xs`}>
+                            {roleConfig?.name || member.role}
+                          </Badge>
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-red-600 hover:text-red-700"
+                          onClick={() => {
+                            if (confirm('¿Eliminar este miembro?')) {
+                              deleteMemberMutation.mutate(member.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
-            
-            {/* Lista de miembros activos */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-white">Miembros Activos ({activeMembers.length})</h3>
-              <div className="space-y-2">
-                {activeMembers.map((member) => {
-                  const roleConfig = ROLE_CONFIG[member.role];
-                  const isEditing = editingMember?.id === member.id;
-                  
-                  return (
-                    <Card key={member.id} className="bg-[#0a0a0a] border-[#2a2a2a]">
-                      <CardContent className="py-3">
-                        {isEditing ? (
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-3">
-                              <Input
-                                value={editingMember.display_name || ''}
-                                onChange={(e) => setEditingMember({ ...editingMember, display_name: e.target.value })}
-                                placeholder="Nombre"
-                              />
-                              <Select
-                                value={editingMember.role}
-                                onValueChange={(value) => setEditingMember({ ...editingMember, role: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(ROLE_CONFIG).map(([key, config]) => (
-                                    <SelectItem key={key} value={key}>{config.name}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleUpdateMember(member, editingMember)}
-                                  disabled={updateMemberMutation.isPending}
-                                  className="bg-white hover:bg-gray-100 text-black"
-                                >
-                                  Guardar
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingMember(null)}
-                                  className="border-white hover:bg-gray-100 text-white hover:text-black"
-                                >
-                                  Cancelar
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-[#FF1B7E]/10 flex items-center justify-center">
-                                <Users className="h-5 w-5 text-[#FF1B7E]" />
-                              </div>
-                              <div>
-                                <p className="font-medium text-white">
-                                  {member.display_name || member.user_email}
-                                </p>
-                                <p className="text-sm text-gray-400">{member.user_email}</p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3">
-                              <Badge className={`${roleConfig?.color || 'bg-slate-600'} text-white border-0`}>
-                                {roleConfig?.name || member.role}
-                              </Badge>
-                              
-                              <div className="flex gap-1">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8"
-                                  onClick={() => setEditingMember(member)}
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8 text-red-600 hover:text-red-700"
-                                  onClick={() => {
-                                    if (confirm('¿Desactivar este miembro?')) {
-                                      handleUpdateMember(member, { is_active: false });
-                                    }
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Miembros inactivos */}
-            {inactiveMembers.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-400">Miembros Inactivos ({inactiveMembers.length})</h3>
-                <div className="space-y-2">
-                  {inactiveMembers.map((member) => (
-                    <Card key={member.id} className="opacity-60 bg-[#0a0a0a] border-[#2a2a2a]">
-                      <CardContent className="py-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <p className="text-sm text-gray-400">{member.display_name || member.user_email}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateMember(member, { is_active: true })}
-                            className="border-white hover:bg-gray-100 text-white hover:text-black"
-                          >
-                            Reactivar
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
           </TabsContent>
           
           <TabsContent value="statistics" className="space-y-6 mt-6">
