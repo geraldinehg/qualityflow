@@ -12,9 +12,12 @@ import {
   ChevronDown,
   ChevronRight,
   Plus,
-  Tag
+  Tag,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { base44 } from '@/api/base44Client';
+import AdminPanel from '../admin/AdminPanel';
 
 const MENU_ITEMS = [
   {
@@ -77,6 +80,20 @@ const MENU_ITEMS = [
 export default function Sidebar({ currentSection, onSectionChange, onAction }) {
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState({});
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const [showAdminPanel, setShowAdminPanel] = React.useState(false);
+  
+  React.useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('Error loading user:', error);
+      }
+    };
+    loadUser();
+  }, []);
   
   const toggleMenu = (itemId) => {
     setExpandedMenus(prev => ({
@@ -169,12 +186,25 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-[#2a2a2a]">
+      <div className="p-4 border-t border-[#2a2a2a] space-y-2">
         <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-[#2a2a2a] transition-all">
           <Settings className="h-5 w-5" />
           <span>Configuración</span>
         </button>
+        
+        {/* Admin Panel - Solo para administradores */}
+        {currentUser && (currentUser.email === 'luis.restrepo@antpack.co' || currentUser.email === 'geraldine.hurtado@antpack.co') && (
+          <button
+            onClick={() => setShowAdminPanel(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-[#2a2a2a] text-white hover:bg-[#FF1B7E] hover:shadow-lg hover:shadow-[#FF1B7E]/20 transition-all"
+          >
+            <Shield className="h-5 w-5" />
+            <span>Panel Admin</span>
+          </button>
+        )}
       </div>
+      
+      <AdminPanel isOpen={showAdminPanel} onClose={() => setShowAdminPanel(false)} />
     </div>
   );
 }
