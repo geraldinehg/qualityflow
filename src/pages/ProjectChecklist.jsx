@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import TasksViewDynamic from '../components/tasks/TasksViewDynamic';
+import TaskKanbanView from '../components/tasks/TaskKanbanView';
 import TaskConfigurationPanel from '../components/tasks/TaskConfigurationPanel';
 import { 
   ArrowLeft, Download, RefreshCw, Send, AlertTriangle, CheckCircle2, 
@@ -690,7 +690,7 @@ export default function ProjectChecklist() {
           </TabsContent>
 
           <TabsContent value="tasks" className="mt-6">
-            <TasksViewDynamic projectId={projectId} />
+            <TaskKanbanView projectId={projectId} />
           </TabsContent>
 
           <TabsContent value="task-config" className="mt-6">

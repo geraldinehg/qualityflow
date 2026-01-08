@@ -1,120 +1,72 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Settings, Bell, Shield, Eye, Plus, Trash2, GripVertical } from 'lucide-react';
-import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, GripVertical, Save, AlertCircle } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { toast } from 'sonner';
 
 const DEFAULT_CONFIG = {
   module_enabled: true,
-  enabled_fields: {
-    title: true,
-    description: true,
-    status: true,
-    priority: true,
-    due_date: true,
-    assigned_to: false,
-    comments: false,
-    tags: false
-  },
-  required_fields: ['title'],
-  field_order: ['title', 'description', 'status', 'priority', 'due_date', 'assigned_to', 'tags', 'comments'],
   custom_statuses: [
-    { key: 'pending', label: 'Pendiente', color: 'gray' },
-    { key: 'in_progress', label: 'En Progreso', color: 'blue' },
-    { key: 'completed', label: 'Completado', color: 'green' }
+    { key: 'todo', label: 'Por hacer', color: 'gray', is_final: false, order: 0 },
+    { key: 'in_progress', label: 'En progreso', color: 'blue', is_final: false, order: 1 },
+    { key: 'completed', label: 'Finalizado', color: 'green', is_final: true, order: 2 }
   ],
   custom_priorities: [
-    { key: 'low', label: 'Baja', color: 'gray' },
-    { key: 'medium', label: 'Media', color: 'yellow' },
-    { key: 'high', label: 'Alta', color: 'red' }
+    { key: 'low', label: 'Baja', color: 'gray', order: 0 },
+    { key: 'medium', label: 'Media', color: 'yellow', order: 1 },
+    { key: 'high', label: 'Alta', color: 'red', order: 2 }
   ],
-  custom_fields: [],
-  enabled_views: {
-    list: true,
-    table: false,
-    kanban: false
-  },
-  notifications: {
-    enabled: false,
-    events: {
-      task_created: false,
-      status_changed: false,
-      assigned: false,
-      comment_added: false,
-      due_soon: false
-    },
-    recipients: {
-      creator: true,
-      assigned: true,
-      project_members: false
-    },
-    channels: {
-      in_app: true,
-      email: false
-    }
-  },
-  permissions: {
-    web_leader: { can_create: true, can_edit: true, can_delete: true, can_change_status: true },
-    developer: { can_create: true, can_edit: true, can_delete: false, can_change_status: true },
-    qa: { can_create: true, can_edit: true, can_delete: false, can_change_status: true },
-    product_owner: { can_create: true, can_edit: true, can_delete: true, can_change_status: true }
-  }
-};
-
-const FIELD_LABELS = {
-  title: 'Título',
-  description: 'Descripción',
-  status: 'Estado',
-  priority: 'Prioridad',
-  due_date: 'Fecha de vencimiento',
-  assigned_to: 'Asignación de responsables',
-  comments: 'Comentarios',
-  tags: 'Etiquetas'
+  custom_fields: []
 };
 
 const COLOR_OPTIONS = [
-  { key: 'gray', label: 'Gris', className: 'bg-gray-500' },
-  { key: 'blue', label: 'Azul', className: 'bg-blue-500' },
-  { key: 'green', label: 'Verde', className: 'bg-green-500' },
-  { key: 'yellow', label: 'Amarillo', className: 'bg-yellow-500' },
-  { key: 'red', label: 'Rojo', className: 'bg-red-500' },
-  { key: 'purple', label: 'Púrpura', className: 'bg-purple-500' },
-  { key: 'pink', label: 'Rosa', className: 'bg-pink-500' },
-  { key: 'orange', label: 'Naranja', className: 'bg-orange-500' }
+  { value: 'gray', label: 'Gris' },
+  { value: 'blue', label: 'Azul' },
+  { value: 'green', label: 'Verde' },
+  { value: 'yellow', label: 'Amarillo' },
+  { value: 'red', label: 'Rojo' },
+  { value: 'purple', label: 'Morado' },
+  { value: 'pink', label: 'Rosa' },
+  { value: 'orange', label: 'Naranja' }
 ];
 
-export default function TaskConfigurationPanel({ projectId = null }) {
-  const [config, setConfig] = useState(null);
-  const [newStatus, setNewStatus] = useState({ key: '', label: '', color: 'gray' });
-  const [newPriority, setNewPriority] = useState({ key: '', label: '', color: 'gray' });
-  const [newCustomField, setNewCustomField] = useState({ key: '', label: '', type: 'text', required: false, options: [] });
+const FIELD_TYPES = [
+  { value: 'text', label: 'Texto' },
+  { value: 'textarea', label: 'Texto largo' },
+  { value: 'number', label: 'Número' },
+  { value: 'date', label: 'Fecha' },
+  { value: 'checkbox', label: 'Checkbox' },
+  { value: 'select', label: 'Select' }
+];
+
+export default function TaskConfigurationPanel({ projectId }) {
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [newOption, setNewOption] = useState('');
-  
+
   const queryClient = useQueryClient();
-  
+
   const { data: configurations = [], isLoading } = useQuery({
     queryKey: projectId ? ['task-configuration', projectId] : ['task-configurations'],
     queryFn: async () => {
       if (projectId) {
-        // Buscar configuración del proyecto específico
         const configs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
         return configs || [];
       } else {
-        // Buscar configuración global (listar todas y filtrar las que no tienen project_id)
         const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
         return (allConfigs || []).filter(c => !c.project_id);
       }
     }
   });
-  
+
   React.useEffect(() => {
     if (configurations && configurations.length > 0) {
       setConfig(configurations[0]);
@@ -122,7 +74,7 @@ export default function TaskConfigurationPanel({ projectId = null }) {
       setConfig({ ...DEFAULT_CONFIG, project_id: projectId });
     }
   }, [configurations, projectId]);
-  
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       const configData = { ...data, project_id: projectId || null };
@@ -134,343 +86,218 @@ export default function TaskConfigurationPanel({ projectId = null }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectId ? ['task-configuration', projectId] : ['task-configurations'] });
-      toast.success('Configuración guardada correctamente');
+      toast.success('Configuración guardada');
     }
   });
-  
+
   const handleSave = () => {
+    // Validar que hay al menos un estado final
+    const hasFinalStatus = config.custom_statuses?.some(s => s.is_final);
+    if (!hasFinalStatus) {
+      toast.error('Debe haber al menos un estado marcado como final');
+      return;
+    }
+
     saveMutation.mutate(config);
   };
-  
-  const handleFieldToggle = (field) => {
-    setConfig({
-      ...config,
-      enabled_fields: {
-        ...config.enabled_fields,
-        [field]: !config.enabled_fields[field]
-      }
+
+  const addStatus = () => {
+    const newStatuses = [...(config.custom_statuses || [])];
+    newStatuses.push({
+      key: `status_${Date.now()}`,
+      label: 'Nuevo Estado',
+      color: 'gray',
+      is_final: false,
+      order: newStatuses.length
     });
+    setConfig({ ...config, custom_statuses: newStatuses });
   };
-  
-  const handleRequiredToggle = (field) => {
-    const required = config.required_fields || [];
-    if (required.includes(field)) {
-      setConfig({
-        ...config,
-        required_fields: required.filter(f => f !== field)
-      });
-    } else {
-      setConfig({
-        ...config,
-        required_fields: [...required, field]
-      });
-    }
+
+  const updateStatus = (index, updates) => {
+    const newStatuses = [...config.custom_statuses];
+    newStatuses[index] = { ...newStatuses[index], ...updates };
+    setConfig({ ...config, custom_statuses: newStatuses });
   };
-  
-  const handleAddStatus = () => {
-    if (!newStatus.key || !newStatus.label) {
-      toast.error('Completa todos los campos');
+
+  const deleteStatus = (index) => {
+    if (config.custom_statuses.length <= 1) {
+      toast.error('Debe haber al menos un estado');
       return;
     }
-    
-    setConfig({
-      ...config,
-      custom_statuses: [...(config.custom_statuses || []), newStatus]
+    const newStatuses = config.custom_statuses.filter((_, i) => i !== index);
+    setConfig({ ...config, custom_statuses: newStatuses });
+  };
+
+  const handleStatusReorder = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(config.custom_statuses);
+    const [reordered] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reordered);
+    const reordered = items.map((item, index) => ({ ...item, order: index }));
+    setConfig({ ...config, custom_statuses: reorderedItems });
+  };
+
+  const addPriority = () => {
+    const newPriorities = [...(config.custom_priorities || [])];
+    newPriorities.push({
+      key: `priority_${Date.now()}`,
+      label: 'Nueva Prioridad',
+      color: 'gray',
+      order: newPriorities.length
     });
-    setNewStatus({ key: '', label: '', color: 'gray' });
+    setConfig({ ...config, custom_priorities: newPriorities });
   };
-  
-  const handleRemoveStatus = (index) => {
-    const statuses = [...(config?.custom_statuses || [])];
-    statuses.splice(index, 1);
-    setConfig({ ...config, custom_statuses: statuses });
+
+  const updatePriority = (index, updates) => {
+    const newPriorities = [...config.custom_priorities];
+    newPriorities[index] = { ...newPriorities[index], ...updates };
+    setConfig({ ...config, custom_priorities: newPriorities });
   };
-  
-  const handleAddPriority = () => {
-    if (!newPriority.key || !newPriority.label) {
-      toast.error('Completa todos los campos');
+
+  const deletePriority = (index) => {
+    if (config.custom_priorities.length <= 1) {
+      toast.error('Debe haber al menos una prioridad');
       return;
     }
-    
-    setConfig({
-      ...config,
-      custom_priorities: [...(config.custom_priorities || []), newPriority]
+    const newPriorities = config.custom_priorities.filter((_, i) => i !== index);
+    setConfig({ ...config, custom_priorities: newPriorities });
+  };
+
+  const addCustomField = () => {
+    const newFields = [...(config.custom_fields || [])];
+    newFields.push({
+      key: `field_${Date.now()}`,
+      label: 'Nuevo Campo',
+      type: 'text',
+      required: false,
+      visible: true,
+      editable: true,
+      options: [],
+      default_value: ''
     });
-    setNewPriority({ key: '', label: '', color: 'gray' });
+    setConfig({ ...config, custom_fields: newFields });
   };
-  
-  const handleRemovePriority = (index) => {
-    const priorities = [...(config?.custom_priorities || [])];
-    priorities.splice(index, 1);
-    setConfig({ ...config, custom_priorities: priorities });
+
+  const updateCustomField = (index, updates) => {
+    const newFields = [...config.custom_fields];
+    newFields[index] = { ...newFields[index], ...updates };
+    setConfig({ ...config, custom_fields: newFields });
   };
-  
-  const handleAddCustomField = () => {
-    if (!newCustomField.key || !newCustomField.label) {
-      toast.error('Completa todos los campos');
-      return;
-    }
-    
-    setConfig({
-      ...config,
-      custom_fields: [...(config?.custom_fields || []), { ...newCustomField }]
-    });
-    setNewCustomField({ key: '', label: '', type: 'text', required: false, options: [] });
+
+  const deleteCustomField = (index) => {
+    const newFields = config.custom_fields.filter((_, i) => i !== index);
+    setConfig({ ...config, custom_fields: newFields });
   };
-  
-  const handleRemoveCustomField = (index) => {
-    const fields = [...(config?.custom_fields || [])];
-    fields.splice(index, 1);
-    setConfig({ ...config, custom_fields: fields });
-  };
-  
-  const handleAddOption = (fieldIndex) => {
+
+  const addFieldOption = (fieldIndex) => {
     if (!newOption.trim()) return;
-    
-    const fields = [...(config?.custom_fields || [])];
-    if (!fields[fieldIndex].options) fields[fieldIndex].options = [];
-    fields[fieldIndex].options.push(newOption);
-    setConfig({ ...config, custom_fields: fields });
+    const newFields = [...config.custom_fields];
+    const field = newFields[fieldIndex];
+    field.options = [...(field.options || []), newOption.trim()];
+    setConfig({ ...config, custom_fields: newFields });
     setNewOption('');
   };
-  
-  const handleFieldReorder = (result) => {
-    if (!result.destination) return;
-    
-    const items = Array.from(config.field_order);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    
-    setConfig({ ...config, field_order: items });
+
+  const removeFieldOption = (fieldIndex, optIndex) => {
+    const newFields = [...config.custom_fields];
+    const field = newFields[fieldIndex];
+    field.options = field.options.filter((_, i) => i !== optIndex);
+    setConfig({ ...config, custom_fields: newFields });
   };
-  
-  if (isLoading || !config) {
-    return <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E]" />;
+
+  if (isLoading) {
+    return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto" /></div>;
   }
-  
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-            {projectId ? 'Configuración de Tareas del Proyecto' : 'Configuración Global de Tareas'}
-          </h2>
-          {projectId && (
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Personaliza el módulo de tareas para este proyecto
-            </p>
-          )}
-        </div>
-        <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
-          Guardar Configuración
-        </Button>
-      </div>
-      
-      <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-          <TabsTrigger value="general" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-            <Settings className="h-4 w-4 mr-2" />
-            General
-          </TabsTrigger>
-          <TabsTrigger value="fields" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-            Campos
-          </TabsTrigger>
-          <TabsTrigger value="views" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-            <Eye className="h-4 w-4 mr-2" />
-            Vistas
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-            <Bell className="h-4 w-4 mr-2" />
-            Notificaciones
-          </TabsTrigger>
-          <TabsTrigger value="permissions" className="data-[state=active]:bg-[#FF1B7E] data-[state=active]:text-white">
-            <Shield className="h-4 w-4 mr-2" />
-            Permisos
-          </TabsTrigger>
+      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-[var(--text-primary)]">
+              Configuración del Módulo de Tareas {projectId && <Badge className="ml-2 bg-[#FF1B7E]">Proyecto Específico</Badge>}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={config.module_enabled}
+                onCheckedChange={(checked) => setConfig({ ...config, module_enabled: checked })}
+              />
+              <span className="text-sm text-[var(--text-secondary)]">
+                {config.module_enabled ? 'Habilitado' : 'Deshabilitado'}
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Tabs defaultValue="statuses">
+        <TabsList className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+          <TabsTrigger value="statuses">Estados (Columnas)</TabsTrigger>
+          <TabsTrigger value="priorities">Prioridades</TabsTrigger>
+          <TabsTrigger value="fields">Campos Personalizados</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="general" className="space-y-6 mt-6">
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
+
+        <TabsContent value="statuses" className="space-y-4">
+          <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
             <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Configuración General</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]">
-                <div>
-                  <Label className="text-[var(--text-primary)] font-semibold text-base">Módulo de Tareas Habilitado</Label>
-                  <p className="text-sm text-[var(--text-secondary)] mt-1">
-                    Activa o desactiva el módulo de tareas para todos los proyectos
-                  </p>
-                </div>
-                <Switch
-                  checked={config.module_enabled}
-                  onCheckedChange={(checked) => setConfig({ ...config, module_enabled: checked })}
-                  className="data-[state=checked]:bg-[#FF1B7E]"
-                />
-              </div>
-              
-              {!config.module_enabled && (
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm text-amber-600">
-                  <strong>⚠️ Atención:</strong> El módulo de tareas está deshabilitado. Los usuarios no podrán ver ni crear tareas en los proyectos.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
-            <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Estados Personalizados</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-3">
-                <Input
-                  placeholder="Clave (ej: blocked)"
-                  value={newStatus.key}
-                  onChange={(e) => setNewStatus({ ...newStatus, key: e.target.value })}
-                />
-                <Input
-                  placeholder="Etiqueta (ej: Bloqueado)"
-                  value={newStatus.label}
-                  onChange={(e) => setNewStatus({ ...newStatus, label: e.target.value })}
-                />
-                <select
-                  value={newStatus.color}
-                  onChange={(e) => setNewStatus({ ...newStatus, color: e.target.value })}
-                  className="px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-primary)] rounded-md text-[var(--text-primary)]"
-                >
-                  {COLOR_OPTIONS.map(color => (
-                    <option key={color.key} value={color.key}>{color.label}</option>
-                  ))}
-                </select>
-                <Button onClick={handleAddStatus} size="sm" className="bg-white hover:bg-gray-100 text-black">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Agregar
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm text-[var(--text-primary)]">Estados del Kanban</CardTitle>
+                <Button size="sm" onClick={addStatus} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
+                  <Plus className="h-4 w-4 mr-1" /> Agregar Estado
                 </Button>
               </div>
-              
-              <div className="space-y-2">
-                {(config.custom_statuses || []).map((status, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded ${COLOR_OPTIONS.find(c => c.key === status.color)?.className}`} />
-                      <span className="text-[var(--text-primary)]">{status.label}</span>
-                      <Badge variant="outline" className="text-xs">{status.key}</Badge>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleRemoveStatus(index)}
-                      className="h-8 w-8 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
-            <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Prioridades Personalizadas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-4 gap-3">
-                <Input
-                  placeholder="Clave (ej: critical)"
-                  value={newPriority.key}
-                  onChange={(e) => setNewPriority({ ...newPriority, key: e.target.value })}
-                />
-                <Input
-                  placeholder="Etiqueta (ej: Crítica)"
-                  value={newPriority.label}
-                  onChange={(e) => setNewPriority({ ...newPriority, label: e.target.value })}
-                />
-                <select
-                  value={newPriority.color}
-                  onChange={(e) => setNewPriority({ ...newPriority, color: e.target.value })}
-                  className="px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-primary)] rounded-md text-[var(--text-primary)]"
-                >
-                  {COLOR_OPTIONS.map(color => (
-                    <option key={color.key} value={color.key}>{color.label}</option>
-                  ))}
-                </select>
-                <Button onClick={handleAddPriority} size="sm" className="bg-white hover:bg-gray-100 text-black">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Agregar
-                </Button>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] bg-[var(--bg-tertiary)] p-2 rounded">
+                <AlertCircle className="h-4 w-4" />
+                Los estados representan las columnas del tablero Kanban. Debe haber al menos un estado final.
               </div>
-              
-              <div className="space-y-2">
-                {(config.custom_priorities || []).map((priority, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded ${COLOR_OPTIONS.find(c => c.key === priority.color)?.className}`} />
-                      <span className="text-[var(--text-primary)]">{priority.label}</span>
-                      <Badge variant="outline" className="text-xs">{priority.key}</Badge>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleRemovePriority(index)}
-                      className="h-8 w-8 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="fields" className="space-y-6 mt-6">
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
-            <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Campos Estándar</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DragDropContext onDragEnd={handleFieldReorder}>
-                <Droppable droppableId="fields">
+
+              <DragDropContext onDragEnd={handleStatusReorder}>
+                <Droppable droppableId="statuses">
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                      {config.field_order.map((field, index) => (
-                        <Draggable key={field} draggableId={field} index={index}>
+                      {(config.custom_statuses || []).map((status, index) => (
+                        <Draggable key={status.key} draggableId={status.key} index={index}>
                           {(provided) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
-                              className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]"
+                              className="flex items-center gap-2 p-3 bg-[var(--bg-tertiary)] rounded border border-[var(--border-primary)]"
                             >
-                              <div className="flex items-center gap-3">
-                                <div {...provided.dragHandleProps}>
-                                  <GripVertical className="h-5 w-5 text-[var(--text-tertiary)] cursor-move" />
-                                </div>
-                                <span className="text-[var(--text-primary)] font-medium">{FIELD_LABELS[field]}</span>
-                                {field === 'title' && (
-                                  <Badge variant="outline" className="text-xs">Obligatorio</Badge>
-                                )}
+                              <div {...provided.dragHandleProps}>
+                                <GripVertical className="h-4 w-4 text-[var(--text-tertiary)]" />
                               </div>
-                              <div className="flex items-center gap-4">
-                                {field !== 'title' && (
-                                  <div className="flex items-center gap-2">
-                                    <Label className="text-sm text-[var(--text-secondary)]">Obligatorio</Label>
-                                    <Switch
-                                      checked={config.required_fields?.includes(field)}
-                                      onCheckedChange={() => handleRequiredToggle(field)}
-                                      disabled={!config.enabled_fields[field]}
-                                    />
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-2">
-                                  <Label className="text-sm text-[var(--text-secondary)]">Habilitado</Label>
-                                  <Switch
-                                    checked={config.enabled_fields[field]}
-                                    onCheckedChange={() => handleFieldToggle(field)}
-                                    disabled={field === 'title'}
-                                  />
-                                </div>
+                              <Input
+                                value={status.label}
+                                onChange={(e) => updateStatus(index, { label: e.target.value })}
+                                className="flex-1"
+                              />
+                              <Select value={status.color} onValueChange={(value) => updateStatus(index, { color: value })}>
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {COLOR_OPTIONS.map(opt => (
+                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={status.is_final}
+                                  onCheckedChange={(checked) => updateStatus(index, { is_final: checked })}
+                                />
+                                <span className="text-xs text-[var(--text-secondary)]">Final</span>
                               </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => deleteStatus(index)}
+                                className="text-red-500"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           )}
                         </Draggable>
@@ -482,290 +309,146 @@ export default function TaskConfigurationPanel({ projectId = null }) {
               </DragDropContext>
             </CardContent>
           </Card>
-          
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
+        </TabsContent>
+
+        <TabsContent value="priorities" className="space-y-4">
+          <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
             <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Campos Personalizados</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-5 gap-3">
-                <Input
-                  placeholder="Clave (ej: budget)"
-                  value={newCustomField.key}
-                  onChange={(e) => setNewCustomField({ ...newCustomField, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                />
-                <Input
-                  placeholder="Etiqueta (ej: Presupuesto)"
-                  value={newCustomField.label}
-                  onChange={(e) => setNewCustomField({ ...newCustomField, label: e.target.value })}
-                />
-                <select
-                  value={newCustomField.type}
-                  onChange={(e) => setNewCustomField({ ...newCustomField, type: e.target.value, options: [] })}
-                  className="px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-primary)] rounded-md text-[var(--text-primary)]"
-                >
-                  <option value="text">Texto</option>
-                  <option value="number">Número</option>
-                  <option value="date">Fecha</option>
-                  <option value="select">Selección</option>
-                  <option value="multiselect">Multi-selección</option>
-                </select>
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-[var(--text-secondary)]">Obligatorio</Label>
-                  <Switch
-                    checked={newCustomField.required}
-                    onCheckedChange={(checked) => setNewCustomField({ ...newCustomField, required: checked })}
-                  />
-                </div>
-                <Button onClick={handleAddCustomField} size="sm" className="bg-white hover:bg-gray-100 text-black">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Agregar
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm text-[var(--text-primary)]">Prioridades</CardTitle>
+                <Button size="sm" onClick={addPriority} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
+                  <Plus className="h-4 w-4 mr-1" /> Agregar Prioridad
                 </Button>
               </div>
-              
-              <div className="space-y-3">
-                {(config.custom_fields || []).map((field, index) => (
-                  <div key={index} className="p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)] space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[var(--text-primary)] font-medium">{field.label}</span>
-                        <Badge variant="outline" className="text-xs">{field.key}</Badge>
-                        <Badge variant="outline" className="text-xs">{field.type}</Badge>
-                        {field.required && <Badge className="bg-red-500 text-white text-xs">Obligatorio</Badge>}
-                      </div>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleRemoveCustomField(index)}
-                        className="h-8 w-8 text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    {(field.type === 'select' || field.type === 'multiselect') && (
-                      <div className="pl-4 space-y-2">
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Nueva opción"
-                            value={index === (config?.custom_fields?.length ?? 0) - 1 ? newOption : ''}
-                            onChange={(e) => setNewOption(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                handleAddOption(index);
-                              }
-                            }}
-                            className="flex-1"
-                          />
-                          <Button size="sm" onClick={() => handleAddOption(index)} className="bg-white hover:bg-gray-100 text-black">
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {(field.options || []).map((option, optIndex) => (
-                            <Badge key={optIndex} variant="outline" className="text-xs">
-                              {option}
-                              <button
-                                onClick={() => {
-                                  const fields = [...config.custom_fields];
-                                  fields[index].options.splice(optIndex, 1);
-                                  setConfig({ ...config, custom_fields: fields });
-                                }}
-                                className="ml-1 text-red-500 hover:text-red-700"
-                              >
-                                ×
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {(config.custom_priorities || []).map((priority, index) => (
+                <div key={priority.key} className="flex items-center gap-2 p-3 bg-[var(--bg-tertiary)] rounded border border-[var(--border-primary)]">
+                  <Input
+                    value={priority.label}
+                    onChange={(e) => updatePriority(index, { label: e.target.value })}
+                    className="flex-1"
+                  />
+                  <Select value={priority.color} onValueChange={(value) => updatePriority(index, { color: value })}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COLOR_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => deletePriority(index)}
+                    className="text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </TabsContent>
-        
-        <TabsContent value="views" className="space-y-6 mt-6">
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
+
+        <TabsContent value="fields" className="space-y-4">
+          <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
             <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Vistas Disponibles</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm text-[var(--text-primary)]">Campos Personalizados</CardTitle>
+                <Button size="sm" onClick={addCustomField} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
+                  <Plus className="h-4 w-4 mr-1" /> Agregar Campo
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-[var(--text-primary)]">Vista de Lista</Label>
-                  <p className="text-sm text-[var(--text-secondary)]">Listado simple de tareas</p>
-                </div>
-                <Switch
-                  checked={config.enabled_views?.list}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    enabled_views: { ...config.enabled_views, list: checked }
-                  })}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-[var(--text-primary)]">Vista de Tabla</Label>
-                  <p className="text-sm text-[var(--text-secondary)]">Tabla con todas las columnas</p>
-                </div>
-                <Switch
-                  checked={config.enabled_views?.table}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    enabled_views: { ...config.enabled_views, table: checked }
-                  })}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-[var(--text-primary)]">Vista Kanban</Label>
-                  <p className="text-sm text-[var(--text-secondary)]">Tablero por estado</p>
-                </div>
-                <Switch
-                  checked={config.enabled_views?.kanban}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    enabled_views: { ...config.enabled_views, kanban: checked }
-                  })}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="notifications" className="space-y-6 mt-6">
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
-            <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Sistema de Notificaciones</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <Label className="text-[var(--text-primary)]">Notificaciones Habilitadas</Label>
-                <Switch
-                  checked={config.notifications?.enabled}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    notifications: { ...config.notifications, enabled: checked }
-                  })}
-                />
-              </div>
-              
-              {config.notifications?.enabled && (
-                <>
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-[var(--text-primary)]">Eventos</h4>
-                    {Object.entries({
-                      task_created: 'Creación de tarea',
-                      status_changed: 'Cambio de estado',
-                      assigned: 'Asignación de responsable',
-                      comment_added: 'Comentario nuevo',
-                      due_soon: 'Tarea próxima a vencer'
-                    }).map(([key, label]) => (
-                      <div key={key} className="flex items-center justify-between">
-                        <Label className="text-[var(--text-secondary)]">{label}</Label>
-                        <Switch
-                          checked={config.notifications?.events?.[key]}
-                          onCheckedChange={(checked) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              events: { ...config.notifications.events, [key]: checked }
-                            }
-                          })}
-                        />
-                      </div>
-                    ))}
+              {(config.custom_fields || []).map((field, fieldIndex) => (
+                <div key={field.key} className="p-4 bg-[var(--bg-tertiary)] rounded border border-[var(--border-primary)] space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Nombre del campo"
+                      value={field.label}
+                      onChange={(e) => updateCustomField(fieldIndex, { label: e.target.value })}
+                      className="flex-1"
+                    />
+                    <Select value={field.type} onValueChange={(value) => updateCustomField(fieldIndex, { type: value })}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FIELD_TYPES.map(type => (
+                          <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteCustomField(fieldIndex)}
+                      className="text-red-500"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-[var(--text-primary)]">Destinatarios</h4>
-                    {Object.entries({
-                      creator: 'Creador de la tarea',
-                      assigned: 'Responsables asignados',
-                      project_members: 'Miembros del proyecto'
-                    }).map(([key, label]) => (
-                      <div key={key} className="flex items-center justify-between">
-                        <Label className="text-[var(--text-secondary)]">{label}</Label>
-                        <Switch
-                          checked={config.notifications?.recipients?.[key]}
-                          onCheckedChange={(checked) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              recipients: { ...config.notifications.recipients, [key]: checked }
-                            }
-                          })}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-[var(--text-primary)]">Canales</h4>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-[var(--text-secondary)]">In-app (Obligatorio)</Label>
-                      <Switch checked={true} disabled />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-[var(--text-secondary)]">Email</Label>
-                      <Switch
-                        checked={config.notifications?.channels?.email}
-                        onCheckedChange={(checked) => setConfig({
-                          ...config,
-                          notifications: {
-                            ...config.notifications,
-                            channels: { ...config.notifications.channels, email: checked }
-                          }
-                        })}
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={field.required}
+                        onCheckedChange={(checked) => updateCustomField(fieldIndex, { required: checked })}
                       />
+                      <span className="text-xs text-[var(--text-secondary)]">Obligatorio</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={field.visible}
+                        onCheckedChange={(checked) => updateCustomField(fieldIndex, { visible: checked })}
+                      />
+                      <span className="text-xs text-[var(--text-secondary)]">Visible</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={field.editable}
+                        onCheckedChange={(checked) => updateCustomField(fieldIndex, { editable: checked })}
+                      />
+                      <span className="text-xs text-[var(--text-secondary)]">Editable</span>
                     </div>
                   </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="permissions" className="space-y-6 mt-6">
-          <Card className="bg-[var(--bg-primary)] border-[var(--border-primary)]">
-            <CardHeader>
-              <CardTitle className="text-[var(--text-primary)]">Permisos por Rol</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {Object.entries({
-                web_leader: 'Líder Web',
-                developer: 'Desarrollador',
-                qa: 'QA',
-                product_owner: 'Product Owner'
-              }).map(([role, label]) => (
-                <div key={role} className="space-y-3">
-                  <h4 className="font-medium text-[var(--text-primary)]">{label}</h4>
-                  <div className="grid grid-cols-2 gap-4 pl-4">
-                    {Object.entries({
-                      can_create: 'Crear tareas',
-                      can_edit: 'Editar tareas',
-                      can_delete: 'Eliminar tareas',
-                      can_change_status: 'Modificar estados'
-                    }).map(([perm, permLabel]) => (
-                      <div key={perm} className="flex items-center justify-between">
-                        <Label className="text-[var(--text-secondary)]">{permLabel}</Label>
-                        <Switch
-                          checked={config.permissions?.[role]?.[perm]}
-                          onCheckedChange={(checked) => setConfig({
-                            ...config,
-                            permissions: {
-                              ...config.permissions,
-                              [role]: { ...config.permissions[role], [perm]: checked }
-                            }
-                          })}
+
+                  {field.type === 'select' && (
+                    <div className="space-y-2">
+                      <label className="text-xs text-[var(--text-secondary)]">Opciones</label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Nueva opción"
+                          value={newOption}
+                          onChange={(e) => setNewOption(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && addFieldOption(fieldIndex)}
                         />
+                        <Button size="sm" onClick={() => addFieldOption(fieldIndex)}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
                       </div>
-                    ))}
+                      <div className="flex flex-wrap gap-2">
+                        {(field.options || []).map((opt, optIndex) => (
+                          <Badge key={optIndex} variant="outline" className="gap-1">
+                            {opt}
+                            <button onClick={() => removeFieldOption(fieldIndex, optIndex)} className="ml-1">×</button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="text-xs text-[var(--text-secondary)]">Valor por defecto</label>
+                    <Input
+                      placeholder="Valor por defecto (opcional)"
+                      value={field.default_value || ''}
+                      onChange={(e) => updateCustomField(fieldIndex, { default_value: e.target.value })}
+                    />
                   </div>
                 </div>
               ))}
@@ -773,6 +456,13 @@ export default function TaskConfigurationPanel({ projectId = null }) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="flex justify-end">
+        <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
+          <Save className="h-4 w-4 mr-2" />
+          {saveMutation.isPending ? 'Guardando...' : 'Guardar Configuración'}
+        </Button>
+      </div>
     </div>
   );
 }
