@@ -133,7 +133,7 @@ export default function TaskConfigurationPanel({ projectId }) {
     const items = Array.from(config.custom_statuses);
     const [reordered] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reordered);
-    const reordered = items.map((item, index) => ({ ...item, order: index }));
+    const reorderedItems = items.map((item, index) => ({ ...item, order: index }));
     setConfig({ ...config, custom_statuses: reorderedItems });
   };
 
