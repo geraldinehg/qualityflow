@@ -466,14 +466,14 @@ export default function TaskConfigurationPanel({ projectId }) {
         <TabsContent value="forms" className="space-y-4">
           <TaskFormManager projectId={projectId} config={config} />
         </TabsContent>
-        </Tabs>
+      </Tabs>
 
-        <div className="flex justify-end">
+      <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
           <Save className="h-4 w-4 mr-2" />
           {saveMutation.isPending ? 'Guardando...' : 'Guardar Configuración'}
         </Button>
-        </div>
+      </div>
     </div>
   );
 }

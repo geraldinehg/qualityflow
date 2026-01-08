@@ -69,13 +69,17 @@ export default function PublicTaskForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validar campos obligatorios
-    const visibleFields = formConfig?.visible_fields || [];
-    const requiredFields = ['title'];
+    // Validar título obligatorio
+    if (!formData.title) {
+      setError('El título es obligatorio');
+      return;
+    }
     
-    for (const field of requiredFields) {
-      if (visibleFields.includes(field) && !formData[field]) {
-        setError('Por favor completa todos los campos obligatorios');
+    // Validar campos personalizados obligatorios
+    const customFields = formConfig?.taskConfig?.custom_fields || [];
+    for (const field of customFields) {
+      if (field.required && field.visible && !formData.custom_fields?.[field.key]) {
+        setError(`El campo "${field.label}" es obligatorio`);
         return;
       }
     }
@@ -85,8 +89,9 @@ export default function PublicTaskForm() {
     submitMutation.mutate(formData);
   };
 
-  const renderField = (fieldKey) => {
+  const renderField = (field) => {
     const taskConfig = formConfig?.taskConfig;
+    const fieldKey = field.key;
     
     switch (fieldKey) {
       case 'title':
@@ -171,15 +176,12 @@ export default function PublicTaskForm() {
       
       default:
         // Campo personalizado
-        const customField = taskConfig?.custom_fields?.find(f => f.key === fieldKey);
-        if (!customField) return null;
-
-        switch (customField.type) {
+        switch (field.type) {
           case 'text':
             return (
               <div>
                 <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
-                  {customField.label} {customField.required && '*'}
+                  {field.label} {field.required && '*'}
                 </label>
                 <Input
                   value={formData.custom_fields?.[fieldKey] || ''}
@@ -187,7 +189,25 @@ export default function PublicTaskForm() {
                     ...formData,
                     custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: e.target.value }
                   })}
-                  required={customField.required}
+                  required={field.required}
+                />
+              </div>
+            );
+          
+          case 'textarea':
+            return (
+              <div>
+                <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
+                  {field.label} {field.required && '*'}
+                </label>
+                <Textarea
+                  value={formData.custom_fields?.[fieldKey] || ''}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: e.target.value }
+                  })}
+                  required={field.required}
+                  className="h-24"
                 />
               </div>
             );
@@ -196,7 +216,7 @@ export default function PublicTaskForm() {
             return (
               <div>
                 <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
-                  {customField.label} {customField.required && '*'}
+                  {field.label} {field.required && '*'}
                 </label>
                 <Select
                   value={formData.custom_fields?.[fieldKey] || ''}
@@ -206,10 +226,10 @@ export default function PublicTaskForm() {
                   })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={`Seleccionar ${customField.label}`} />
+                    <SelectValue placeholder={`Seleccionar ${field.label}`} />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    {(customField.options || []).map((opt) => (
+                    {(field.options || []).map((opt) => (
                       <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                     ))}
                   </SelectContent>
@@ -289,11 +309,20 @@ export default function PublicTaskForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {(formConfig.visible_fields || []).map((fieldKey) => (
-              <div key={fieldKey}>
-                {renderField(fieldKey)}
-              </div>
-            ))}
+            {/* Campos base siempre visibles */}
+            {renderField({ key: 'title', type: 'title' })}
+            {renderField({ key: 'description', type: 'description' })}
+            {renderField({ key: 'priority', type: 'priority' })}
+            {renderField({ key: 'due_date', type: 'due_date' })}
+            
+            {/* Campos personalizados visibles */}
+            {(formConfig.taskConfig?.custom_fields || [])
+              .filter(f => f.visible)
+              .map((field) => (
+                <div key={field.key}>
+                  {renderField(field)}
+                </div>
+              ))}
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">

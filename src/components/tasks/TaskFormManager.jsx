@@ -15,12 +15,7 @@ export default function TaskFormManager({ projectId, config }) {
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     form_title: '',
-    form_description: '',
     default_status: config?.custom_statuses?.[0]?.key || 'todo',
-    visible_fields: ['title', 'description'],
-    require_authentication: false,
-    max_submissions_per_day: null,
-    success_message: '¡Gracias! Tu solicitud ha sido recibida.',
     notification_email: ''
   });
 
@@ -63,7 +58,17 @@ export default function TaskFormManager({ projectId, config }) {
       toast.error('El título es obligatorio');
       return;
     }
-    createMutation.mutate(formData);
+    
+    const payload = {
+      ...formData,
+      form_description: '',
+      visible_fields: [],
+      require_authentication: false,
+      max_submissions_per_day: null,
+      success_message: '¡Gracias! Tu solicitud ha sido recibida.'
+    };
+    
+    createMutation.mutate(payload);
   };
 
   const copyFormUrl = (token) => {
@@ -72,13 +77,7 @@ export default function TaskFormManager({ projectId, config }) {
     toast.success('URL copiada al portapapeles');
   };
 
-  const availableFields = [
-    { key: 'title', label: 'Título' },
-    { key: 'description', label: 'Descripción' },
-    { key: 'priority', label: 'Prioridad' },
-    { key: 'due_date', label: 'Fecha de vencimiento' },
-    ...(config?.custom_fields || []).map(f => ({ key: f.key, label: f.label }))
-  ];
+
 
   return (
     <div className="space-y-4">
@@ -109,73 +108,14 @@ export default function TaskFormManager({ projectId, config }) {
                 onChange={(e) => setFormData({ ...formData, form_title: e.target.value })}
                 placeholder="Ej: Solicitudes de Soporte"
               />
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                Los campos visibles se configuran desde la pestaña "Campos Personalizados"
+              </p>
             </div>
 
             <div>
               <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Descripción
-              </label>
-              <Textarea
-                value={formData.form_description}
-                onChange={(e) => setFormData({ ...formData, form_description: e.target.value })}
-                placeholder="Describe el propósito del formulario"
-                className="h-20"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Estado inicial de las tareas
-              </label>
-              <Select
-                value={formData.default_status}
-                onValueChange={(value) => setFormData({ ...formData, default_status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {(config?.custom_statuses || []).map((s) => (
-                    <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Campos visibles en el formulario
-              </label>
-              <div className="space-y-2">
-                {availableFields.map((field) => (
-                  <label key={field.key} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.visible_fields.includes(field.key)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFormData({
-                            ...formData,
-                            visible_fields: [...formData.visible_fields, field.key]
-                          });
-                        } else {
-                          setFormData({
-                            ...formData,
-                            visible_fields: formData.visible_fields.filter(f => f !== field.key)
-                          });
-                        }
-                      }}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">{field.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Email para notificaciones (opcional)
+                Email para notificaciones
               </label>
               <Input
                 type="email"
@@ -183,26 +123,9 @@ export default function TaskFormManager({ projectId, config }) {
                 onChange={(e) => setFormData({ ...formData, notification_email: e.target.value })}
                 placeholder="email@ejemplo.com"
               />
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Mensaje de éxito
-              </label>
-              <Input
-                value={formData.success_message}
-                onChange={(e) => setFormData({ ...formData, success_message: e.target.value })}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--text-secondary)]">Requiere autenticación</span>
-              <Switch
-                checked={formData.require_authentication}
-                onCheckedChange={(checked) => 
-                  setFormData({ ...formData, require_authentication: checked })
-                }
-              />
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                Se enviará un correo a esta dirección cuando se reciba un nuevo formulario
+              </p>
             </div>
 
             <div className="flex gap-2 justify-end">
@@ -230,8 +153,10 @@ export default function TaskFormManager({ projectId, config }) {
                       {form.is_active ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </div>
-                  {form.form_description && (
-                    <p className="text-sm text-[var(--text-secondary)]">{form.form_description}</p>
+                  {form.notification_email && (
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Notifica a: {form.notification_email}
+                    </p>
                   )}
                   <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                     <Link2 className="h-3 w-3" />
