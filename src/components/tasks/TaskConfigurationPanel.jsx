@@ -105,16 +105,18 @@ export default function TaskConfigurationPanel({ projectId = null }) {
     queryFn: async () => {
       if (projectId) {
         // Buscar configuración del proyecto específico
-        return await base44.entities.TaskConfiguration.filter({ project_id: projectId });
+        const configs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
+        return configs || [];
       } else {
-        // Buscar configuración global (sin project_id)
-        return await base44.entities.TaskConfiguration.filter({ project_id: null });
+        // Buscar configuración global (listar todas y filtrar las que no tienen project_id)
+        const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
+        return (allConfigs || []).filter(c => !c.project_id);
       }
     }
   });
   
   React.useEffect(() => {
-    if (configurations.length > 0) {
+    if (configurations && configurations.length > 0) {
       setConfig(configurations[0]);
     } else {
       setConfig({ ...DEFAULT_CONFIG, project_id: projectId });
@@ -123,8 +125,8 @@ export default function TaskConfigurationPanel({ projectId = null }) {
   
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      const configData = { ...data, project_id: projectId };
-      if (configurations.length > 0) {
+      const configData = { ...data, project_id: projectId || null };
+      if (configurations && configurations.length > 0) {
         return base44.entities.TaskConfiguration.update(configurations[0].id, configData);
       } else {
         return base44.entities.TaskConfiguration.create(configData);

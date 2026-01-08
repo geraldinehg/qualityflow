@@ -43,12 +43,13 @@ export default function TasksViewDynamic({ projectId }) {
     queryFn: async () => {
       // Buscar configuración específica del proyecto
       const projectConfigs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
-      if (projectConfigs.length > 0) {
+      if (projectConfigs && projectConfigs.length > 0) {
         return projectConfigs[0];
       }
       
       // Si no existe, buscar configuración global (sin project_id)
-      const globalConfigs = await base44.entities.TaskConfiguration.filter({ project_id: null });
+      const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
+      const globalConfigs = (allConfigs || []).filter(c => !c.project_id);
       if (globalConfigs.length > 0) {
         return globalConfigs[0];
       }
