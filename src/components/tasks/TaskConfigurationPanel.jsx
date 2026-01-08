@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import TaskFormManager from './TaskFormManager';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,7 +87,12 @@ export default function TaskConfigurationPanel({ projectId }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectId ? ['task-configuration', projectId] : ['task-configurations'] });
-      toast.success('Configuración guardada');
+      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+      toast.success('✓ Configuración guardada correctamente', { duration: 3000 });
+    },
+    onError: (error) => {
+      toast.error('Error al guardar la configuración');
+      console.error('Save error:', error);
     }
   });
 
@@ -235,6 +241,7 @@ export default function TaskConfigurationPanel({ projectId }) {
           <TabsTrigger value="statuses">Estados (Columnas)</TabsTrigger>
           <TabsTrigger value="priorities">Prioridades</TabsTrigger>
           <TabsTrigger value="fields">Campos Personalizados</TabsTrigger>
+          <TabsTrigger value="forms">Formularios Públicos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="statuses" className="space-y-4">
@@ -455,14 +462,18 @@ export default function TaskConfigurationPanel({ projectId }) {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
 
-      <div className="flex justify-end">
+        <TabsContent value="forms" className="space-y-4">
+          <TaskFormManager projectId={projectId} config={config} />
+        </TabsContent>
+        </Tabs>
+
+        <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-[#FF1B7E] hover:bg-[#e6156e]">
           <Save className="h-4 w-4 mr-2" />
           {saveMutation.isPending ? 'Guardando...' : 'Guardar Configuración'}
         </Button>
-      </div>
+        </div>
     </div>
   );
 }
