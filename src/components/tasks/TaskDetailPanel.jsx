@@ -44,11 +44,11 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
       setHasChanges(false);
       setIsSaving(false);
-      toast.success('Cambios guardados', { duration: 2000 });
+      toast.success('✅ Cambios guardados', { duration: 2000 });
     },
-    onError: () => {
+    onError: (error) => {
       setIsSaving(false);
-      toast.error('Error al guardar');
+      toast.error(`❌ Error al guardar: ${error.message}`);
     }
   });
 

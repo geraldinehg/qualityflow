@@ -74,6 +74,10 @@ export default function TaskKanbanView({ projectId }) {
     mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+    },
+    onError: (error) => {
+      console.error('Error updating task:', error);
+      toast.error(`Error al actualizar: ${error.message}`);
     }
   });
 

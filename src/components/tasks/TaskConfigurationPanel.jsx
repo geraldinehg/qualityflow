@@ -129,10 +129,25 @@ export default function TaskConfigurationPanel({ projectId }) {
       return;
     }
 
-    toast.loading('Guardando configuración...', { id: 'saving-config' });
+    // Validar que hay al menos un estado y una prioridad
+    if (!config.custom_statuses || config.custom_statuses.length === 0) {
+      toast.error('Debe haber al menos un estado');
+      return;
+    }
+    
+    if (!config.custom_priorities || config.custom_priorities.length === 0) {
+      toast.error('Debe haber al menos una prioridad');
+      return;
+    }
+
+    const toastId = toast.loading('💾 Guardando configuración...');
+    
     saveMutation.mutate(config, {
-      onSettled: () => {
-        toast.dismiss('saving-config');
+      onSuccess: () => {
+        toast.success('✅ Configuración guardada', { id: toastId, duration: 3000 });
+      },
+      onError: (error) => {
+        toast.error(`❌ Error: ${error.message}`, { id: toastId });
       }
     });
   };

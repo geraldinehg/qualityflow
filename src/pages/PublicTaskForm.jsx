@@ -51,17 +51,20 @@ export default function PublicTaskForm() {
 
   const submitMutation = useMutation({
     mutationFn: async (data) => {
-      return base44.functions.invoke('submitPublicTaskForm', {
+      const response = await base44.functions.invoke('submitPublicTaskForm', {
         form_token: formToken,
         task_data: data
       });
+      return response.data;
     },
     onSuccess: () => {
       setIsSubmitted(true);
       setIsSubmitting(false);
+      setFormData({});
     },
     onError: (err) => {
-      setError(err.message || 'Error al enviar el formulario');
+      console.error('Error submitting form:', err);
+      setError(err.response?.data?.error || err.message || 'Error al enviar el formulario');
       setIsSubmitting(false);
     }
   });

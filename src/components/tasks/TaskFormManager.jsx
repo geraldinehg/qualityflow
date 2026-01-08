@@ -37,19 +37,37 @@ export default function TaskFormManager({ projectId, config }) {
         is_active: true
       });
     },
-    onSuccess: () => {
+    onSuccess: (newForm) => {
       queryClient.invalidateQueries({ queryKey: ['task-form-urls', projectId] });
       setIsCreating(false);
-      toast.success('Formulario creado');
+      setFormData({
+        form_title: '',
+        default_status: config?.custom_statuses?.[0]?.key || 'todo',
+        notification_email: ''
+      });
+      
+      toast.success('✅ Formulario creado correctamente', { duration: 3000 });
+      
+      // Copiar URL automáticamente
+      const url = `${window.location.origin}/public/task-form/${newForm.form_token}`;
+      navigator.clipboard.writeText(url);
+      toast.info('📋 URL copiada al portapapeles', { duration: 2000 });
+    },
+    onError: (error) => {
+      toast.error(`❌ Error al crear formulario: ${error.message}`);
     }
   });
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, is_active }) => 
       base44.entities.TaskFormPublicUrl.update(id, { is_active }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['task-form-urls', projectId] });
-      toast.success('Estado actualizado');
+      const status = variables.is_active ? 'activado' : 'desactivado';
+      toast.success(`✅ Formulario ${status}`, { duration: 2000 });
+    },
+    onError: (error) => {
+      toast.error(`❌ Error al actualizar: ${error.message}`);
     }
   });
 

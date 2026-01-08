@@ -46,8 +46,11 @@ export default function TaskFormModal({ isOpen, onClose, task, initialStatus, pr
     mutationFn: (data) => base44.entities.Task.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
-      toast.success('Tarea creada');
+      toast.success('✅ Tarea creada correctamente', { duration: 2000 });
       onClose();
+    },
+    onError: (error) => {
+      toast.error(`❌ Error al crear: ${error.message}`);
     }
   });
 
@@ -55,8 +58,11 @@ export default function TaskFormModal({ isOpen, onClose, task, initialStatus, pr
     mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
-      toast.success('Tarea actualizada');
+      toast.success('✅ Tarea actualizada correctamente', { duration: 2000 });
       onClose();
+    },
+    onError: (error) => {
+      toast.error(`❌ Error al actualizar: ${error.message}`);
     }
   });
 
