@@ -275,13 +275,25 @@ export default function TaskConfigurationPanel() {
               <CardTitle className="text-[var(--text-primary)]">Configuración General</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-[var(--text-primary)]">Módulo de Tareas Habilitado</Label>
+              <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-secondary)]">
+                <div>
+                  <Label className="text-[var(--text-primary)] font-semibold text-base">Módulo de Tareas Habilitado</Label>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">
+                    Activa o desactiva el módulo de tareas para todos los proyectos
+                  </p>
+                </div>
                 <Switch
                   checked={config.module_enabled}
                   onCheckedChange={(checked) => setConfig({ ...config, module_enabled: checked })}
+                  className="data-[state=checked]:bg-[#FF1B7E]"
                 />
               </div>
+              
+              {!config.module_enabled && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm text-amber-600">
+                  <strong>⚠️ Atención:</strong> El módulo de tareas está deshabilitado. Los usuarios no podrán ver ni crear tareas en los proyectos.
+                </div>
+              )}
             </CardContent>
           </Card>
           
