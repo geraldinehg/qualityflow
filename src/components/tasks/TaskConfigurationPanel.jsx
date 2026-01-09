@@ -263,7 +263,7 @@ export default function TaskConfigurationPanel({ projectId }) {
     const newFields = [...config.custom_fields];
     const field = newFields[fieldIndex];
     field.options = [...(field.options || []), newOption.trim()];
-    setConfig({ ...config, custom_fields: newFields });
+    updateConfig({ ...config, custom_fields: newFields });
     setNewOption('');
   };
 
@@ -271,7 +271,7 @@ export default function TaskConfigurationPanel({ projectId }) {
     const newFields = [...config.custom_fields];
     const field = newFields[fieldIndex];
     field.options = field.options.filter((_, i) => i !== optIndex);
-    setConfig({ ...config, custom_fields: newFields });
+    updateConfig({ ...config, custom_fields: newFields });
   };
 
   if (isLoading) {
