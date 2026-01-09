@@ -78,46 +78,35 @@ export default function TaskConfigurationPanel({ projectId }) {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      try {
-        const configData = { 
-          module_enabled: data.module_enabled ?? true,
-          custom_statuses: data.custom_statuses || [],
-          custom_priorities: data.custom_priorities || [],
-          custom_fields: data.custom_fields || [],
-          project_id: projectId || null
-        };
-        
-        let result;
-        if (configurations && configurations.length > 0) {
-          result = await base44.entities.TaskConfiguration.update(configurations[0].id, configData);
-        } else {
-          result = await base44.entities.TaskConfiguration.create(configData);
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('Error en mutationFn:', error);
-        throw error;
+      const configData = { 
+        module_enabled: data.module_enabled ?? true,
+        custom_statuses: data.custom_statuses || [],
+        custom_priorities: data.custom_priorities || [],
+        custom_fields: data.custom_fields || [],
+        project_id: projectId || null
+      };
+      
+      let result;
+      if (configurations && configurations.length > 0) {
+        result = await base44.entities.TaskConfiguration.update(configurations[0].id, configData);
+      } else {
+        result = await base44.entities.TaskConfiguration.create(configData);
       }
+      
+      return result;
     },
     onSuccess: async (savedConfig) => {
-      // Actualizar el estado local con la configuración guardada
+      // Actualizar estado local
       setConfig(savedConfig);
       
-      // Invalidar queries
-      queryClient.invalidateQueries({ queryKey: ['task-configuration'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      
-      // Forzar refetch del kanban
-      queryClient.refetchQueries({ queryKey: ['task-configuration', projectId] });
-      
-      toast.success('✓ Configuración guardada correctamente', { 
-        duration: 3000 
-      });
+      // Invalidar y esperar refetch para sincronización
+      await queryClient.invalidateQueries({ queryKey: ['task-configuration'] });
+      await queryClient.refetchQueries({ queryKey: ['task-configuration', projectId] });
+      await queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
     },
     onError: (error) => {
-      console.error('Error completo:', error);
-      toast.error(`Error al guardar: ${error.message || 'Desconocido'}`);
+      console.error('Error al guardar configuración:', error);
+      throw error;
     }
   });
 

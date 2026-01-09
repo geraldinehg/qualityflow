@@ -33,36 +33,32 @@ export default function TaskKanbanView({ projectId }) {
 
   const queryClient = useQueryClient();
 
-  const { data: config, refetch: refetchConfig } = useQuery({
+  const { data: config, isLoading: configLoading } = useQuery({
     queryKey: ['task-configuration', projectId],
     queryFn: async () => {
+      console.log('🔍 Cargando configuración para proyecto:', projectId);
+      
       const projectConfigs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
       if (projectConfigs && projectConfigs.length > 0) {
+        console.log('✅ Config específica encontrada:', projectConfigs[0]);
         return projectConfigs[0];
       }
       
       const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
       const globalConfigs = (allConfigs || []).filter(c => !c.project_id);
       if (globalConfigs.length > 0) {
+        console.log('✅ Config global encontrada:', globalConfigs[0]);
         return globalConfigs[0];
       }
       
+      console.log('⚠️ No se encontró configuración');
       return null;
     },
     enabled: !!projectId,
-    refetchOnWindowFocus: true,
-    staleTime: 0
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
-
-  // Refetch cuando se actualizan las configuraciones
-  React.useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-      if (event?.query?.queryKey?.[0] === 'task-configuration' && event?.type === 'updated') {
-        refetchConfig();
-      }
-    });
-    return unsubscribe;
-  }, [queryClient, refetchConfig]);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', projectId],
@@ -218,15 +214,43 @@ export default function TaskKanbanView({ projectId }) {
     setFilterCustomField({});
   };
 
-  if (!config || config.module_enabled === false) {
+  if (configLoading) {
     return (
       <div className="text-center py-12">
-        <p className="text-[var(--text-secondary)]">El módulo de tareas está deshabilitado para este proyecto</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto" />
+        <p className="text-sm text-[var(--text-secondary)] mt-4">Cargando configuración...</p>
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <p className="text-[var(--text-secondary)]">No hay configuración de tareas para este proyecto</p>
+        <p className="text-xs text-[var(--text-tertiary)]">Ve a la pestaña "Config Tareas" para crear la configuración</p>
+      </div>
+    );
+  }
+
+  if (config.module_enabled === false) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[var(--text-secondary)]">El módulo de tareas está deshabilitado</p>
       </div>
     );
   }
 
   const statuses = (config.custom_statuses || []).sort((a, b) => a.order - b.order);
+  
+  if (statuses.length === 0) {
+    return (
+      <div className="text-center py-12 space-y-4">
+        <p className="text-[var(--text-secondary)]">No hay estados configurados</p>
+        <p className="text-xs text-[var(--text-tertiary)]">Ve a "Config Tareas" → "Estados (Columnas)" para agregar estados</p>
+      </div>
+    );
+  }
+  
   const priorities = (config.custom_priorities || []).reduce((acc, p) => {
     acc[p.key] = { label: p.label, color: COLOR_MAP[p.color] || 'bg-gray-500' };
     return acc;
