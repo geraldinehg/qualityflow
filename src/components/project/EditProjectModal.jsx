@@ -132,44 +132,45 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[#1a1a1a] border-[#2a2a2a] text-white">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">Editar Proyecto</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-[var(--text-primary)]">Editar Proyecto</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           {/* Información básica */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre del proyecto *</Label>
+              <Label htmlFor="name" className="text-[var(--text-primary)]">Nombre del proyecto *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ej: Landing Campaña Verano"
+                className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="description">Descripción</Label>
+              <Label htmlFor="description" className="text-[var(--text-primary)]">Descripción</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Breve descripción del proyecto..."
-                className="h-20"
+                className="h-20 bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
               />
             </div>
             
             {/* Clasificación */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de Proyecto</Label>
+                <Label className="text-[var(--text-primary)]">Tipo de Proyecto</Label>
                 <Select
                   value={formData.project_type}
                   onValueChange={(value) => setFormData({ ...formData, project_type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -181,12 +182,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               </div>
               
               <div className="space-y-2">
-                <Label>Tipo de Fee</Label>
+                <Label className="text-[var(--text-primary)]">Tipo de Fee</Label>
                 <Select
                   value={formData.fee_type}
                   onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -200,12 +201,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Product Owner</Label>
+                <Label className="text-[var(--text-primary)]">Product Owner</Label>
                 <Select
                   value={formData.product_owner_email}
                   onValueChange={(value) => setFormData({ ...formData, product_owner_email: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -219,12 +220,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               </div>
               
               <div className="space-y-2">
-                <Label>Cliente / Sociedad</Label>
+                <Label className="text-[var(--text-primary)]">Cliente / Sociedad</Label>
                 <Select
                   value={formData.client_id}
                   onValueChange={(value) => setFormData({ ...formData, client_id: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -238,12 +239,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de sitio *</Label>
+                <Label className="text-[var(--text-primary)]">Tipo de sitio *</Label>
                 <Select
                   value={formData.site_type}
                   onValueChange={(value) => setFormData({ ...formData, site_type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -255,12 +256,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               </div>
               
               <div className="space-y-2">
-                <Label>Tecnología *</Label>
+                <Label className="text-[var(--text-primary)]">Tecnología *</Label>
                 <Select
                   value={formData.technology}
                   onValueChange={(value) => setFormData({ ...formData, technology: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue placeholder="Seleccionar..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -274,12 +275,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Estado</Label>
+                <Label className="text-[var(--text-primary)]">Estado</Label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => setFormData({ ...formData, status: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -293,12 +294,12 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               </div>
               
               <div className="space-y-2">
-                <Label>Nivel de impacto</Label>
+                <Label className="text-[var(--text-primary)]">Nivel de impacto</Label>
                 <Select
                   value={formData.impact_level}
                   onValueChange={(value) => setFormData({ ...formData, impact_level: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -311,11 +312,11 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
               </div>
               
               <div className="space-y-2">
-                <Label>Fecha objetivo</Label>
+                <Label className="text-[var(--text-primary)]">Fecha objetivo</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start font-normal bg-white text-black hover:bg-gray-100">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                    <Button variant="outline" className="w-full justify-start font-normal bg-white text-black hover:bg-gray-100 border-[var(--border-primary)]">
+                      <CalendarIcon className="mr-2 h-4 w-4 text-black" />
                       {formData.target_date 
                         ? format(formData.target_date, "d MMM yyyy", { locale: es })
                         : "Seleccionar"
@@ -339,9 +340,9 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
           </div>
           
           <div className="space-y-3">
-            <Label className="text-gray-300">Áreas que aplican para este proyecto</Label>
-            <p className="text-xs text-gray-400">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
-            <div className="grid grid-cols-2 gap-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+            <Label className="text-[var(--text-primary)]">Áreas que aplican para este proyecto</Label>
+            <p className="text-xs text-[var(--text-secondary)]">Selecciona las áreas que participarán en el proyecto. Solo se mostrarán los checklist de estas áreas.</p>
+            <div className="grid grid-cols-2 gap-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg">
               {[
                 { id: 'ux', label: 'UX' },
                 { id: 'ui', label: 'UI' },
@@ -373,7 +374,7 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                   />
                   <label
                     htmlFor={`edit-${area.id}`}
-                    className="text-sm text-gray-300 cursor-pointer"
+                    className="text-sm text-[var(--text-primary)] cursor-pointer"
                   >
                     {area.label}
                   </label>
@@ -383,9 +384,9 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             
             {formData.applicable_areas.length > 0 && (
               <div className="space-y-3 mt-4">
-                <Label className="text-gray-300">Responsables por área</Label>
-                <p className="text-xs text-gray-400">Asigna un responsable para cada área seleccionada</p>
-                <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg">
+                <Label className="text-[var(--text-primary)]">Responsables por área</Label>
+                <p className="text-xs text-[var(--text-secondary)]">Asigna un responsable para cada área seleccionada</p>
+                <div className="space-y-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg">
                   {[
                     { id: 'ux', label: 'UX', rolePrefix: 'ux' },
                     { id: 'ui', label: 'UI', rolePrefix: 'ui' },
@@ -397,7 +398,7 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                     { id: 'social', label: 'Social Media', rolePrefix: 'social' }
                   ].filter(area => formData.applicable_areas.includes(area.id)).map(area => (
                     <div key={area.id} className="flex items-center gap-3">
-                      <Label className="min-w-[140px] text-sm text-gray-400">{area.label}</Label>
+                      <Label className="min-w-[140px] text-sm text-[var(--text-secondary)]">{area.label}</Label>
                       <Select
                         value={formData.area_responsibles[area.id] || ''}
                         onValueChange={(value) => setFormData({ 
@@ -405,7 +406,7 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                           area_responsibles: { ...formData.area_responsibles, [area.id]: value }
                         })}
                       >
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger className="flex-1 bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                           <SelectValue placeholder="Seleccionar responsable..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -429,17 +430,17 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
             
             {(currentUserRole === 'product_owner' || currentUserRole?.startsWith('leader_') || currentUserRole === 'administrador' || currentUserRole === 'web_leader') && (
               <div className="space-y-2 mt-4">
-                <Label className="text-gray-300">
+                <Label className="text-[var(--text-primary)]">
                   <DollarSign className="h-4 w-4 inline mr-1" />
                   Valor del Proyecto
                 </Label>
-                <p className="text-xs text-gray-400">Este campo solo es visible para Product Owners y Líderes</p>
+                <p className="text-xs text-[var(--text-secondary)]">Este campo solo es visible para Product Owners y Líderes</p>
                 <Input
                   type="number"
                   value={formData.project_value}
                   onChange={(e) => setFormData({ ...formData, project_value: e.target.value })}
                   placeholder="Ej: 5000"
-                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#FF1B7E]"
+                  className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[#FF1B7E]"
                 />
               </div>
             )}
@@ -450,8 +451,8 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
           {/* Responsables por fase */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-semibold text-white mb-1">Responsables por Fase</h3>
-              <p className="text-xs text-gray-400">Asigna responsables para cada fase del proyecto</p>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">Responsables por Fase</h3>
+              <p className="text-xs text-[var(--text-secondary)]">Asigna responsables para cada fase del proyecto</p>
             </div>
             
             <div className="space-y-3">
@@ -460,13 +461,13 @@ export default function EditProjectModal({ isOpen, onClose, onSave, onDelete, pr
                 const responsibles = formData.phase_responsibles[phaseKey] || [];
                 
                 return (
-                  <div key={phaseKey} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3 space-y-2">
+                  <div key={phaseKey} className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium text-gray-300">{displayName}</Label>
+                      <Label className="text-sm font-medium text-[var(--text-primary)]">{displayName}</Label>
                       <Select
                         onValueChange={(email) => handleAddResponsible(phaseKey, email)}
                       >
-                        <SelectTrigger className="w-48 h-8 text-xs">
+                        <SelectTrigger className="w-48 h-8 text-xs bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]">
                           <SelectValue placeholder="+ Agregar responsable" />
                         </SelectTrigger>
                         <SelectContent>
