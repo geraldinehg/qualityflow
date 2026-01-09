@@ -320,7 +320,7 @@ export default function TaskConfigurationPanel({ projectId }) {
             <div className="flex items-center gap-2">
               <Button 
                 onClick={handleSave} 
-                disabled={isSaving || !hasUnsavedChanges} 
+                disabled={isSaving} 
                 className="bg-[#FF1B7E] hover:bg-[#e6156e] disabled:opacity-50"
               >
                 <Save className="h-4 w-4 mr-2" />
