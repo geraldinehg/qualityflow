@@ -110,7 +110,7 @@ export default function TaskConfigurationPanel({ projectId }) {
     }
   });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validar que hay al menos un estado final
     const hasFinalStatus = config.custom_statuses?.some(s => s.is_final);
     if (!hasFinalStatus) {
@@ -131,14 +131,12 @@ export default function TaskConfigurationPanel({ projectId }) {
 
     const toastId = toast.loading('💾 Guardando configuración...');
     
-    saveMutation.mutate(config, {
-      onSuccess: () => {
-        toast.success('✅ Configuración guardada', { id: toastId, duration: 3000 });
-      },
-      onError: (error) => {
-        toast.error(`❌ Error: ${error.message}`, { id: toastId });
-      }
-    });
+    try {
+      await saveMutation.mutateAsync(config);
+      toast.success('✅ Configuración guardada correctamente', { id: toastId, duration: 3000 });
+    } catch (error) {
+      toast.error(`❌ Error: ${error.message || 'Error al guardar'}`, { id: toastId });
+    }
   };
 
   const addStatus = () => {
