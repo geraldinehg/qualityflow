@@ -87,17 +87,17 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
   return (
     <div className="space-y-6">
       {/* Configuración de duraciones */}
-      <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
+      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 text-white">
+          <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
             <Clock className="h-5 w-5 text-[#FF1B7E]" />
             Configuración de Fases
           </CardTitle>
         </CardHeader>
         <CardContent>
           {/* Fecha de inicio */}
-          <div className="mb-6 pb-6 border-b border-[#2a2a2a]">
-            <Label className="text-sm font-medium mb-2 block text-white">Fecha de Inicio del Proyecto</Label>
+          <div className="mb-6 pb-6 border-b border-[var(--border-primary)]">
+            <Label className="text-sm font-medium mb-2 block text-[var(--text-primary)]">Fecha de Inicio del Proyecto</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button className="w-full sm:w-64 justify-start font-normal bg-white text-black hover:bg-gray-100">
@@ -122,7 +122,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {PHASES.map(phase => (
               <div key={phase.key} className="space-y-2">
-                <Label className="text-xs text-gray-300">{phase.name}</Label>
+                <Label className="text-xs text-[var(--text-secondary)]">{phase.name}</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -130,9 +130,9 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                     max="90"
                     value={phaseDurations[phase.key] || 5}
                     onChange={(e) => handleDurationChange(phase.key, e.target.value)}
-                    className="h-8 bg-[#0a0a0a] border-[#2a2a2a] text-white"
+                    className="h-8 bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
                   />
-                  <span className="text-xs text-gray-400">días</span>
+                  <span className="text-xs text-[var(--text-secondary)]">días</span>
                 </div>
               </div>
             ))}
@@ -144,10 +144,10 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
       </Card>
 
       {/* Vista de calendario */}
-      <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
+      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2 text-white">
+            <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
               <CalendarIcon className="h-5 w-5 text-[#FF1B7E]" />
               Cronograma del Proyecto
             </CardTitle>
@@ -158,10 +158,10 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                 className="bg-white hover:bg-gray-100 text-black"
               >
                 <ChevronLeft className="h-4 w-4 text-black" />
-              </Button>
-              <span className="text-sm font-medium min-w-[150px] text-center text-white">
+                </Button>
+                <span className="text-sm font-medium min-w-[150px] text-center text-[var(--text-primary)]">
                 {format(currentMonth, 'MMMM yyyy', { locale: es })}
-              </span>
+                </span>
               <Button
                 size="icon"
                 onClick={() => setCurrentMonth(addDays(currentMonth, 30))}
@@ -174,18 +174,18 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
         </CardHeader>
         <CardContent>
           {!startDate ? (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-[var(--text-secondary)]">
               Define una fecha de inicio arriba para ver el cronograma
             </div>
           ) : (
             <div className="space-y-4">
               {/* Leyenda de fases */}
-              <div className="flex flex-wrap gap-2 pb-4 border-b border-[#2a2a2a]">
+              <div className="flex flex-wrap gap-2 pb-4 border-b border-[var(--border-primary)]">
                 {phaseSchedule.map(phase => (
                   <div key={phase.key} className="flex items-center gap-2 text-xs">
                     <div className={cn("w-3 h-3 rounded", phase.color)} />
-                    <span className="text-gray-300">{phase.name}</span>
-                    <span className="text-gray-400">
+                    <span className="text-[var(--text-primary)]">{phase.name}</span>
+                    <span className="text-[var(--text-secondary)]">
                       ({format(phase.startDate, 'd MMM', { locale: es })} - {format(phase.endDate, 'd MMM', { locale: es })})
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
               <div className="grid grid-cols-7 gap-1">
                 {/* Días de la semana */}
                 {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                  <div key={day} className="text-center text-xs font-medium text-gray-400 py-2">
+                  <div key={day} className="text-center text-xs font-medium text-[var(--text-secondary)] py-2">
                     {day}
                   </div>
                 ))}
@@ -210,7 +210,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                     <div
                       key={day.toString()}
                       className={cn(
-                        "aspect-square p-1 border border-[#2a2a2a] rounded-lg text-center flex flex-col items-center justify-center",
+                        "aspect-square p-1 border border-[var(--border-primary)] rounded-lg text-center flex flex-col items-center justify-center",
                         !isSameMonth(day, currentMonth) && "opacity-30",
                         isToday && "ring-2 ring-[#FF1B7E]",
                         phase && phase.color
@@ -218,7 +218,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                     >
                       <span className={cn(
                         "text-xs font-medium",
-                        phase ? "text-white" : "text-gray-300"
+                        phase ? "text-white" : "text-[var(--text-primary)]"
                       )}>
                         {format(day, 'd')}
                       </span>
@@ -233,21 +233,21 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
 
       {/* Resumen de fechas */}
       {startDate && (
-        <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
+        <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
           <CardHeader>
-            <CardTitle className="text-base text-white">Resumen de Fases</CardTitle>
+            <CardTitle className="text-base text-[var(--text-primary)]">Resumen de Fases</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {phaseSchedule.map(phase => (
-                <div key={phase.key} className="flex items-center justify-between py-2 border-b border-[#2a2a2a] last:border-0">
+                <div key={phase.key} className="flex items-center justify-between py-2 border-b border-[var(--border-primary)] last:border-0">
                   <div className="flex items-center gap-3">
                     <div className={cn("w-3 h-3 rounded", phase.color)} />
-                    <span className="font-medium text-sm text-white">{phase.name}</span>
+                    <span className="font-medium text-sm text-[var(--text-primary)]">{phase.name}</span>
                   </div>
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-[var(--text-primary)]">
                     {format(phase.startDate, 'd MMM', { locale: es })} - {format(phase.endDate, 'd MMM yyyy', { locale: es })}
-                    <span className="text-gray-400 ml-2">({phase.duration} días)</span>
+                    <span className="text-[var(--text-secondary)] ml-2">({phase.duration} días)</span>
                   </div>
                 </div>
               ))}
