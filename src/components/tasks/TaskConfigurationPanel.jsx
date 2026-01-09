@@ -86,7 +86,6 @@ export default function TaskConfigurationPanel({ projectId }) {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      setIsSaving(true);
       console.log('💾 Iniciando guardado con data:', data);
       
       const configData = { 
@@ -126,12 +125,9 @@ export default function TaskConfigurationPanel({ projectId }) {
         queryClient.invalidateQueries({ queryKey: ['task-configuration'] }),
         projectId ? queryClient.invalidateQueries({ queryKey: ['tasks', projectId] }) : Promise.resolve()
       ]);
-      
-      setIsSaving(false);
     },
     onError: (error) => {
       console.error('❌ Error guardando:', error);
-      setIsSaving(false);
       throw error;
     }
   });
@@ -154,6 +150,7 @@ export default function TaskConfigurationPanel({ projectId }) {
       return;
     }
 
+    setIsSaving(true);
     const toastId = toast.loading('💾 Guardando configuración...');
     
     try {
@@ -162,6 +159,8 @@ export default function TaskConfigurationPanel({ projectId }) {
     } catch (error) {
       console.error('❌ Error:', error);
       toast.error(`❌ Error al guardar: ${error.message || 'Intenta de nuevo'}`, { id: toastId });
+    } finally {
+      setIsSaving(false);
     }
   };
 
