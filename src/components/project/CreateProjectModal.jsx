@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, CheckSquare, Plus, FileText } from 'lucide-react';
+import { CalendarIcon, Loader2, CheckSquare, Plus, FileText, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from "@/components/ui/checkbox";
 import GoogleDrivePicker from '../googledrive/GoogleDrivePicker';
@@ -66,6 +66,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     description: '',
     project_type: '',
     fee_type: '',
+    is_monthly_fee: false,
+    monthly_fee_scope: [],
     product_owner_email: '',
     client_id: '',
     site_type: '',
@@ -76,6 +78,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
     area_responsibles: {},
     project_value: ''
   });
+  
+  const [newScopeItem, setNewScopeItem] = useState('');
   
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState(null);
@@ -211,6 +215,8 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
         description: '',
         project_type: '',
         fee_type: '',
+        is_monthly_fee: false,
+        monthly_fee_scope: [],
         product_owner_email: '',
         client_id: '',
         site_type: '',
@@ -222,6 +228,7 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
         project_value: ''
       });
       setCurrentStep(1);
+      setNewScopeItem('');
     }
   }, [initialData, isOpen]);
   
@@ -568,7 +575,158 @@ export default function CreateProjectModal({ isOpen, onClose, onCreate, isLoadin
             </div>
           </div>
           
-
+          {/* Fee Type */}
+          <div className="space-y-2">
+            <Label className="text-[var(--text-primary)]">Tipo de Fee</Label>
+            {showAddFeeType ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nombre del tipo de fee..."
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newItemName.trim()) {
+                      createFeeTypeMutation.mutate(newItemName);
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => newItemName.trim() && createFeeTypeMutation.mutate(newItemName)}
+                  disabled={createFeeTypeMutation.isPending}
+                  className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                >
+                  {createFeeTypeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear'}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddFeeType(false);
+                    setNewItemName('');
+                  }}
+                >
+                  ✕
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Select
+                  value={formData.fee_type}
+                  onValueChange={(value) => setFormData({ ...formData, fee_type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {feeTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.key}>{type.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setShowAddFeeType(true)}
+                  className="flex-shrink-0 bg-white border-gray-300 text-black hover:bg-[#FF1B7E] hover:text-white hover:border-[#FF1B7E]"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          {/* Checkbox Fee Mensual */}
+          <div className="space-y-3 p-4 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_monthly_fee"
+                checked={formData.is_monthly_fee}
+                onCheckedChange={(checked) => {
+                  setFormData({ ...formData, is_monthly_fee: checked, monthly_fee_scope: checked ? formData.monthly_fee_scope : [] });
+                  if (!checked) setNewScopeItem('');
+                }}
+                className="border-gray-600 data-[state=checked]:bg-[#FF1B7E] data-[state=checked]:border-[#FF1B7E]"
+              />
+              <label
+                htmlFor="is_monthly_fee"
+                className="text-sm font-medium text-[var(--text-primary)] cursor-pointer"
+              >
+                ¿Es un fee mensual?
+              </label>
+            </div>
+            
+            {formData.is_monthly_fee && (
+              <div className="space-y-3 mt-3">
+                <Label className="text-[var(--text-primary)]">Alcance del Fee Mensual</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Agregar ítem del alcance..."
+                    value={newScopeItem}
+                    onChange={(e) => setNewScopeItem(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newScopeItem.trim()) {
+                        e.preventDefault();
+                        setFormData({ 
+                          ...formData, 
+                          monthly_fee_scope: [...(formData.monthly_fee_scope || []), newScopeItem.trim()] 
+                        });
+                        setNewScopeItem('');
+                      }
+                    }}
+                    className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (newScopeItem.trim()) {
+                        setFormData({ 
+                          ...formData, 
+                          monthly_fee_scope: [...(formData.monthly_fee_scope || []), newScopeItem.trim()] 
+                        });
+                        setNewScopeItem('');
+                      }
+                    }}
+                    className="bg-[#FF1B7E] hover:bg-[#e6156e]"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {formData.monthly_fee_scope && formData.monthly_fee_scope.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    <Label className="text-xs text-[var(--text-secondary)]">Ítems del alcance:</Label>
+                    <ul className="space-y-1">
+                      {formData.monthly_fee_scope.map((item, index) => (
+                        <li key={index} className="flex items-center justify-between p-2 bg-[var(--bg-input)] border border-[var(--border-primary)] rounded">
+                          <span className="text-sm text-[var(--text-primary)]">• {item}</span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setFormData({ 
+                                ...formData, 
+                                monthly_fee_scope: formData.monthly_fee_scope.filter((_, i) => i !== index) 
+                              });
+                            }}
+                            className="h-6 w-6 p-0 text-[var(--text-secondary)] hover:text-red-500"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
