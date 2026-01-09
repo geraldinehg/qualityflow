@@ -226,7 +226,6 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Gestión de Proyectos</h2>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <RoleSelector value={userRole} onChange={setUserRole} />
           <Button onClick={() => setIsCreateOpen(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white shadow-lg shadow-[#FF1B7E]/20">
