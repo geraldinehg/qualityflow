@@ -109,13 +109,21 @@ export default function TaskConfigurationPanel({ projectId }) {
     onSuccess: async (savedConfig) => {
       console.log('🎉 onSuccess ejecutado con:', savedConfig);
       
-      // Invalidar todas las queries relacionadas
+      // Actualizar estado local inmediatamente
+      setConfig(savedConfig);
+      
+      // Invalidar y forzar refetch
+      queryClient.setQueryData(
+        projectId ? ['task-configuration', projectId] : ['task-configurations'],
+        [savedConfig]
+      );
+      
       await queryClient.invalidateQueries({ queryKey: ['task-configuration'] });
       if (projectId) {
         await queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
       }
       
-      console.log('✅ Queries invalidadas correctamente');
+      console.log('✅ Configuración actualizada y queries invalidadas');
     },
     onError: (error) => {
       console.error('❌ Error en saveMutation:', error);
