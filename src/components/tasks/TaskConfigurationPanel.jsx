@@ -58,8 +58,10 @@ export default function TaskConfigurationPanel({ projectId }) {
   const { data: configurations = [], isLoading } = useQuery({
     queryKey: projectId ? ['task-configuration', projectId] : ['task-configurations'],
     queryFn: async () => {
+      console.log('📥 Cargando configuraciones para proyecto:', projectId);
       if (projectId) {
         const configs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
+        console.log('📦 Configs del proyecto:', configs);
         return configs || [];
       } else {
         const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
@@ -69,6 +71,7 @@ export default function TaskConfigurationPanel({ projectId }) {
   });
 
   React.useEffect(() => {
+    console.log('🔄 Actualizando config local con:', configurations);
     if (configurations && configurations.length > 0) {
       setConfig(configurations[0]);
     } else {
@@ -78,6 +81,9 @@ export default function TaskConfigurationPanel({ projectId }) {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      console.log('💾 Iniciando guardado con data:', data);
+      console.log('📌 Configurations existentes:', configurations);
+      
       const configData = { 
         module_enabled: data.module_enabled ?? true,
         custom_statuses: data.custom_statuses || [],
@@ -86,31 +92,43 @@ export default function TaskConfigurationPanel({ projectId }) {
         project_id: projectId || null
       };
       
+      console.log('📤 ConfigData a guardar:', configData);
+      
       let result;
       if (configurations && configurations.length > 0) {
+        console.log('✏️ Actualizando config existente, ID:', configurations[0].id);
         result = await base44.entities.TaskConfiguration.update(configurations[0].id, configData);
       } else {
+        console.log('➕ Creando nueva config');
         result = await base44.entities.TaskConfiguration.create(configData);
       }
       
+      console.log('✅ Resultado del guardado:', result);
       return result;
     },
     onSuccess: async (savedConfig) => {
+      console.log('🎉 onSuccess ejecutado con:', savedConfig);
+      
       // Actualizar estado local
       setConfig(savedConfig);
       
-      // Invalidar y esperar refetch para sincronización
+      // Invalidar y refetch
       await queryClient.invalidateQueries({ queryKey: ['task-configuration'] });
       await queryClient.refetchQueries({ queryKey: ['task-configuration', projectId] });
       await queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+      
+      console.log('✅ Queries invalidadas y refetched');
     },
     onError: (error) => {
-      console.error('Error al guardar configuración:', error);
+      console.error('❌ Error en saveMutation:', error);
       throw error;
     }
   });
 
   const handleSave = async () => {
+    console.log('🖱️ handleSave llamado');
+    console.log('📋 Config actual:', config);
+    
     // Validar que hay al menos un estado final
     const hasFinalStatus = config.custom_statuses?.some(s => s.is_final);
     if (!hasFinalStatus) {
@@ -135,6 +153,7 @@ export default function TaskConfigurationPanel({ projectId }) {
       await saveMutation.mutateAsync(config);
       toast.success('✅ Configuración guardada correctamente', { id: toastId, duration: 3000 });
     } catch (error) {
+      console.error('❌ Error capturado en handleSave:', error);
       toast.error(`❌ Error: ${error.message || 'Error al guardar'}`, { id: toastId });
     }
   };
