@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, LayoutGrid, List, Filter, AlertTriangle, CheckCircle2, Clock, FolderKanban } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import ProjectCard from '../components/project/ProjectCard';
 import CreateProjectModal from '../components/project/CreateProjectModal';
 import EditProjectModal from '../components/project/EditProjectModal';
@@ -66,27 +67,31 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
       // Crear config del proyecto basada en la global o default
       const projectConfig = {
         project_id: newProject.id,
-        module_enabled: globalConfig?.module_enabled ?? true,
-        custom_statuses: globalConfig?.custom_statuses || [
+        module_enabled: true,
+        custom_statuses: [
           { key: 'todo', label: 'Por hacer', color: 'gray', is_final: false, order: 0 },
           { key: 'in_progress', label: 'En progreso', color: 'blue', is_final: false, order: 1 },
           { key: 'completed', label: 'Finalizado', color: 'green', is_final: true, order: 2 }
         ],
-        custom_priorities: globalConfig?.custom_priorities || [
+        custom_priorities: [
           { key: 'low', label: 'Baja', color: 'gray', order: 0 },
           { key: 'medium', label: 'Media', color: 'yellow', order: 1 },
           { key: 'high', label: 'Alta', color: 'red', order: 2 }
         ],
-        custom_fields: globalConfig?.custom_fields || []
+        custom_fields: []
       };
       
-      await base44.entities.TaskConfiguration.create(projectConfig);
+      console.log('🔧 Creando configuración de tareas para proyecto:', newProject.id, projectConfig);
+      const createdConfig = await base44.entities.TaskConfiguration.create(projectConfig);
+      console.log('✅ Configuración creada:', createdConfig);
       
       return newProject;
     },
-    onSuccess: () => {
+    onSuccess: (newProject) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['task-configuration', newProject.id] });
       setIsCreateOpen(false);
+      toast.success('✅ Proyecto creado con configuración de tareas');
     }
   });
   
