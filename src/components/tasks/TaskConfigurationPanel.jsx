@@ -74,15 +74,36 @@ export default function TaskConfigurationPanel({ projectId }) {
     refetchOnMount: 'always'
   });
 
+  // Crear configuración automáticamente si no existe
+  const createDefaultConfigMutation = useMutation({
+    mutationFn: async () => {
+      const configData = { 
+        ...DEFAULT_CONFIG,
+        project_id: projectId || null
+      };
+      return await base44.entities.TaskConfiguration.create(configData);
+    },
+    onSuccess: (newConfig) => {
+      queryClient.setQueryData(
+        projectId ? ['task-configuration', projectId] : ['task-configurations'], 
+        [newConfig]
+      );
+      setConfig(newConfig);
+      toast.success('✅ Configuración creada automáticamente');
+    }
+  });
+
   React.useEffect(() => {
     console.log('🔄 Actualizando config local con:', configurations);
     if (configurations && configurations.length > 0) {
       setConfig(configurations[0]);
       setHasUnsavedChanges(false);
-    } else {
-      setConfig({ ...DEFAULT_CONFIG, project_id: projectId });
+    } else if (!isLoading && configurations.length === 0) {
+      // Si no hay configuración, crearla automáticamente
+      console.log('⚙️ No hay configuración, creando automáticamente...');
+      createDefaultConfigMutation.mutate();
     }
-  }, [configurations, projectId]);
+  }, [configurations, projectId, isLoading]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -300,8 +321,15 @@ export default function TaskConfigurationPanel({ projectId }) {
     updateConfig({ ...config, custom_fields: newFields });
   };
 
-  if (isLoading) {
-    return <div className="text-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto" /></div>;
+  if (isLoading || createDefaultConfigMutation.isPending) {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto" />
+        <p className="text-sm text-[var(--text-secondary)] mt-4">
+          {createDefaultConfigMutation.isPending ? 'Creando configuración inicial...' : 'Cargando...'}
+        </p>
+      </div>
+    );
   }
 
   return (
