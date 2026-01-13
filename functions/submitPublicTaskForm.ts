@@ -56,26 +56,29 @@ Deno.serve(async (req) => {
     };
 
     const newTask = await base44.asServiceRole.entities.Task.create(taskPayload);
+    console.log('✅ Task created:', newTask.id);
 
     // Enviar notificación por email si está configurado
     if (formConfig.notification_emails && formConfig.notification_emails.length > 0) {
+      console.log('📧 Sending email to:', formConfig.notification_emails);
       try {
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          to: formConfig.notification_emails.join(','),
-          subject: `Nueva tarea: ${task_data.title}`,
-          body: `
-            Se ha recibido una nueva tarea a través del formulario "${formConfig.form_title}".
-            
-            Solicitante: ${task_data.requester_email}
-            Título: ${task_data.title}
-            Descripción: ${task_data.description || 'Sin descripción'}
-            Prioridad: ${task_data.priority || 'Sin prioridad'}
-            
-            Ver en el sistema: ${Deno.env.get('APP_URL') || 'https://app.base44.com'}
-          `
-        });
+        for (const email of formConfig.notification_emails) {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: email,
+            subject: `Nueva tarea: ${task_data.title}`,
+            body: `Se ha recibido una nueva tarea a través del formulario "${formConfig.form_title}".
+
+Solicitante: ${task_data.requester_email}
+Título: ${task_data.title}
+Descripción: ${task_data.description || 'Sin descripción'}
+Prioridad: ${task_data.priority || 'Sin prioridad'}
+
+Ver tarea en el sistema.`
+          });
+        }
+        console.log('✅ Email notifications sent');
       } catch (emailError) {
-        console.error('Error sending notification email:', emailError);
+        console.error('❌ Error sending notification email:', emailError);
         // No fallar el request si el email falla
       }
     }
