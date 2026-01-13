@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ export default function TaskFormModal({ isOpen, onClose, task, initialStatus, pr
     priority: task?.priority || config?.custom_priorities?.[0]?.key,
     custom_fields: task?.custom_fields || {}
   }));
+  const [uploadingFields, setUploadingFields] = useState({});
 
   const queryClient = useQueryClient();
 
@@ -194,6 +195,91 @@ export default function TaskFormModal({ isOpen, onClose, task, initialStatus, pr
               ))}
             </SelectContent>
           </Select>
+        );
+      
+      case 'file':
+        return (
+          <div className="space-y-2">
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.svg,.png,.jpg,.jpeg,.webp"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                
+                // Validar tamaño (máx 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                  toast.error('El archivo no puede superar 10MB');
+                  return;
+                }
+                
+                setUploadingFields({ ...uploadingFields, [field.key]: true });
+                
+                try {
+                  const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                  updateField(file_url);
+                  toast.success('Archivo subido correctamente');
+                } catch (error) {
+                  toast.error('Error al subir archivo');
+                } finally {
+                  setUploadingFields({ ...uploadingFields, [field.key]: false });
+                }
+              }}
+              disabled={isDisabled || uploadingFields[field.key]}
+              className="hidden"
+              id={`file-${field.key}`}
+            />
+            
+            {!value ? (
+              <label htmlFor={`file-${field.key}`}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabled={isDisabled || uploadingFields[field.key]}
+                  asChild
+                >
+                  <span>
+                    {uploadingFields[field.key] ? (
+                      <>Subiendo...</>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Seleccionar archivo
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </label>
+            ) : (
+              <div className="flex items-center gap-2 p-2 bg-[var(--bg-tertiary)] rounded border border-[var(--border-primary)]">
+                {value.match(/\.(svg|png|jpg|jpeg|webp)$/i) ? (
+                  <ImageIcon className="h-4 w-4 text-[var(--text-secondary)]" />
+                ) : (
+                  <FileText className="h-4 w-4 text-[var(--text-secondary)]" />
+                )}
+                <a 
+                  href={value} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 text-xs text-[var(--text-primary)] hover:underline truncate"
+                >
+                  {value.split('/').pop()}
+                </a>
+                {!isDisabled && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateField(null)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         );
       
       default:
