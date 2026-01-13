@@ -46,14 +46,22 @@ export default function Layout({ children, currentPageName }) {
     loadUser();
   }, []);
   
-  // Mostrar pantalla de login si no hay usuario
-  if (user === null) {
+  // Páginas públicas que no requieren autenticación
+  const isPublicPage = currentPageName === 'PublicTaskForm';
+  
+  // Mostrar pantalla de login si no hay usuario (excepto páginas públicas)
+  if (user === null && !isPublicPage) {
     return <LoginScreen />;
   }
   
-  // Mostrar loading mientras verificamos autenticación
-  if (user === undefined) {
+  // Mostrar loading mientras verificamos autenticación (excepto páginas públicas)
+  if (user === undefined && !isPublicPage) {
     return null;
+  }
+  
+  // Si es página pública, renderizar directamente sin layout
+  if (isPublicPage) {
+    return <div className="min-h-screen bg-[var(--bg-primary)]">{children}</div>;
   }
   
   const toggleTheme = () => {
