@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CheckCircle2, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { CheckCircle2, Calendar as CalendarIcon, Loader2, Upload } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -194,6 +195,7 @@ export default function PublicTaskForm() {
                     ...formData,
                     custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: e.target.value }
                   })}
+                  placeholder={field.default_value || ''}
                   required={field.required}
                 />
               </div>
@@ -211,9 +213,80 @@ export default function PublicTaskForm() {
                     ...formData,
                     custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: e.target.value }
                   })}
+                  placeholder={field.default_value || ''}
                   required={field.required}
                   className="h-24"
                 />
+              </div>
+            );
+
+          case 'number':
+            return (
+              <div>
+                <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
+                  {field.label} {field.required && '*'}
+                </label>
+                <Input
+                  type="number"
+                  value={formData.custom_fields?.[fieldKey] || ''}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: e.target.value }
+                  })}
+                  placeholder={field.default_value || ''}
+                  required={field.required}
+                />
+              </div>
+            );
+
+          case 'date':
+            return (
+              <div>
+                <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
+                  {field.label} {field.required && '*'}
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.custom_fields?.[fieldKey] ? format(new Date(formData.custom_fields[fieldKey]), "d 'de' MMMM, yyyy", { locale: es }) : 'Seleccionar fecha'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-white">
+                    <Calendar
+                      mode="single"
+                      selected={formData.custom_fields?.[fieldKey] ? new Date(formData.custom_fields[fieldKey]) : undefined}
+                      onSelect={(date) => {
+                        setFormData({
+                          ...formData,
+                          custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: date ? format(date, 'yyyy-MM-dd') : null }
+                        });
+                        document.body.click();
+                      }}
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            );
+
+          case 'checkbox':
+            return (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={fieldKey}
+                  checked={formData.custom_fields?.[fieldKey] === true}
+                  onCheckedChange={(checked) => setFormData({
+                    ...formData,
+                    custom_fields: { ...(formData.custom_fields || {}), [fieldKey]: checked }
+                  })}
+                />
+                <label
+                  htmlFor={fieldKey}
+                  className="text-sm font-medium text-[var(--text-primary)] cursor-pointer"
+                >
+                  {field.label} {field.required && '*'}
+                </label>
               </div>
             );
           
