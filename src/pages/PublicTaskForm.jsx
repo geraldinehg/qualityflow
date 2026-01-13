@@ -314,7 +314,7 @@ export default function PublicTaskForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Campos base siempre visibles */}
+            {/* Campos base y personalizados basados en visible_fields */}
             <div>
               <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
                 Tu correo electrónico *
@@ -327,14 +327,23 @@ export default function PublicTaskForm() {
                 required
               />
             </div>
-            {renderField({ key: 'title', type: 'title' })}
-            {renderField({ key: 'description', type: 'description' })}
-            {renderField({ key: 'priority', type: 'priority' })}
-            {renderField({ key: 'due_date', type: 'due_date' })}
+
+            {/* Campos estándar */}
+            {(!formConfig.visible_fields || formConfig.visible_fields.includes('title')) && 
+              renderField({ key: 'title', type: 'title' })}
+            
+            {(!formConfig.visible_fields || formConfig.visible_fields.includes('description')) && 
+              renderField({ key: 'description', type: 'description' })}
+            
+            {(!formConfig.visible_fields || formConfig.visible_fields.includes('priority')) && 
+              renderField({ key: 'priority', type: 'priority' })}
+            
+            {(!formConfig.visible_fields || formConfig.visible_fields.includes('due_date')) && 
+              renderField({ key: 'due_date', type: 'due_date' })}
             
             {/* Campos personalizados visibles */}
             {(formConfig.taskConfig?.custom_fields || [])
-              .filter(f => f.visible)
+              .filter(f => f.visible && (!formConfig.visible_fields || formConfig.visible_fields.includes(f.key)))
               .map((field) => (
                 <div key={field.key}>
                   {renderField(field)}

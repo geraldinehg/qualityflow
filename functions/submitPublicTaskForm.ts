@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
       console.log('📧 Sending email to:', formConfig.notification_emails);
       try {
         for (const email of formConfig.notification_emails) {
-          await base44.asServiceRole.integrations.Core.SendEmail({
+          const emailResult = await base44.asServiceRole.integrations.Core.SendEmail({
             to: email,
             subject: `Nueva tarea: ${task_data.title}`,
             body: `Se ha recibido una nueva tarea a través del formulario "${formConfig.form_title}".
@@ -75,12 +75,15 @@ Prioridad: ${task_data.priority || 'Sin prioridad'}
 
 Ver tarea en el sistema.`
           });
+          console.log('Email sent result:', emailResult);
         }
         console.log('✅ Email notifications sent');
       } catch (emailError) {
-        console.error('❌ Error sending notification email:', emailError);
+        console.error('❌ Error sending notification email:', emailError.message, emailError.stack);
         // No fallar el request si el email falla
       }
+    } else {
+      console.log('ℹ️ No notification emails configured');
     }
 
     // Disparar reglas de notificación para task_created
