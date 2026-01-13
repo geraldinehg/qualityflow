@@ -37,6 +37,11 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Validar email del solicitante
+    if (!task_data.requester_email) {
+      return Response.json({ error: 'Email del solicitante es obligatorio' }, { status: 400 });
+    }
+
     // Crear la tarea
     const taskPayload = {
       project_id: formConfig.project_id,
@@ -45,6 +50,7 @@ Deno.serve(async (req) => {
       status: formConfig.default_status || 'todo',
       priority: task_data.priority,
       due_date: task_data.due_date,
+      requester_email: task_data.requester_email,
       custom_fields: task_data.custom_fields || {},
       order: 0
     };
@@ -60,6 +66,7 @@ Deno.serve(async (req) => {
           body: `
             Se ha recibido una nueva tarea a través del formulario "${formConfig.form_title}".
             
+            Solicitante: ${task_data.requester_email}
             Título: ${task_data.title}
             Descripción: ${task_data.description || 'Sin descripción'}
             Prioridad: ${task_data.priority || 'Sin prioridad'}

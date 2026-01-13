@@ -24,7 +24,7 @@ export default function PublicTaskForm() {
   const { data: formConfig, isLoading } = useQuery({
     queryKey: ['public-form', formToken],
     queryFn: async () => {
-      const forms = await base44.entities.TaskFormPublicUrl.filter({ 
+      const forms = await base44.asServiceRole.entities.TaskFormPublicUrl.filter({ 
         form_token: formToken,
         is_active: true 
       });
@@ -36,7 +36,7 @@ export default function PublicTaskForm() {
       const form = forms[0];
       
       // Cargar configuración de tareas
-      const configs = await base44.entities.TaskConfiguration.filter({ 
+      const configs = await base44.asServiceRole.entities.TaskConfiguration.filter({ 
         project_id: form.project_id 
       });
       
@@ -75,6 +75,19 @@ export default function PublicTaskForm() {
     // Validar título obligatorio
     if (!formData.title) {
       setError('El título es obligatorio');
+      return;
+    }
+    
+    // Validar email del solicitante obligatorio
+    if (!formData.requester_email) {
+      setError('El email es obligatorio');
+      return;
+    }
+    
+    // Validar formato email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.requester_email)) {
+      setError('Email inválido');
       return;
     }
     
@@ -313,6 +326,18 @@ export default function PublicTaskForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Campos base siempre visibles */}
+            <div>
+              <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
+                Tu correo electrónico *
+              </label>
+              <Input
+                type="email"
+                value={formData.requester_email || ''}
+                onChange={(e) => setFormData({ ...formData, requester_email: e.target.value })}
+                placeholder="tu@email.com"
+                required
+              />
+            </div>
             {renderField({ key: 'title', type: 'title' })}
             {renderField({ key: 'description', type: 'description' })}
             {renderField({ key: 'priority', type: 'priority' })}
