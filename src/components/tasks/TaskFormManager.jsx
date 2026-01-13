@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Link2, Plus, Settings, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Copy, Link2, Plus, Settings, Eye, EyeOff, ExternalLink, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function TaskFormManager({ projectId, config }) {
@@ -16,8 +16,9 @@ export default function TaskFormManager({ projectId, config }) {
   const [formData, setFormData] = useState({
     form_title: '',
     default_status: config?.custom_statuses?.[0]?.key || 'todo',
-    notification_email: ''
+    notification_emails: []
   });
+  const [emailInput, setEmailInput] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -43,8 +44,9 @@ export default function TaskFormManager({ projectId, config }) {
       setFormData({
         form_title: '',
         default_status: config?.custom_statuses?.[0]?.key || 'todo',
-        notification_email: ''
+        notification_emails: []
       });
+      setEmailInput('');
       
       toast.success('✅ Formulario creado correctamente', { duration: 3000 });
       
@@ -83,16 +85,45 @@ export default function TaskFormManager({ projectId, config }) {
       visible_fields: [],
       require_authentication: false,
       max_submissions_per_day: null,
-      success_message: '¡Gracias! Tu solicitud ha sido recibida.'
+      success_message: formData.success_message || '¡Gracias! Tu solicitud ha sido recibida.'
     };
     
     createMutation.mutate(payload);
   };
 
   const copyFormUrl = (token) => {
-    const url = `${window.location.origin}/public/task-form/${token}`;
+    const url = `${window.location.origin}/PublicTaskForm?token=${token}`;
     navigator.clipboard.writeText(url);
     toast.success('URL copiada al portapapeles');
+  };
+
+  const addEmail = () => {
+    if (!emailInput.trim()) return;
+    
+    // Validar formato email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailInput)) {
+      toast.error('Email inválido');
+      return;
+    }
+    
+    if (formData.notification_emails.includes(emailInput)) {
+      toast.error('Este email ya está agregado');
+      return;
+    }
+    
+    setFormData({
+      ...formData,
+      notification_emails: [...formData.notification_emails, emailInput]
+    });
+    setEmailInput('');
+  };
+
+  const removeEmail = (email) => {
+    setFormData({
+      ...formData,
+      notification_emails: formData.notification_emails.filter(e => e !== email)
+    });
   };
 
 
@@ -133,16 +164,49 @@ export default function TaskFormManager({ projectId, config }) {
 
             <div>
               <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-                Email para notificaciones
+                Emails para notificaciones
               </label>
-              <Input
-                type="email"
-                value={formData.notification_email}
-                onChange={(e) => setFormData({ ...formData, notification_email: e.target.value })}
-                placeholder="email@ejemplo.com"
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addEmail())}
+                  placeholder="email@ejemplo.com"
+                />
+                <Button type="button" onClick={addEmail} variant="outline">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {formData.notification_emails.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.notification_emails.map((email) => (
+                    <Badge key={email} variant="secondary" className="gap-1">
+                      {email}
+                      <button onClick={() => removeEmail(email)} className="ml-1">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                Se enviará un correo a estas direcciones cuando se reciba un nuevo formulario
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
+                Mensaje de éxito personalizado
+              </label>
+              <Textarea
+                value={formData.success_message || ''}
+                onChange={(e) => setFormData({ ...formData, success_message: e.target.value })}
+                placeholder="¡Gracias! Tu solicitud ha sido recibida."
+                className="h-20"
               />
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                Se enviará un correo a esta dirección cuando se reciba un nuevo formulario
+                Este mensaje se mostrará al usuario después de enviar el formulario
               </p>
             </div>
 
@@ -171,15 +235,15 @@ export default function TaskFormManager({ projectId, config }) {
                       {form.is_active ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </div>
-                  {form.notification_email && (
+                  {form.notification_emails && form.notification_emails.length > 0 && (
                     <p className="text-xs text-[var(--text-secondary)]">
-                      Notifica a: {form.notification_email}
+                      Notifica a: {form.notification_emails.join(', ')}
                     </p>
                   )}
                   <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
                     <Link2 className="h-3 w-3" />
                     <code className="bg-[var(--bg-tertiary)] px-2 py-1 rounded">
-                      /public/task-form/{form.form_token}
+                      /PublicTaskForm?token={form.form_token}
                     </code>
                   </div>
                 </div>
@@ -196,7 +260,7 @@ export default function TaskFormManager({ projectId, config }) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => window.open(`/public/task-form/${form.form_token}`, '_blank')}
+                    onClick={() => window.open(`/PublicTaskForm?token=${form.form_token}`, '_blank')}
                     title="Abrir formulario"
                   >
                     <ExternalLink className="h-4 w-4" />

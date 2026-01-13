@@ -52,10 +52,10 @@ Deno.serve(async (req) => {
     const newTask = await base44.asServiceRole.entities.Task.create(taskPayload);
 
     // Enviar notificación por email si está configurado
-    if (formConfig.notification_email) {
+    if (formConfig.notification_emails && formConfig.notification_emails.length > 0) {
       try {
         await base44.asServiceRole.integrations.Core.SendEmail({
-          to: formConfig.notification_email,
+          to: formConfig.notification_emails.join(','),
           subject: `Nueva tarea: ${task_data.title}`,
           body: `
             Se ha recibido una nueva tarea a través del formulario "${formConfig.form_title}".
