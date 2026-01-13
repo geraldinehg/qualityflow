@@ -329,21 +329,21 @@ export default function PublicTaskForm() {
             </div>
 
             {/* Campos estándar */}
-            {(!formConfig.visible_fields || formConfig.visible_fields.includes('title')) && 
+            {(!formConfig.visible_fields || formConfig.visible_fields.length === 0 || formConfig.visible_fields.includes('title')) && 
               renderField({ key: 'title', type: 'title' })}
             
-            {(!formConfig.visible_fields || formConfig.visible_fields.includes('description')) && 
+            {(!formConfig.visible_fields || formConfig.visible_fields.length === 0 || formConfig.visible_fields.includes('description')) && 
               renderField({ key: 'description', type: 'description' })}
             
-            {(!formConfig.visible_fields || formConfig.visible_fields.includes('priority')) && 
+            {(!formConfig.visible_fields || formConfig.visible_fields.length === 0 || formConfig.visible_fields.includes('priority')) && 
               renderField({ key: 'priority', type: 'priority' })}
             
-            {(!formConfig.visible_fields || formConfig.visible_fields.includes('due_date')) && 
+            {(!formConfig.visible_fields || formConfig.visible_fields.length === 0 || formConfig.visible_fields.includes('due_date')) && 
               renderField({ key: 'due_date', type: 'due_date' })}
             
             {/* Campos personalizados visibles */}
             {(formConfig.taskConfig?.custom_fields || [])
-              .filter(f => f.visible && (!formConfig.visible_fields || formConfig.visible_fields.includes(f.key)))
+              .filter(f => f.visible && (!formConfig.visible_fields || formConfig.visible_fields.length === 0 || formConfig.visible_fields.includes(f.key)))
               .map((field) => (
                 <div key={field.key}>
                   {renderField(field)}
