@@ -64,15 +64,25 @@ export default function TaskKanbanView({ projectId }) {
         return projectConfigs[0];
       }
       
-      const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
-      const globalConfigs = (allConfigs || []).filter(c => !c.project_id);
-      if (globalConfigs.length > 0) {
-        console.log('✅ [BACKEND] Config global encontrada:', globalConfigs[0]);
-        return globalConfigs[0];
-      }
-      
-      console.log('⚠️ [BACKEND] No se encontró configuración');
-      return null;
+      // Si no hay configuración del proyecto, crear una automáticamente
+      console.log('⚙️ [BACKEND] No hay configuración, creando automáticamente...');
+      const newConfig = await base44.entities.TaskConfiguration.create({
+        project_id: projectId,
+        module_enabled: true,
+        custom_statuses: [
+          { key: 'todo', label: 'Por hacer', color: 'gray', is_final: false, order: 0 },
+          { key: 'in_progress', label: 'En progreso', color: 'blue', is_final: false, order: 1 },
+          { key: 'completed', label: 'Finalizado', color: 'green', is_final: true, order: 2 }
+        ],
+        custom_priorities: [
+          { key: 'low', label: 'Baja', color: 'gray', order: 0 },
+          { key: 'medium', label: 'Media', color: 'yellow', order: 1 },
+          { key: 'high', label: 'Alta', color: 'red', order: 2 }
+        ],
+        custom_fields: []
+      });
+      console.log('✅ [BACKEND] Config creada automáticamente:', newConfig);
+      return newConfig;
     },
     enabled: !!projectId,
     staleTime: 0,
