@@ -57,36 +57,40 @@ export default function TaskConfigurationPanel({ projectId }) {
 
   const queryClient = useQueryClient();
 
+  // Validar que siempre haya projectId
+  if (!projectId) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[var(--text-secondary)]">Error: Se requiere un ID de proyecto</p>
+      </div>
+    );
+  }
+
   const { data: configurations = [], isLoading, error } = useQuery({
-    queryKey: projectId ? ['task-configuration', projectId] : ['task-configurations'],
+    queryKey: ['task-configuration', projectId],
     queryFn: async () => {
       console.log('📥 [CONFIG PANEL] Cargando configuraciones para proyecto:', projectId);
       
-      if (projectId) {
-        const configs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
-        console.log('📦 [CONFIG PANEL] Configs encontradas:', configs?.length);
+      const configs = await base44.entities.TaskConfiguration.filter({ project_id: projectId });
+      console.log('📦 [CONFIG PANEL] Configs encontradas:', configs?.length);
+      
+      // Si no hay configuración, crearla inmediatamente
+      if (!configs || configs.length === 0) {
+        console.log('⚙️ [CONFIG PANEL] Creando configuración automáticamente...');
+        const newConfig = await base44.entities.TaskConfiguration.create({
+          ...DEFAULT_CONFIG,
+          project_id: projectId
+        });
+        console.log('✅ [CONFIG PANEL] Configuración creada:', newConfig);
         
-        // Si no hay configuración, crearla inmediatamente
-        if (!configs || configs.length === 0) {
-          console.log('⚙️ [CONFIG PANEL] Creando configuración automáticamente...');
-          const newConfig = await base44.entities.TaskConfiguration.create({
-            ...DEFAULT_CONFIG,
-            project_id: projectId
-          });
-          console.log('✅ [CONFIG PANEL] Configuración creada:', newConfig);
-          
-          // Invalidar cache para que otras queries vean la nueva config
-          queryClient.invalidateQueries({ queryKey: ['task-configuration', projectId] });
-          
-          toast.success('✅ Configuración creada automáticamente');
-          return [newConfig];
-        }
+        // Invalidar cache para que otras queries vean la nueva config
+        queryClient.invalidateQueries({ queryKey: ['task-configuration', projectId] });
         
-        return configs;
-      } else {
-        const allConfigs = await base44.entities.TaskConfiguration.list('-created_date');
-        return (allConfigs || []).filter(c => !c.project_id);
+        toast.success('✅ Configuración creada automáticamente');
+        return [newConfig];
       }
+      
+      return configs;
     },
     staleTime: 0,
     refetchOnMount: 'always',
@@ -110,7 +114,7 @@ export default function TaskConfigurationPanel({ projectId }) {
         custom_statuses: data.custom_statuses || [],
         custom_priorities: data.custom_priorities || [],
         custom_fields: data.custom_fields || [],
-        project_id: projectId || null
+        project_id: projectId
       };
       
       console.log('📦 [BACKEND] Datos a guardar:', configData);
@@ -130,35 +134,23 @@ export default function TaskConfigurationPanel({ projectId }) {
         console.log('✅ [BACKEND] Config creada:', result);
       }
       
-      return { savedConfig: result, isGlobal: !projectId };
+      return { savedConfig: result };
     },
-    onSuccess: async ({ savedConfig, isGlobal }) => {
+    onSuccess: async ({ savedConfig }) => {
       console.log('✅ [FRONTEND] Configuración guardada:', savedConfig);
       
       // 1. Actualizar estado local inmediatamente
       setConfig(savedConfig);
       setHasUnsavedChanges(false);
       
-      // 2. Actualizar cache específico
-      const cacheKey = projectId ? ['task-configuration', projectId] : ['task-configurations'];
-      queryClient.setQueryData(cacheKey, [savedConfig]);
-      console.log('📦 [FRONTEND] Cache actualizado:', cacheKey);
+      // 2. Actualizar cache específico del proyecto
+      queryClient.setQueryData(['task-configuration', projectId], [savedConfig]);
+      console.log('📦 [FRONTEND] Cache actualizado para proyecto:', projectId);
       
-      // 3. Invalidar TODAS las queries de configuración para forzar recarga global
-      await queryClient.invalidateQueries({ queryKey: ['task-configuration'], refetchType: 'all' });
-      console.log('🔄 [FRONTEND] Queries invalidadas');
-      
-      // 4. Si es proyecto específico, invalidar también tareas
-      if (projectId) {
-        await queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
-        console.log('🔄 [FRONTEND] Tareas invalidadas para proyecto:', projectId);
-      }
-      
-      // 5. Si es cambio GLOBAL, invalidar TODOS los proyectos para que se recarguen
-      if (isGlobal) {
-        await queryClient.invalidateQueries({ queryKey: ['tasks'], refetchType: 'all' });
-        console.log('🔄 [FRONTEND] TODAS las tareas invalidadas (cambio global)');
-      }
+      // 3. Invalidar queries de configuración y tareas del proyecto
+      await queryClient.invalidateQueries({ queryKey: ['task-configuration', projectId] });
+      await queryClient.invalidateQueries({ queryKey: ['tasks', projectId] });
+      console.log('🔄 [FRONTEND] Queries invalidadas para proyecto:', projectId);
     },
     onError: (error) => {
       console.error('❌ [BACKEND] Error guardando:', error);
@@ -188,16 +180,11 @@ export default function TaskConfigurationPanel({ projectId }) {
     }
 
     setIsSaving(true);
-    const toastId = toast.loading(projectId ? '💾 Guardando configuración del proyecto...' : '💾 Guardando configuración global...');
+    const toastId = toast.loading('💾 Guardando configuración del proyecto...');
     
     try {
       await saveMutation.mutateAsync(config);
-      
-      const successMsg = projectId 
-        ? '✅ Config del proyecto guardada' 
-        : '✅ Config global guardada y aplicada a todos los proyectos';
-        
-      toast.success(successMsg, { id: toastId, duration: 3000 });
+      toast.success('✅ Configuración guardada', { id: toastId, duration: 3000 });
       console.log('✅ [FRONTEND] Guardado completado exitosamente');
     } catch (error) {
       console.error('❌ [FRONTEND] Error en handleSave:', error);
@@ -333,9 +320,8 @@ export default function TaskConfigurationPanel({ projectId }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CardTitle className="text-[var(--text-primary)]">
-                Configuración del Módulo de Tareas
+                Configuración de Tareas
               </CardTitle>
-              {projectId && <Badge className="bg-[#FF1B7E]">Proyecto Específico</Badge>}
               {hasUnsavedChanges && <Badge variant="outline" className="text-orange-500">Cambios sin guardar</Badge>}
               {isSaving && <Badge variant="outline" className="text-blue-500">Guardando...</Badge>}
             </div>
