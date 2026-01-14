@@ -217,24 +217,31 @@ export default function ProjectChecklist() {
   
   // Actualizar proyecto con métricas
   useEffect(() => {
-    if (risk && project) {
+    if (risk && project && checklistItems.length > 0) {
       const criticalPending = checklistItems.filter(i => i.weight === 'critical' && i.status !== 'completed').length;
       const completed = checklistItems.filter(i => i.status === 'completed').length;
       const total = checklistItems.length;
-      const completionPercentage = total > 0 ? (completed / total) * 100 : 0;
+      const completionPercentage = Math.round((total > 0 ? (completed / total) * 100 : 0));
       
-      if (project.completion_percentage !== completionPercentage || 
-          project.critical_pending !== criticalPending ||
-          project.risk_level !== risk.level) {
+      const hasConflicts = conflicts.length > 0;
+      
+      // Solo actualizar si hay diferencias significativas (evitar loops por decimales)
+      const needsUpdate = 
+        Math.abs((project.completion_percentage || 0) - completionPercentage) > 0.5 || 
+        project.critical_pending !== criticalPending ||
+        project.risk_level !== risk.level ||
+        project.has_conflicts !== hasConflicts;
+      
+      if (needsUpdate && !updateProjectMutation.isPending) {
         updateProjectMutation.mutate({
           completion_percentage: completionPercentage,
           critical_pending: criticalPending,
           risk_level: risk.level,
-          has_conflicts: conflicts.length > 0
+          has_conflicts: hasConflicts
         });
       }
     }
-  }, [risk, checklistItems, conflicts]);
+  }, [risk?.level, checklistItems.length, conflicts.length]);
   
   // Agrupar items por fase
   const itemsByPhase = useMemo(() => {
