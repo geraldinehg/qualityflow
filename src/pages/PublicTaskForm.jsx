@@ -23,7 +23,7 @@ export default function PublicTaskForm() {
   const [error, setError] = useState(null);
 
   const { data: formConfig, isLoading } = useQuery({
-    queryKey: ['public-form', formToken],
+    queryKey: ['public-form', formToken, Date.now()],
     queryFn: async () => {
       const response = await base44.functions.invoke('getPublicForm', {
         form_token: formToken
@@ -33,12 +33,14 @@ export default function PublicTaskForm() {
         throw new Error(response.data?.error || 'Formulario no encontrado');
       }
       
+      console.log('Configuración cargada:', response.data.data);
+      console.log('Campos personalizados:', response.data.data.taskConfig?.custom_fields);
+      
       return response.data.data;
     },
     enabled: !!formToken,
     retry: false,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    cacheTime: 0,
     staleTime: 0
   });
 
