@@ -27,7 +27,7 @@ import EditProjectModal from '../components/project/EditProjectModal';
 import EditPhaseModal from '../components/checklist/EditPhaseModal';
 import ProjectDocuments from '../components/project/ProjectDocuments';
 import WorkflowTracker from '../components/workflow/WorkflowTracker';
-import ProjectCalendar from '../components/calendar/ProjectCalendar';
+import ProjectSchedule from '../components/schedule/ProjectSchedule';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -779,16 +779,7 @@ export default function ProjectChecklist() {
           </TabsContent>
 
           <TabsContent value="calendar" className="mt-6">
-            <ProjectCalendar 
-              project={project} 
-              onUpdatePhaseDurations={(data) => {
-                const { start_date, ...durations } = data;
-                updateProjectMutation.mutate({ 
-                  phase_durations: durations,
-                  start_date 
-                });
-              }}
-            />
+            <ProjectSchedule projectId={projectId} project={project} />
           </TabsContent>
         </Tabs>
       </main>
