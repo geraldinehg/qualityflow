@@ -4,7 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Edit2, Trash2, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, parseISO, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -165,6 +166,55 @@ export default function ProjectSchedule({ projectId, project }) {
     return breakdown;
   }, [tasks]);
 
+  const exportToExcel = () => {
+    const worksheetData = [
+      ['Cronograma del Proyecto', project?.name || ''],
+      [],
+      ['Tarea', 'Área', 'Fecha Inicio', 'Duración (días)', 'Fecha Fin', 'Responsable', 'Estado', 'Notas']
+    ];
+
+    tasks
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+      .forEach(task => {
+        worksheetData.push([
+          task.name,
+          AREA_NAMES[task.area],
+          format(parseISO(task.start_date), 'dd/MM/yyyy'),
+          task.duration,
+          format(parseISO(task.end_date), 'dd/MM/yyyy'),
+          task.assigned_to || '',
+          task.status === 'pending' ? 'Pendiente' : 
+            task.status === 'in_progress' ? 'En progreso' : 
+            task.status === 'completed' ? 'Completada' : 'Bloqueada',
+          task.notes || ''
+        ]);
+      });
+
+    worksheetData.push([]);
+    worksheetData.push(['Resumen por Área']);
+    Object.entries(areaBreakdown).forEach(([area, days]) => {
+      worksheetData.push([AREA_NAMES[area], `${days} días`]);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cronograma');
+
+    worksheet['!cols'] = [
+      { wch: 30 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 40 }
+    ];
+
+    XLSX.writeFile(workbook, `Cronograma_${project?.name || 'Proyecto'}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`);
+    toast.success('Cronograma exportado a Excel');
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -238,10 +288,16 @@ export default function ProjectSchedule({ projectId, project }) {
             {format(currentWeekStart, 'MMMM yyyy', { locale: es })}
           </span>
         </div>
-        <Button onClick={() => setIsCreating(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Tarea
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportToExcel}>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar a Excel
+          </Button>
+          <Button onClick={() => setIsCreating(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Tarea
+          </Button>
+        </div>
       </div>
 
       {/* Vista Gantt */}
