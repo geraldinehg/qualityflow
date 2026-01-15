@@ -227,44 +227,44 @@ export default function ProjectSchedule({ projectId, project }) {
     <div className="space-y-6">
       {/* Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="border-[var(--border-primary)] shadow-sm">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Total de Tareas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[var(--text-primary)]">{tasks.length}</div>
+            <div className="text-3xl font-bold text-[var(--text-primary)]">{tasks.length}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="border-[var(--border-primary)] shadow-sm">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Duración Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[var(--text-primary)]">{totalDuration} días</div>
+            <div className="text-3xl font-bold text-[var(--text-primary)]">{totalDuration} <span className="text-lg font-normal text-[var(--text-secondary)]">días</span></div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="border-[var(--border-primary)] shadow-sm">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Áreas Involucradas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[var(--text-primary)]">{Object.keys(areaBreakdown).length}</div>
+            <div className="text-3xl font-bold text-[var(--text-primary)]">{Object.keys(areaBreakdown).length}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Desglose por área */}
-      <Card>
+      <Card className="border-[var(--border-primary)] shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm">Tiempo por Área</CardTitle>
+          <CardTitle className="text-base font-semibold">Tiempo por Área</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {Object.entries(areaBreakdown).map(([area, days]) => (
-              <Badge key={area} variant="outline" className="px-3 py-1">
-                <div className={`w-2 h-2 rounded-full ${AREA_COLORS[area]} mr-2`} />
+              <Badge key={area} variant="outline" className="px-3 py-1.5 font-medium">
+                <div className={`w-2.5 h-2.5 rounded-full ${AREA_COLORS[area]} mr-2`} />
                 {AREA_NAMES[area]}: {days} días
               </Badge>
             ))}
@@ -291,9 +291,9 @@ export default function ProjectSchedule({ projectId, project }) {
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportToExcel}>
             <Download className="h-4 w-4 mr-2" />
-            Exportar a Excel
+            Exportar
           </Button>
-          <Button onClick={() => setIsCreating(true)} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
+          <Button onClick={() => setIsCreating(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Nueva Tarea
           </Button>
@@ -301,13 +301,13 @@ export default function ProjectSchedule({ projectId, project }) {
       </div>
 
       {/* Vista Gantt */}
-      <Card>
+      <Card className="border-[var(--border-primary)] shadow-sm">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <div className="min-w-[800px]">
               {/* Header de días */}
               <div className="grid grid-cols-8 border-b border-[var(--border-primary)] bg-[var(--bg-tertiary)]">
-                <div className="p-3 border-r border-[var(--border-primary)] font-semibold text-sm text-[var(--text-primary)]">
+                <div className="p-3 border-r border-[var(--border-primary)] font-semibold text-sm text-[var(--text-primary)] uppercase tracking-wide">
                   Tarea
                 </div>
                 {weekDays.map(day => (
@@ -396,9 +396,9 @@ export default function ProjectSchedule({ projectId, project }) {
       </Card>
 
       {/* Lista de tareas */}
-      <Card>
+      <Card className="border-[var(--border-primary)] shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm">Todas las Tareas del Cronograma</CardTitle>
+          <CardTitle className="text-base font-semibold">Todas las Tareas</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">

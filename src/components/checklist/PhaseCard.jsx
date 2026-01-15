@@ -210,13 +210,13 @@ export default function PhaseCard({
   return (
     <>
       <Card className={cn(
-        "bg-[var(--bg-secondary)] border-[var(--border-primary)] overflow-hidden transition-all duration-300",
-        isCriticalPhase && 'ring-2 ring-[#FF1B7E]/40',
+        "bg-[var(--bg-secondary)] border-[var(--border-primary)] overflow-hidden transition-all duration-200 shadow-sm",
+        isCriticalPhase && 'ring-2 ring-[#FF1B7E]/30 border-[#FF1B7E]/20',
         isDragging && 'shadow-lg opacity-80',
-        isWorkflowCompleted && "border-green-500/40 bg-green-500/5",
-        isWorkflowInProgress && "border-blue-500/40 bg-blue-500/5"
+        isWorkflowCompleted && "border-green-500/30 bg-green-500/5",
+        isWorkflowInProgress && "border-blue-500/30 bg-blue-500/5"
       )}>
-        <CardHeader className="hover:bg-[var(--bg-hover)] transition-colors py-4">
+        <CardHeader className="hover:bg-[var(--bg-hover)] transition-colors duration-200 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
               <div 
@@ -240,38 +240,38 @@ export default function PhaseCard({
               )}
               
               <div className="cursor-pointer flex items-center gap-3 flex-1" onClick={onToggle}>
-                <div className={`p-2 rounded-lg ${isCriticalPhase ? 'bg-[#FF1B7E]/20' : 'bg-[var(--bg-primary)]'}`}>
+                <div className={`p-2 rounded-xl transition-colors ${isCriticalPhase ? 'bg-[#FF1B7E]/15' : 'bg-[var(--bg-tertiary)]'}`}>
                   <Icon className={`h-5 w-5 ${isCriticalPhase ? 'text-[#FF1B7E]' : 'text-[var(--text-secondary)]'}`} />
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold flex items-center gap-2 flex-wrap text-[var(--text-primary)]">
                     {displayName}
                     {isCriticalPhase && (
-                      <Badge variant="outline" className="text-xs bg-[#FF1B7E]/20 text-[#FF1B7E] border-[#FF1B7E]/40">
+                      <Badge variant="outline" className="text-xs bg-[#FF1B7E]/10 text-[#FF1B7E] border-[#FF1B7E]/30 font-medium">
                         Crítico
                       </Badge>
                     )}
                     {isWorkflowInProgress && (
-                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/40 border text-xs">
+                      <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-0 text-xs font-medium">
                         En progreso
                       </Badge>
                     )}
                   </CardTitle>
-                  <div className="flex items-center gap-2 flex-wrap text-sm text-[var(--text-secondary)] mt-0.5">
-                    <span>{completed} de {total} completados</span>
+                  <div className="flex items-center gap-2 flex-wrap text-sm text-[var(--text-secondary)] mt-1">
+                    <span className="font-medium">{completed} de {total}</span>
                     {workflowConfig && (
-                      <span className="text-xs">• Aprobador: {workflowConfig.approverLabel}</span>
+                      <span className="text-xs">• {workflowConfig.approverLabel}</span>
                     )}
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 hover:bg-[var(--bg-hover)]"
+                className="h-8 w-8 hover:bg-[var(--bg-hover)] transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEditPhase(phase);
@@ -280,22 +280,22 @@ export default function PhaseCard({
                 <Edit2 className="h-4 w-4 text-[var(--text-secondary)]" />
               </Button>
               {hasCritical && (
-                <Badge className="bg-red-500/20 text-red-400 border-red-500/40 border text-xs">
+                <Badge className="bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-0 text-xs font-medium">
                   Críticos pendientes
                 </Badge>
               )}
               {hasConflicts && (
-                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/40 border text-xs">
+                <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400 border-0 text-xs font-medium">
                   Conflictos
                 </Badge>
               )}
-              <div className="w-24">
-                <Progress value={progress} className="h-2 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E]" />
+              <div className="w-28">
+                <Progress value={progress} className="h-2.5 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E] rounded-full" />
               </div>
-              <span className="text-sm font-medium text-[var(--text-primary)] w-12">
+              <span className="text-sm font-semibold text-[var(--text-primary)] w-12 text-right">
                 {progress.toFixed(0)}%
               </span>
-              <div className="cursor-pointer" onClick={onToggle}>
+              <div className="cursor-pointer p-1 hover:bg-[var(--bg-hover)] rounded-lg transition-colors" onClick={onToggle}>
                 {isExpanded ? (
                   <ChevronDown className="h-5 w-5 text-[var(--text-secondary)]" />
                 ) : (
@@ -323,12 +323,12 @@ export default function PhaseCard({
                         size="sm"
                         variant="outline"
                         onClick={() => setShowEntryCriteria(true)}
-                        className="w-full bg-white text-black hover:bg-gray-100 border-white"
+                        className="w-full"
                       >
                         {mandatoryCriteria.length > 0 ? (
-                          <span>Ver Criterios de Entrada ({completedMandatory.length}/{mandatoryCriteria.length})</span>
+                          <span>Ver Criterios ({completedMandatory.length}/{mandatoryCriteria.length})</span>
                         ) : (
-                          <span>Definir Criterios de Entrada</span>
+                          <span>Definir Criterios</span>
                         )}
                       </Button>
                     )}
@@ -337,17 +337,18 @@ export default function PhaseCard({
                       <Button
                         size="sm"
                         onClick={handleStartWorkflow}
-                        className="w-full bg-[#FF1B7E] hover:bg-[#e6156e] text-white"
+                        className="w-full"
                       >
-                        Iniciar Fase de Workflow
+                        Iniciar Fase
                       </Button>
                     )}
                     
                     {isWorkflowInProgress && canUserApprove() && (
                       <Button
                         size="sm"
+                        variant="outline"
                         onClick={() => setApprovingPhase(true)}
-                        className="w-full bg-white hover:bg-gray-100 text-black"
+                        className="w-full"
                       >
                         Aprobar Fase
                       </Button>

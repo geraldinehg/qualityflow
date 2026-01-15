@@ -44,8 +44,8 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:shadow-lg hover:shadow-[#FF1B7E]/10 transition-all duration-300 group h-full flex flex-col">
-        <CardHeader className="pb-2">
+      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)] hover:shadow-md hover:border-[#FF1B7E]/20 transition-all duration-200 group h-full flex flex-col">
+        <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
@@ -54,12 +54,12 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
                   {techConfig?.name || project.technology}
                 </span>
               </div>
-              <CardTitle className="text-base sm:text-lg font-semibold text-[var(--text-primary)] group-hover:text-[#FF1B7E] transition-colors line-clamp-2">
+              <CardTitle className="text-base sm:text-lg font-semibold text-[var(--text-primary)] group-hover:text-[#FF1B7E] transition-colors duration-200 line-clamp-2">
                 {project.name}
               </CardTitle>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <Badge className={`${statusConfig.color} border-0`}>
+              <Badge className={`${statusConfig.color} border-0 font-medium`}>
                 {statusConfig.label}
               </Badge>
               <DropdownMenu>
@@ -98,16 +98,16 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           </div>
           
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="text-xs border-[var(--border-secondary)] text-[var(--text-secondary)]">
+            <Badge variant="outline" className="text-xs border-[var(--border-primary)] text-[var(--text-secondary)] font-medium">
               {siteTypeConfig?.name || project.site_type}
             </Badge>
             {project.has_conflicts && (
-              <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/40 border text-xs">
+              <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400 border-0 text-xs font-medium">
                 Conflictos
               </Badge>
             )}
             {project.critical_pending > 0 && (
-              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 border text-xs">
+              <Badge className="bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-0 text-xs font-medium">
                 {project.critical_pending} críticos
               </Badge>
             )}
@@ -115,11 +115,11 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           
           {/* Progreso */}
           <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-[var(--text-secondary)]">Progreso</span>
-              <span className="font-medium text-[var(--text-primary)]">{project.completion_percentage?.toFixed(0) || 0}%</span>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-[var(--text-secondary)] font-medium">Progreso</span>
+              <span className="font-semibold text-[var(--text-primary)]">{project.completion_percentage?.toFixed(0) || 0}%</span>
             </div>
-            <Progress value={project.completion_percentage || 0} className="h-2 bg-white/20 [&>div]:bg-[#FF1B7E]" />
+            <Progress value={project.completion_percentage || 0} className="h-2.5 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E] rounded-full" />
           </div>
           
           {/* Fechas y equipo */}
@@ -157,9 +157,9 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           
           <div className="mt-auto pt-4">
             <Link to={createPageUrl(`ProjectChecklist?id=${project.id}`)}>
-              <Button className="w-full bg-[#FF1B7E] hover:bg-white hover:text-black text-white transition-colors">
+              <Button className="w-full group-hover:shadow-md transition-all">
                 Ver Checklist
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
           </div>
