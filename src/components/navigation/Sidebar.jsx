@@ -124,8 +124,8 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
     <div className="w-64 bg-[var(--bg-secondary)] border-r border-[var(--border-primary)] min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-[var(--border-primary)]">
-        <h1 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#FF1B7E] rounded-lg flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-[#FF1B7E] to-[#e6156e] rounded-xl flex items-center justify-center shadow-lg shadow-[#FF1B7E]/20">
             <LayoutDashboard className="h-5 w-5 text-white" />
           </div>
           Antpack
@@ -150,9 +150,9 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
                   onSectionChange(item.section || 'dashboard');
                 }}
                 className={cn(
-                  "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                  "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive 
-                    ? "bg-[#FF1B7E] text-white shadow-lg shadow-[#FF1B7E]/20" 
+                    ? "bg-[#FF1B7E] text-white shadow-md shadow-[#FF1B7E]/25" 
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                 )}
               >
@@ -189,9 +189,9 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
                             }
                           }}
                           className={cn(
-                            "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-all",
+                            "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200",
                             isSubActive
-                              ? "bg-[#FF1B7E]/20 text-[#FF1B7E]"
+                              ? "bg-[#FF1B7E]/15 text-[#FF1B7E] font-medium"
                               : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                           )}
                         >
@@ -245,7 +245,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
 
       {/* Footer */}
       <div className="p-4 border-t border-[var(--border-primary)] space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all">
+        <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all duration-200">
           <Settings className="h-5 w-5" />
           <span>Configuración</span>
         </button>
@@ -254,7 +254,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
         {currentUser && (currentUser.role === 'admin' || currentUser.email === 'luis.restrepo@antpack.co' || currentUser.email === 'geraldine.hurtado@antpack.co') && (
           <button
             onClick={() => setShowAdminPanel(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[#FF1B7E] hover:text-white hover:shadow-lg hover:shadow-[#FF1B7E]/20 transition-all"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-[#FF1B7E] to-[#e6156e] text-white shadow-md hover:shadow-lg hover:shadow-[#FF1B7E]/30 transition-all duration-200 active:scale-[0.98]"
           >
             <Shield className="h-5 w-5" />
             <span>Panel Admin</span>
