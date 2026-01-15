@@ -80,7 +80,7 @@ export default function Layout({ children, currentPageName }) {
             --primary-magenta: #FF1B7E;
           }
           
-          /* Light Mode */
+          /* Light Mode (default) */
           [data-theme="light"] {
             --bg-primary: #fafafa;
             --bg-secondary: #ffffff;
@@ -110,6 +110,22 @@ export default function Layout({ children, currentPageName }) {
             --shadow: rgba(0, 0, 0, 0.3);
             --particle-opacity: 0.2;
             --particle-color: white;
+          }
+
+          /* Fallback sin tema definido */
+          :root:not([data-theme]) {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f5;
+            --bg-hover: #f8f8f8;
+            --text-primary: #171717;
+            --text-secondary: #525252;
+            --text-tertiary: #737373;
+            --border-primary: #e5e5e5;
+            --border-secondary: #d4d4d4;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --particle-opacity: 0.12;
+            --particle-color: #1a1a1a;
           }
           
           body {
