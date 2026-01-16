@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Save, X, CheckCircle2, Trash2, Settings, AlertCircle } from 'lucide-react';
+import { MessageSquare, Save, X, CheckCircle2, Trash2, Settings, AlertCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
