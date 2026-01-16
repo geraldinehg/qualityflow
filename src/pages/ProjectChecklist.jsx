@@ -28,6 +28,7 @@ import EditPhaseModal from '../components/checklist/EditPhaseModal';
 import ProjectDocuments from '../components/project/ProjectDocuments';
 import WorkflowTracker from '../components/workflow/WorkflowTracker';
 import ProjectSchedule from '../components/schedule/ProjectSchedule';
+import PreviewTab from '../components/preview/PreviewTab';
 import { 
   PHASES, 
   SITE_TYPE_CONFIG, 
@@ -593,10 +594,11 @@ export default function ProjectChecklist() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-2xl grid-cols-3 mb-6">
+          <TabsList className="grid w-full max-w-3xl grid-cols-4 mb-6">
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
             <TabsTrigger value="tasks">Tareas</TabsTrigger>
             <TabsTrigger value="calendar">Calendario</TabsTrigger>
+            <TabsTrigger value="preview">Previsualización</TabsTrigger>
           </TabsList>
 
           <TabsContent value="checklist" className="mt-6">
@@ -759,6 +761,10 @@ export default function ProjectChecklist() {
 
           <TabsContent value="calendar" className="mt-6">
             <ProjectSchedule projectId={projectId} project={project} />
+          </TabsContent>
+
+          <TabsContent value="preview" className="mt-6">
+            <PreviewTab projectId={projectId} project={project} />
           </TabsContent>
         </Tabs>
       </main>
