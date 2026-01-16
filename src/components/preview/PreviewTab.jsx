@@ -20,6 +20,8 @@ export default function PreviewTab({ projectId, project }) {
   const [selectedComment, setSelectedComment] = useState(null);
   const [newComment, setNewComment] = useState(null);
   const [iframeUrl, setIframeUrl] = useState(project?.preview_url || '');
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [iframeError, setIframeError] = useState(false);
   
   const iframeRef = useRef(null);
   const containerRef = useRef(null);
@@ -82,8 +84,28 @@ export default function PreviewTab({ projectId, project }) {
       toast.error('Ingresa una URL válida');
       return;
     }
+    setIframeLoading(true);
+    setIframeError(false);
     updateProjectMutation.mutate({ preview_url: tempUrl });
   };
+
+  useEffect(() => {
+    if (previewUrl) {
+      setIframeLoading(true);
+      setIframeError(false);
+    }
+  }, [previewUrl]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (iframeLoading && iframeRef.current) {
+        setIframeError(true);
+        setIframeLoading(false);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [iframeLoading]);
 
   const handleIframeClick = async (e) => {
     if (!markupMode) return;
@@ -225,17 +247,57 @@ export default function PreviewTab({ projectId, project }) {
               style={{ height: '70vh' }}
               onClick={handleIframeClick}
             >
+              {iframeLoading && !iframeError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto mb-2" />
+                    <p className="text-sm text-[var(--text-secondary)]">Cargando previsualización...</p>
+                  </div>
+                </div>
+              )}
+              
+              {iframeError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-tertiary)]">
+                  <div className="text-center max-w-md p-6">
+                    <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                      No se puede cargar la previsualización
+                    </h3>
+                    <p className="text-sm text-[var(--text-secondary)] mb-4">
+                      El sitio web no permite ser embebido por restricciones de seguridad (Content Security Policy / X-Frame-Options).
+                    </p>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-xs text-left text-blue-800 dark:text-blue-300 mb-4">
+                      <p className="font-semibold mb-1">Soluciones:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Usa un entorno de desarrollo/staging sin restricciones</li>
+                        <li>Configura los headers X-Frame-Options y CSP del sitio</li>
+                        <li>Usa una versión local sin protecciones de iframe</li>
+                      </ul>
+                    </div>
+                    <Button variant="outline" onClick={() => setIsEditingUrl(true)}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Cambiar URL
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <iframe
                 ref={iframeRef}
                 src={iframeUrl}
                 className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-forms"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                 onLoad={(e) => {
+                  setIframeLoading(false);
                   try {
                     setIframeUrl(e.target.contentWindow.location.href);
                   } catch (err) {
                     // CORS prevents access to iframe URL
                   }
+                }}
+                onError={() => {
+                  setIframeLoading(false);
+                  setIframeError(true);
                 }}
               />
 
