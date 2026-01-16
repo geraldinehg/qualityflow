@@ -154,12 +154,12 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
           
           return (
             <div key={item.id}>
-              {item.page ? (
+              {item.page && item.page !== 'Dashboard' ? (
                 <Link
                   to={createPageUrl(item.page)}
                   className={cn(
                     "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === createPageUrl(item.page)
+                    location.pathname.includes(item.page)
                       ? "bg-[#FF1B7E] text-white shadow-md shadow-[#FF1B7E]/25" 
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                   )}
