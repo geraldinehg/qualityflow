@@ -98,9 +98,6 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           </div>
           
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="text-xs border-[var(--border-primary)] text-[var(--text-secondary)] font-medium">
-              {siteTypeConfig?.name || project.site_type}
-            </Badge>
             {project.has_conflicts && (
               <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400 border-0 text-xs font-medium">
                 Conflictos
@@ -158,7 +155,7 @@ export default function ProjectCard({ project, index, onEdit, onDuplicate, onDel
           <div className="mt-auto pt-4">
             <Link to={createPageUrl(`ProjectChecklist?id=${project.id}`)}>
               <Button className="w-full group-hover:shadow-md transition-all">
-                Ver Checklist
+                Ver Proyecto
                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
