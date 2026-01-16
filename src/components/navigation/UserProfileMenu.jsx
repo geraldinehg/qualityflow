@@ -78,7 +78,7 @@ export default function UserProfileMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="flex items-center gap-3 bg-white hover:bg-white border border-[var(--border-primary)]">
+          <Button variant="ghost" className="flex items-center gap-3 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-primary)]">
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <p className="text-sm font-medium text-[var(--text-primary)]">{user.full_name || user.email}</p>
@@ -95,7 +95,7 @@ export default function UserProfileMenu() {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 bg-white border-[var(--border-primary)]">
+        <DropdownMenuContent align="end" className="w-56 bg-[var(--bg-secondary)] border-[var(--border-primary)]">
           <DropdownMenuLabel className="text-[var(--text-primary)]">Mi Cuenta</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-[var(--border-primary)]" />
           <DropdownMenuItem onClick={() => setShowProfile(true)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]">
@@ -118,7 +118,7 @@ export default function UserProfileMenu() {
       </DropdownMenu>
 
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
-        <DialogContent className="bg-white border-[var(--border-primary)] text-[var(--text-primary)] max-w-2xl">
+        <DialogContent className="bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)] max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-[var(--text-primary)] text-xl">Mi Perfil</DialogTitle>
           </DialogHeader>
@@ -195,7 +195,7 @@ export default function UserProfileMenu() {
                   <p className="text-[var(--text-secondary)] text-sm">No tienes proyectos asignados</p>
                 ) : (
                   projects.map(project => (
-                    <div key={project.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-[var(--border-primary)]">
+                    <div key={project.id} className="flex items-center justify-between p-3 bg-[var(--bg-primary)] rounded-lg border border-[var(--border-primary)]">
                       <div>
                         <p className="text-sm font-medium text-[var(--text-primary)]">{project.name}</p>
                         <p className="text-xs text-[var(--text-secondary)]">{project.status}</p>
