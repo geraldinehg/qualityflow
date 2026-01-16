@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { ROLE_CONFIG } from '../components/checklist/checklistTemplates';
 
 export default function Statistics() {
   const [editingStatsRole, setEditingStatsRole] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: teamMembers = [] } = useQuery({
     queryKey: ['team-members'],

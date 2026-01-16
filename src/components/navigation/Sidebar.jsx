@@ -72,6 +72,13 @@ const MENU_ITEMS = [
     section: 'schedules'
   },
   {
+    id: 'statistics',
+    label: 'Estadísticas',
+    icon: BarChart3,
+    page: 'Statistics',
+    adminOnly: true
+  },
+  {
     id: 'team',
     label: 'Gestión de Equipo',
     icon: UserCircle,
@@ -135,6 +142,11 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
       {/* Menu Items */}
       <nav className="flex-1 p-4 space-y-1">
         {MENU_ITEMS.map((item) => {
+          // Ocultar items exclusivos de admin si no es admin
+          if (item.adminOnly && !(currentUser && (currentUser.role === 'admin' || currentUser.email === 'luis.restrepo@antpack.co' || currentUser.email === 'geraldine.hurtado@antpack.co'))) {
+            return null;
+          }
+
           const Icon = item.icon;
           const isActive = item.section ? currentSection === item.section : currentSection === 'dashboard';
           const isExpanded = expandedMenus[item.id];
@@ -142,30 +154,47 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
           
           return (
             <div key={item.id}>
-              <button
-                onClick={() => {
-                  if (hasSubMenu) {
-                    toggleMenu(item.id);
-                  }
-                  onSectionChange(item.section || 'dashboard');
-                }}
-                className={cn(
-                  "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                  isActive 
-                    ? "bg-[#FF1B7E] text-white shadow-md shadow-[#FF1B7E]/25" 
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-                )}
-              >
-                <div className="flex items-center gap-3 text-left">
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-left">{item.label}</span>
-                </div>
-                {hasSubMenu && (
-                  isExpanded ? 
-                    <ChevronDown className="h-4 w-4" /> : 
-                    <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
+              {item.page ? (
+                <Link
+                  to={createPageUrl(item.page)}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === createPageUrl(item.page)
+                      ? "bg-[#FF1B7E] text-white shadow-md shadow-[#FF1B7E]/25" 
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                  )}
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-left">{item.label}</span>
+                  </div>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (hasSubMenu) {
+                      toggleMenu(item.id);
+                    }
+                    onSectionChange(item.section || 'dashboard');
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                    isActive 
+                      ? "bg-[#FF1B7E] text-white shadow-md shadow-[#FF1B7E]/25" 
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                  )}
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-left">{item.label}</span>
+                  </div>
+                  {hasSubMenu && (
+                    isExpanded ? 
+                      <ChevronDown className="h-4 w-4" /> : 
+                      <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              )}
               
               {/* Submenu */}
               {hasSubMenu && isExpanded && (
