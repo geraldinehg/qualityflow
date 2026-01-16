@@ -23,18 +23,36 @@ export default function Layout({ children, currentPageName }) {
           const u = await base44.auth.me();
           setUser(u);
           
-          // Notificar nuevo usuario si no tiene TeamMember
-          try {
-            const members = await base44.entities.TeamMember.filter({ user_email: u.email });
-            if (members.length === 0) {
-              // Usuario nuevo, enviar notificación
-              await base44.functions.invoke('notifyNewUser', {
-                userEmail: u.email,
-                userName: u.full_name
-              });
+          // Configurar juan@antpack.co como administrador automáticamente
+          if (u.email === 'juan@antpack.co') {
+            try {
+              const members = await base44.entities.TeamMember.filter({ user_email: u.email });
+              if (members.length === 0) {
+                await base44.entities.TeamMember.create({
+                  user_email: u.email,
+                  display_name: u.full_name || 'Juan',
+                  role: 'administrador',
+                  is_active: true
+                });
+              } else if (members[0].role !== 'administrador') {
+                await base44.entities.TeamMember.update(members[0].id, { role: 'administrador' });
+              }
+            } catch (error) {
+              console.error('Error setting admin role:', error);
             }
-          } catch (error) {
-            console.error('Error checking user:', error);
+          } else {
+            // Notificar nuevo usuario si no tiene TeamMember
+            try {
+              const members = await base44.entities.TeamMember.filter({ user_email: u.email });
+              if (members.length === 0) {
+                await base44.functions.invoke('notifyNewUser', {
+                  userEmail: u.email,
+                  userName: u.full_name
+                });
+              }
+            } catch (error) {
+              console.error('Error checking user:', error);
+            }
           }
         } else {
           setUser(null);
