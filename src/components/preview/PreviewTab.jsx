@@ -257,8 +257,16 @@ export default function PreviewTab({ projectId, project }) {
               ref={containerRef}
               className="relative w-full bg-white"
               style={{ height: '70vh' }}
-              onClick={handleIframeClick}
             >
+              {/* Capa overlay para capturar clicks en modo markup */}
+              {markupMode && (
+                <div 
+                  className="absolute inset-0 z-10 cursor-crosshair"
+                  onClick={handleIframeClick}
+                  style={{ backgroundColor: 'rgba(255, 27, 126, 0.05)' }}
+                />
+              )}
+
               {iframeLoading && !iframeError && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white">
                   <div className="text-center">
