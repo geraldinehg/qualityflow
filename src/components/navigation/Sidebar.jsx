@@ -72,13 +72,6 @@ const MENU_ITEMS = [
     section: 'schedules'
   },
   {
-    id: 'team',
-    label: 'Gestión de Equipo',
-    icon: UserCircle,
-    page: 'Dashboard',
-    admin: true
-  },
-  {
     id: 'reports',
     label: 'Reportes',
     icon: BarChart3,
