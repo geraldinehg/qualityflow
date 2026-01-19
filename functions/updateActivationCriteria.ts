@@ -2,40 +2,34 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const NEW_ACTIVATION_CRITERIA = [
   {
-    area: 'Inicio de proyecto',
-    title: 'Información del cliente',
-    description: 'Información completa del cliente y contexto del negocio',
+    area: 'Brief del Proyecto',
+    title: 'Objetivos de negocio y generalidades del proyecto',
+    description: 'Objetivos de negocio y generalidades del proyecto',
     is_mandatory: true
   },
   {
-    area: 'Inicio de proyecto',
-    title: 'Brief del proyecto',
-    description: 'Brief detallado con objetivos, alcance y requerimientos del proyecto',
+    area: 'Brief del Proyecto',
+    title: 'Contexto y Antecedentes del proyecto',
+    description: 'Contexto y Antecedentes del proyecto',
     is_mandatory: true
   },
   {
-    area: 'Inicio de proyecto',
-    title: 'Propuesta (Presentación - documento formal, aprobado por las áreas involucradas)',
-    description: 'Propuesta formal presentada y aprobada por todas las áreas involucradas',
+    area: 'Brief del Proyecto',
+    title: 'Entregables: Listado táctico de qué se va a recibir',
+    description: 'Entregables: Listado táctico de qué se va a recibir',
     is_mandatory: true
   },
   {
-    area: 'Inicio de proyecto',
-    title: 'Contrato del proyecto (alcance corroborado por las áreas involucradas)',
-    description: 'Contrato firmado con alcance validado y corroborado por las áreas',
+    area: 'Brief del Proyecto',
+    title: 'Hoja de vida del proyecto cargada',
+    description: 'Hoja de vida del proyecto cargada',
     is_mandatory: true
   },
   {
-    area: 'Inicio de proyecto',
-    title: 'Kickoff Interno, planeación del proyecto (Grabación - acta)',
-    description: 'Kickoff interno realizado con grabación y acta de reunión',
-    is_mandatory: true
-  },
-  {
-    area: 'Inicio de proyecto',
-    title: 'Kickoff con Cliente (Presentación, grabación y entrega oficial para aprobación de pautas legales)',
-    description: 'Kickoff con cliente realizado, con presentación, grabación y pautas legales aprobadas',
-    is_mandatory: true
+    area: 'Brief del Proyecto',
+    title: 'Insumos base recopilados y organizados',
+    description: 'Insumos base recopilados y organizados',
+    is_mandatory: false
   }
 ];
 
