@@ -31,6 +31,11 @@ export default function ResourceOccupancy() {
     queryFn: () => base44.entities.TeamMember.filter({ is_active: true })
   });
 
+  const { data: allTasks = [] } = useQuery({
+    queryKey: ['all-tasks'],
+    queryFn: () => base44.entities.Task.list('-created_date')
+  });
+
   // Filtrar solo proyectos activos
   const activeProjects = projects.filter(p => 
     p.status === 'in_progress' || p.status === 'review'
@@ -68,10 +73,11 @@ export default function ResourceOccupancy() {
     }));
   }, [activeProjects]);
 
-  // Calcular ocupación por responsable
+  // Calcular ocupación por responsable (incluyendo tareas)
   const responsibleOccupancy = useMemo(() => {
     const occupancy = {};
 
+    // Primero agregar proyectos asignados
     activeProjects.forEach(project => {
       const responsibles = project.area_responsibles || {};
       
@@ -84,7 +90,8 @@ export default function ResourceOccupancy() {
             role: member?.role,
             projects: [],
             areas: new Set(),
-            totalValue: 0
+            totalValue: 0,
+            tasks: []
           };
         }
         
@@ -97,11 +104,39 @@ export default function ResourceOccupancy() {
       });
     });
 
+    // Ahora agregar tareas asignadas
+    allTasks.forEach(task => {
+      const assignedEmails = task.assigned_to || [];
+      assignedEmails.forEach(email => {
+        if (!occupancy[email]) {
+          const member = teamMembers.find(m => m.user_email === email);
+          occupancy[email] = {
+            email,
+            name: member?.display_name || email,
+            role: member?.role,
+            projects: [],
+            areas: new Set(),
+            totalValue: 0,
+            tasks: []
+          };
+        }
+        
+        // Buscar el proyecto asociado a la tarea
+        const taskProject = projects.find(p => p.id === task.project_id);
+        if (taskProject) {
+          occupancy[email].tasks.push({
+            ...task,
+            projectName: taskProject.name
+          });
+        }
+      });
+    });
+
     return Object.values(occupancy).map(data => ({
       ...data,
       areas: Array.from(data.areas)
     })).sort((a, b) => b.projects.length - a.projects.length);
-  }, [activeProjects, teamMembers]);
+  }, [activeProjects, teamMembers, allTasks, projects]);
 
   return (
     <div className="space-y-6">
@@ -249,21 +284,21 @@ export default function ResourceOccupancy() {
 
                   {/* Proyectos asignados */}
                   <div>
-                    <p className="text-xs text-gray-400 mb-2">Proyectos asignados</p>
+                    <p className="text-xs text-[var(--text-secondary)] mb-2">Proyectos asignados</p>
                     <div className="space-y-2">
                       {data.projects.map(project => (
                         <Link key={project.id} to={`${createPageUrl('ProjectChecklist')}?id=${project.id}`}>
-                          <div className="p-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded hover:border-[#FF1B7E]/40 transition-all cursor-pointer">
+                          <div className="p-2 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded hover:border-[#FF1B7E]/40 transition-all cursor-pointer">
                             <div className="flex items-center justify-between mb-1">
-                              <p className="text-sm text-white font-medium truncate">
+                              <p className="text-sm text-[var(--text-primary)] font-medium truncate">
                                 {project.name}
                               </p>
-                              <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
+                              <Badge variant="outline" className="text-xs border-[var(--border-secondary)] text-[var(--text-secondary)]">
                                 {AREA_LABELS[project.assignedArea] || project.assignedArea}
                               </Badge>
                             </div>
                             <div className="flex items-center justify-between">
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-[var(--text-tertiary)]">
                                 {Math.round(project.completion_percentage || 0)}% completado
                               </p>
                               <Progress 
@@ -276,6 +311,45 @@ export default function ResourceOccupancy() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Tareas asignadas */}
+                  {data.tasks.length > 0 && (
+                    <div>
+                      <p className="text-xs text-[var(--text-secondary)] mb-2">Tareas asignadas</p>
+                      <div className="space-y-2">
+                        {/* Agrupar tareas por proyecto */}
+                        {Object.entries(
+                          data.tasks.reduce((acc, task) => {
+                            const key = task.projectName || 'Sin proyecto';
+                            if (!acc[key]) acc[key] = [];
+                            acc[key].push(task);
+                            return acc;
+                          }, {})
+                        ).map(([projectName, tasks]) => (
+                          <div key={projectName} className="p-2 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-xs font-medium text-[var(--text-primary)]">{projectName}</p>
+                              <Badge className="text-xs bg-[#FF1B7E]/20 text-[#FF1B7E] border-[#FF1B7E]/40">
+                                {tasks.length} {tasks.length === 1 ? 'tarea' : 'tareas'}
+                              </Badge>
+                            </div>
+                            <div className="mt-1 space-y-1">
+                              {tasks.slice(0, 3).map(task => (
+                                <p key={task.id} className="text-xs text-[var(--text-tertiary)] truncate">
+                                  • {task.title}
+                                </p>
+                              ))}
+                              {tasks.length > 3 && (
+                                <p className="text-xs text-[var(--text-tertiary)] italic">
+                                  y {tasks.length - 3} más...
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

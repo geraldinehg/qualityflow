@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, GripVertical, Search, Filter, X, CheckCircle2, Loader2, Settings } from 'lucide-react';
+import { Plus, GripVertical, Search, Filter, X, CheckCircle2, Loader2, Settings, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskFormModal from './TaskFormModal';
@@ -36,6 +36,12 @@ export default function TaskKanbanView({ projectId }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const queryClient = useQueryClient();
+
+  // Cargar miembros del equipo
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team-members'],
+    queryFn: () => base44.entities.TeamMember.filter({ is_active: true })
+  });
   
   // Verificar si el usuario es administrador
   React.useEffect(() => {
@@ -556,6 +562,12 @@ export default function TaskKanbanView({ projectId }) {
                                                   day: 'numeric', 
                                                   month: 'short' 
                                                 })}
+                                              </Badge>
+                                            )}
+                                            {(task.assigned_to || []).length > 0 && (
+                                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                                <User className="h-3 w-3" />
+                                                {teamMembers.find(m => m.user_email === task.assigned_to[0])?.display_name?.split(' ')[0] || task.assigned_to[0].split('@')[0]}
                                               </Badge>
                                             )}
                                           </div>

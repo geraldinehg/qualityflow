@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,12 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
   const [uploadingFields, setUploadingFields] = useState({});
 
   const queryClient = useQueryClient();
+
+  // Cargar usuarios del equipo
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team-members'],
+    queryFn: () => base44.entities.TeamMember.filter({ is_active: true })
+  });
 
   useEffect(() => {
     setFormData(task || {});
@@ -402,6 +408,52 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
               />
             </PopoverContent>
           </Popover>
+        </div>
+
+        {/* Asignación de usuarios */}
+        <div>
+          <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block flex items-center gap-1">
+            <User className="h-3 w-3" />
+            Asignado a
+          </label>
+          <Select
+            value={(formData.assigned_to || [])[0] || 'unassigned'}
+            onValueChange={(value) => {
+              const newAssigned = value === 'unassigned' ? [] : [value];
+              handleUpdate({ assigned_to: newAssigned });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sin asignar" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="unassigned">
+                <span className="text-[var(--text-tertiary)]">Sin asignar</span>
+              </SelectItem>
+              {teamMembers.map((member) => (
+                <SelectItem key={member.user_email} value={member.user_email}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-[#FF1B7E] text-white text-xs flex items-center justify-center">
+                      {member.display_name?.charAt(0).toUpperCase() || member.user_email?.charAt(0).toUpperCase()}
+                    </div>
+                    <span>{member.display_name || member.user_email}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {(formData.assigned_to || []).length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              {teamMembers
+                .filter(m => (formData.assigned_to || []).includes(m.user_email))
+                .map(member => (
+                  <Badge key={member.user_email} variant="outline" className="text-xs">
+                    {member.display_name || member.user_email}
+                  </Badge>
+                ))
+              }
+            </div>
+          )}
         </div>
 
         <Separator />
