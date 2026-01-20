@@ -45,24 +45,41 @@ export default function TaskNotificationBadge() {
     }
   });
 
-  const addToCalendarMutation = useMutation({
-    mutationFn: async ({ taskId, projectId }) => {
-      const response = await base44.functions.invoke('addTaskToGoogleCalendar', {
-        taskId,
-        projectId
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success('✅ Tarea agregada al calendario de Google');
-      if (data.eventLink) {
-        window.open(data.eventLink, '_blank');
+  const addToCalendar = async ({ taskId, projectId, notification }) => {
+    try {
+      // Obtener información de la tarea
+      const tasks = await base44.entities.Task.filter({ id: taskId, project_id: projectId });
+      const task = tasks[0];
+      
+      if (!task) {
+        toast.error('Tarea no encontrada');
+        return;
       }
-    },
-    onError: (error) => {
-      toast.error(`Error al agregar al calendario: ${error.message}`);
+
+      // Obtener proyecto
+      const projects = await base44.entities.Project.filter({ id: projectId });
+      const project = projects[0];
+
+      // Crear URL de Google Calendar
+      const eventDate = task.due_date || new Date().toISOString().split('T')[0];
+      const title = encodeURIComponent(task.title);
+      const description = encodeURIComponent(`Proyecto: ${project?.name}\n\n${task.description || ''}`);
+      const dates = `${eventDate.replace(/-/g, '')}/${eventDate.replace(/-/g, '')}`;
+
+      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${description}`;
+
+      window.open(calendarUrl, '_blank');
+      
+      // Marcar notificación como leída
+      if (notification) {
+        markAsReadMutation.mutate(notification.id);
+      }
+      
+      toast.success('✅ Abriendo Google Calendar');
+    } catch (error) {
+      toast.error('Error al abrir calendario');
     }
-  });
+  };
 
   const unreadCount = notifications.length;
 
@@ -108,11 +125,12 @@ export default function TaskNotificationBadge() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => addToCalendarMutation.mutate({
+                          onClick={() => addToCalendar({
                             taskId: notification.task_id,
-                            projectId: notification.project_id
+                            projectId: notification.project_id,
+                            notification
                           })}
-                          disabled={addToCalendarMutation.isPending}
+                          title="Agregar a Google Calendar"
                         >
                           <Calendar className="h-4 w-4" />
                         </Button>
