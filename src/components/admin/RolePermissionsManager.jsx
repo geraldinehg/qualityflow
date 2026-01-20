@@ -24,7 +24,8 @@ const DEFAULT_PERMISSIONS = {
     can_view_reports: false,
     can_access_admin: false,
     can_approve_phases: false,
-    can_resolve_conflicts: false
+    can_resolve_conflicts: false,
+    can_access_global_access: false
   },
   qa: {
     can_access_dashboard: true,
@@ -39,7 +40,8 @@ const DEFAULT_PERMISSIONS = {
     can_view_reports: false,
     can_access_admin: false,
     can_approve_phases: false,
-    can_resolve_conflicts: false
+    can_resolve_conflicts: false,
+    can_access_global_access: false
   },
   web_leader: {
     can_access_dashboard: true,
@@ -54,7 +56,8 @@ const DEFAULT_PERMISSIONS = {
     can_view_reports: true,
     can_access_admin: false,
     can_approve_phases: false,
-    can_resolve_conflicts: true
+    can_resolve_conflicts: true,
+    can_access_global_access: false
   },
   product_owner: {
     can_access_dashboard: true,
@@ -69,7 +72,8 @@ const DEFAULT_PERMISSIONS = {
     can_view_reports: true,
     can_access_admin: false,
     can_approve_phases: true,
-    can_resolve_conflicts: true
+    can_resolve_conflicts: true,
+    can_access_global_access: true
   },
   administrador: {
     can_access_dashboard: true,
@@ -84,7 +88,8 @@ const DEFAULT_PERMISSIONS = {
     can_view_reports: true,
     can_access_admin: true,
     can_approve_phases: true,
-    can_resolve_conflicts: true
+    can_resolve_conflicts: true,
+    can_access_global_access: true
   }
 };
 
@@ -101,7 +106,8 @@ const PERMISSION_LABELS = {
   can_view_reports: 'Ver estadísticas de reportes',
   can_access_admin: 'Acceso al panel admin',
   can_approve_phases: 'Aprobar fases',
-  can_resolve_conflicts: 'Resolver conflictos'
+  can_resolve_conflicts: 'Resolver conflictos',
+  can_access_global_access: 'Acceder a Accesos Globales'
 };
 
 export default function RolePermissionsManager() {
