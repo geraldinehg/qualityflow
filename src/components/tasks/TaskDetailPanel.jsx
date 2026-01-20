@@ -424,14 +424,7 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
             }}
           >
             <SelectTrigger className="bg-[var(--bg-input)]">
-              <SelectValue>
-                {(() => {
-                  const assignedEmail = (formData.assigned_to || [])[0];
-                  if (!assignedEmail) return 'Sin asignar';
-                  const member = teamMembers.find(m => m.user_email === assignedEmail);
-                  return member?.display_name || assignedEmail;
-                })()}
-              </SelectValue>
+              <SelectValue placeholder="Sin asignar" />
             </SelectTrigger>
             <SelectContent className="bg-white">
               <SelectItem value="unassigned">Sin asignar</SelectItem>
