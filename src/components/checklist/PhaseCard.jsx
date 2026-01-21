@@ -280,7 +280,7 @@ export default function PhaseCard({
                 <Edit2 className="h-4 w-4 text-[var(--text-secondary)]" />
               </Button>
               {hasCritical &&
-              <Badge className="bg-[var(--text-primary)]/10 text-[var(--text-primary)] border-0 text-xs font-medium">
+              <Badge className="flex justify-between text-xs">
                   Críticos pendientes
                 </Badge>
               }
