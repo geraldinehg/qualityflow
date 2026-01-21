@@ -265,7 +265,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
       <div className="p-4 border-t border-[var(--border-primary)] space-y-2">
         <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all duration-200">
           <Settings className="h-5 w-5" />
-          <span className="font-sans" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif' }}>Configuración</span>
+          <span className="text-sm font-normal text-left group-hover:text-[#FF1B7E] transition-colors duration-200 line-clamp-2" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif' }}>Configuración</span>
         </button>
         
         {/* Admin Panel - Solo para administradores */}
@@ -275,7 +275,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-[#FF1B7E] to-[#e6156e] text-white shadow-md hover:shadow-lg hover:shadow-[#FF1B7E]/30 transition-all duration-200 active:scale-[0.98]">
 
             <Shield className="h-5 w-5" />
-            <span className="font-sans" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif' }}>Panel Admin</span>
+            <span className="text-sm font-normal text-left group-hover:text-[#FF1B7E] transition-colors duration-200 line-clamp-2" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif' }}>Panel Admin</span>
           </button>
         }
       </div>
