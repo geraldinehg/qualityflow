@@ -176,7 +176,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
               >
                 <div className="flex items-center gap-3 text-left">
                   <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-left font-sans" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif' }}>{item.label}</span>
+                  <span className="text-left font-sans" style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, sans-serif' }}>{item.label}</span>
                 </div>
                 {hasSubMenu && (
                   isExpanded ? 
