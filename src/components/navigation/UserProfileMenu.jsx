@@ -21,7 +21,9 @@ import {
   Briefcase, 
   Users,
   FolderKanban,
-  ChevronDown
+  ChevronDown,
+  CheckSquare,
+  ExternalLink
 } from 'lucide-react';
 import { ROLE_CONFIG } from '../checklist/checklistTemplates';
 import TaskNotificationBadge from '../notifications/TaskNotificationBadge';
@@ -68,6 +70,16 @@ export default function UserProfileMenu() {
       return leaders[0];
     },
     enabled: !!teamMember?.role && !teamMember?.role.startsWith('leader_')
+  });
+
+  const { data: assignedTasks = [] } = useQuery({
+    queryKey: ['user-tasks', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const allTasks = await base44.entities.Task.list();
+      return allTasks.filter(t => t.assigned_to?.includes(user.email) && t.status !== 'completed');
+    },
+    enabled: !!user?.email
   });
 
   if (!user) return null;
@@ -199,15 +211,63 @@ export default function UserProfileMenu() {
                   <p className="text-[var(--text-secondary)] text-sm">No tienes proyectos asignados</p>
                 ) : (
                   projects.map(project => (
-                    <div key={project.id} className="flex items-center justify-between p-3 bg-[var(--bg-primary)] rounded-lg border border-[var(--border-primary)]">
-                      <div>
-                        <p className="text-sm font-medium text-[var(--text-primary)]">{project.name}</p>
+                    <a 
+                      key={project.id}
+                      href={`#/project-checklist?id=${project.id}`}
+                      className="flex items-center justify-between p-3 bg-[var(--bg-primary)] rounded-lg border border-[var(--border-primary)] hover:border-[#FF1B7E] transition-all group cursor-pointer"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#FF1B7E]">{project.name}</p>
                         <p className="text-xs text-[var(--text-secondary)]">{project.status}</p>
                       </div>
-                      <Badge variant="outline" className="border-[#FF1B7E] text-[#FF1B7E]">
-                        {project.completion_percentage?.toFixed(0) || 0}%
-                      </Badge>
-                    </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-[#FF1B7E] text-[#FF1B7E]">
+                          {project.completion_percentage?.toFixed(0) || 0}%
+                        </Badge>
+                        <ExternalLink className="h-4 w-4 text-[var(--text-secondary)] group-hover:text-[#FF1B7E]" />
+                      </div>
+                    </a>
+                  ))
+                )}
+              </div>
+            </Card>
+
+            {/* Tareas asignadas */}
+            <Card className="p-6 bg-[var(--bg-tertiary)] border-[var(--border-primary)]">
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                <CheckSquare className="h-4 w-4 text-[#FF1B7E]" />
+                Tareas Pendientes ({assignedTasks.length})
+              </h3>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {assignedTasks.length === 0 ? (
+                  <p className="text-[var(--text-secondary)] text-sm">No tienes tareas pendientes</p>
+                ) : (
+                  assignedTasks.map(task => (
+                    <a
+                      key={task.id}
+                      href={`#/project-checklist?id=${task.project_id}&tab=tasks`}
+                      className="flex items-center justify-between p-3 bg-[var(--bg-primary)] rounded-lg border border-[var(--border-primary)] hover:border-[#FF1B7E] transition-all group cursor-pointer"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#FF1B7E]">{task.title}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{task.status}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {task.priority && (
+                          <Badge 
+                            variant="outline" 
+                            className={
+                              task.priority === 'high' ? 'border-red-500 text-red-500' :
+                              task.priority === 'medium' ? 'border-yellow-500 text-yellow-500' :
+                              'border-gray-500 text-gray-500'
+                            }
+                          >
+                            {task.priority}
+                          </Badge>
+                        )}
+                        <ExternalLink className="h-4 w-4 text-[var(--text-secondary)] group-hover:text-[#FF1B7E]" />
+                      </div>
+                    </a>
                   ))
                 )}
               </div>
