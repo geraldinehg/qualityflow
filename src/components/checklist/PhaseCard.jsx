@@ -6,11 +6,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { 
-  ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search, 
-  Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2, GripVertical, 
-  CheckCircle2, Circle, AlertTriangle 
-} from 'lucide-react';
+import {
+  ChevronDown, ChevronRight, FileText, GitBranch, Palette, Code, Zap, Search,
+  Smartphone, CheckSquare, Shield, Rocket, Plus, Edit2, GripVertical,
+  CheckCircle2, Circle, AlertTriangle } from
+'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -36,11 +36,11 @@ const WORKFLOW_CONFIG = {
   stabilization: { hasEntryCriteria: false, approver: 'qa', approverLabel: 'QA' }
 };
 
-export default function PhaseCard({ 
-  phase, 
-  items, 
-  isExpanded, 
-  onToggle, 
+export default function PhaseCard({
+  phase,
+  items,
+  isExpanded,
+  onToggle,
   onItemUpdate,
   onItemEdit,
   onAddItem,
@@ -55,17 +55,17 @@ export default function PhaseCard({
 }) {
   const [approvingPhase, setApprovingPhase] = useState(false);
   const [showEntryCriteria, setShowEntryCriteria] = useState(false);
-  
+
   const queryClient = useQueryClient();
   const phaseConfig = PHASES[phase];
   const Icon = iconMap[phaseConfig?.icon] || FileText;
   const displayName = customPhaseName || phaseConfig?.name || phase;
-  
-  const completed = items.filter(i => i.status === 'completed').length;
+
+  const completed = items.filter((i) => i.status === 'completed').length;
   const total = items.length;
-  const progress = total > 0 ? (completed / total) * 100 : 0;
-  const hasCritical = items.some(i => i.weight === 'critical' && i.status !== 'completed');
-  const hasConflicts = items.some(i => i.status === 'conflict');
+  const progress = total > 0 ? completed / total * 100 : 0;
+  const hasCritical = items.some((i) => i.weight === 'critical' && i.status !== 'completed');
+  const hasConflicts = items.some((i) => i.status === 'conflict');
 
   // Workflow data
   const { data: workflowPhases = [] } = useQuery({
@@ -103,12 +103,12 @@ export default function PhaseCard({
   });
 
   const workflowConfig = WORKFLOW_CONFIG[phase];
-  const phaseData = workflowPhases.find(p => p.phase_key === phase);
+  const phaseData = workflowPhases.find((p) => p.phase_key === phase);
   const isWorkflowCompleted = phaseData?.status === 'completed';
   const isWorkflowInProgress = phaseData?.status === 'in_progress';
-  const phaseCriteria = entryCriteria.filter(c => c.phase_key === phase);
-  const mandatoryCriteria = phaseCriteria.filter(c => c.is_mandatory);
-  const completedMandatory = mandatoryCriteria.filter(c => c.is_completed);
+  const phaseCriteria = entryCriteria.filter((c) => c.phase_key === phase);
+  const mandatoryCriteria = phaseCriteria.filter((c) => c.is_mandatory);
+  const completedMandatory = mandatoryCriteria.filter((c) => c.is_completed);
 
   const canUserApprove = () => {
     if (!workflowConfig) return false;
@@ -137,12 +137,12 @@ export default function PhaseCard({
     // Crear criterios de entrada predefinidos si la fase los tiene
     const existingCriteria = phaseCriteria;
     if (existingCriteria.length === 0 && DEFAULT_ENTRY_CRITERIA[phase]) {
-      const criteriaToCreate = DEFAULT_ENTRY_CRITERIA[phase].map(c => ({
+      const criteriaToCreate = DEFAULT_ENTRY_CRITERIA[phase].map((c) => ({
         project_id: project.id,
         phase_key: phase,
         ...c
       }));
-      
+
       await base44.entities.EntryCriteria.bulkCreate(criteriaToCreate);
       queryClient.invalidateQueries({ queryKey: ['entry-criteria'] });
     }
@@ -155,9 +155,9 @@ export default function PhaseCard({
     // Validar criterios de entrada obligatorios antes de aprobar
     if (workflowConfig?.hasEntryCriteria) {
       const criteria = phaseCriteria;
-      const mandatoryCriteria = criteria.filter(c => c.is_mandatory);
-      const completedMandatory = mandatoryCriteria.filter(c => c.is_completed);
-      
+      const mandatoryCriteria = criteria.filter((c) => c.is_mandatory);
+      const completedMandatory = mandatoryCriteria.filter((c) => c.is_completed);
+
       if (mandatoryCriteria.length > 0 && completedMandatory.length < mandatoryCriteria.length) {
         toast.error(`No puedes aprobar esta fase. Debes completar todos los criterios obligatorios: ${completedMandatory.length}/${mandatoryCriteria.length} completados`);
         throw new Error('Criterios obligatorios incompletos');
@@ -166,7 +166,7 @@ export default function PhaseCard({
 
     try {
       const user = await base44.auth.me();
-      
+
       if (phaseData) {
         await updatePhaseMutation.mutateAsync({
           id: phaseData.id,
@@ -219,25 +219,25 @@ export default function PhaseCard({
         <CardHeader className="hover:bg-[var(--bg-hover)] transition-colors duration-200 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
-              <div 
+              <div
                 {...dragHandleProps}
-                className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--bg-hover)] rounded transition-colors"
-              >
+                className="cursor-grab active:cursor-grabbing p-1 hover:bg-[var(--bg-hover)] rounded transition-colors">
+
                 <GripVertical className="h-5 w-5 text-[var(--text-secondary)]" />
               </div>
               
               {/* Indicador de estado workflow */}
-              {workflowConfig && (
-                <div className="flex-shrink-0">
-                  {isWorkflowCompleted ? (
-                    <CheckCircle2 className="h-5 w-5 text-[var(--text-primary)]" />
-                  ) : isWorkflowInProgress ? (
-                    <Circle className="h-5 w-5 text-[#FF1B7E]" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-[var(--text-secondary)]" />
-                  )}
+              {workflowConfig &&
+              <div className="flex-shrink-0">
+                  {isWorkflowCompleted ?
+                <CheckCircle2 className="h-5 w-5 text-[var(--text-primary)]" /> :
+                isWorkflowInProgress ?
+                <Circle className="h-5 w-5 text-[#FF1B7E]" /> :
+
+                <Circle className="h-5 w-5 text-[var(--text-secondary)]" />
+                }
                 </div>
-              )}
+              }
               
               <div className="cursor-pointer flex items-center gap-3 flex-1" onClick={onToggle}>
                 <div className={`p-2 rounded-xl transition-colors ${isCriticalPhase ? 'bg-[#FF1B7E]/15' : 'bg-[var(--bg-tertiary)]'}`}>
@@ -246,22 +246,22 @@ export default function PhaseCard({
                 <div>
                   <CardTitle className="text-base font-semibold flex items-center gap-2 flex-wrap text-[var(--text-primary)]">
                     {displayName}
-                    {isCriticalPhase && (
-                      <Badge variant="outline" className="text-xs bg-[#FF1B7E]/10 text-[#FF1B7E] border-[#FF1B7E]/30 font-medium">
+                    {isCriticalPhase &&
+                    <Badge variant="outline" className="text-xs bg-[#FF1B7E]/10 text-[#FF1B7E] border-[#FF1B7E]/30 font-medium">
                         Crítico
                       </Badge>
-                    )}
-                    {isWorkflowInProgress && (
-                      <Badge className="bg-[#FF1B7E]/10 text-[#FF1B7E] border-0 text-xs font-medium">
+                    }
+                    {isWorkflowInProgress &&
+                    <Badge className="bg-[#FF1B7E]/10 text-[#FF1B7E] border-0 text-xs font-medium">
                         En progreso
                       </Badge>
-                    )}
+                    }
                   </CardTitle>
                   <div className="flex items-center gap-2 flex-wrap text-sm text-[var(--text-secondary)] mt-1">
-                    <span className="font-medium">{completed} de {total}</span>
-                    {workflowConfig && (
-                      <span className="text-xs">• {workflowConfig.approverLabel}</span>
-                    )}
+                    <span className="flex justify-between text-sm mb-1">{completed} de {total}</span>
+                    {workflowConfig &&
+                    <span className="text-xs">• {workflowConfig.approverLabel}</span>
+                    }
                   </div>
                 </div>
               </div>
@@ -275,20 +275,20 @@ export default function PhaseCard({
                 onClick={(e) => {
                   e.stopPropagation();
                   onEditPhase(phase);
-                }}
-              >
+                }}>
+
                 <Edit2 className="h-4 w-4 text-[var(--text-secondary)]" />
               </Button>
-              {hasCritical && (
-                <Badge className="bg-[var(--text-primary)]/10 text-[var(--text-primary)] border-0 text-xs font-medium">
+              {hasCritical &&
+              <Badge className="bg-[var(--text-primary)]/10 text-[var(--text-primary)] border-0 text-xs font-medium">
                   Críticos pendientes
                 </Badge>
-              )}
-              {hasConflicts && (
-                <Badge className="bg-[#FF1B7E]/10 text-[#FF1B7E] border-0 text-xs font-medium">
+              }
+              {hasConflicts &&
+              <Badge className="bg-[#FF1B7E]/10 text-[#FF1B7E] border-0 text-xs font-medium">
                   Conflictos
                 </Badge>
-              )}
+              }
               <div className="w-28">
                 <Progress value={progress} className="h-2.5 bg-[var(--bg-tertiary)] [&>div]:bg-[#FF1B7E] rounded-full" />
               </div>
@@ -296,115 +296,115 @@ export default function PhaseCard({
                 {progress.toFixed(0)}%
               </span>
               <div className="cursor-pointer p-1 hover:bg-[var(--bg-hover)] rounded-lg transition-colors" onClick={onToggle}>
-                {isExpanded ? (
-                  <ChevronDown className="h-5 w-5 text-[var(--text-secondary)]" />
-                ) : (
-                  <ChevronRight className="h-5 w-5 text-[var(--text-secondary)]" />
-                )}
+                {isExpanded ?
+                <ChevronDown className="h-5 w-5 text-[var(--text-secondary)]" /> :
+
+                <ChevronRight className="h-5 w-5 text-[var(--text-secondary)]" />
+                }
               </div>
             </div>
           </div>
         </CardHeader>
         
         <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+          {isExpanded &&
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}>
+
               <CardContent className="pt-0 pb-4">
                 {/* Controles de workflow */}
-                {workflowConfig && (
-                  <div className="mb-4 pb-4 border-b border-[var(--border-primary)] space-y-2">
-                    {workflowConfig.hasEntryCriteria && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setShowEntryCriteria(true)}
-                        className="w-full"
-                      >
-                        {mandatoryCriteria.length > 0 ? (
-                          <span>Ver Criterios ({completedMandatory.length}/{mandatoryCriteria.length})</span>
-                        ) : (
-                          <span>Definir Criterios</span>
-                        )}
+                {workflowConfig &&
+              <div className="mb-4 pb-4 border-b border-[var(--border-primary)] space-y-2">
+                    {workflowConfig.hasEntryCriteria &&
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowEntryCriteria(true)}
+                  className="w-full">
+
+                        {mandatoryCriteria.length > 0 ?
+                  <span>Ver Criterios ({completedMandatory.length}/{mandatoryCriteria.length})</span> :
+
+                  <span>Definir Criterios</span>
+                  }
                       </Button>
-                    )}
+                }
                     
-                    {!isWorkflowCompleted && !isWorkflowInProgress && (
-                      <Button
-                        size="sm"
-                        onClick={handleStartWorkflow}
-                        className="w-full"
-                      >
+                    {!isWorkflowCompleted && !isWorkflowInProgress &&
+                <Button
+                  size="sm"
+                  onClick={handleStartWorkflow}
+                  className="w-full">
+
                         Iniciar Fase
                       </Button>
-                    )}
+                }
                     
-                    {isWorkflowInProgress && canUserApprove() && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setApprovingPhase(true)}
-                        className="w-full"
-                      >
+                    {isWorkflowInProgress && canUserApprove() &&
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setApprovingPhase(true)}
+                  className="w-full">
+
                         Aprobar Fase
                       </Button>
-                    )}
+                }
                   </div>
-                )}
+              }
                 
                 {/* Items del checklist */}
                 <DragDropContext onDragEnd={handleDragEnd}>
                   <Droppable droppableId={`items-${phase}`}>
-                    {(provided) => (
-                      <div 
-                        {...provided.droppableProps}
+                    {(provided) =>
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-1">
+
+                        {items.sort((a, b) => a.order - b.order).map((item, index) =>
+                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) =>
+                      <div
                         ref={provided.innerRef}
-                        className="space-y-1"
-                      >
-                        {items.sort((a, b) => a.order - b.order).map((item, index) => (
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                              >
-                                <ChecklistItemRow 
-                                  item={item} 
-                                  onUpdate={onItemUpdate}
-                                  onEdit={onItemEdit}
-                                  userRole={userRole}
-                                  dragHandleProps={provided.dragHandleProps}
-                                  isDragging={snapshot.isDragging}
-                                />
+                        {...provided.draggableProps}>
+
+                                <ChecklistItemRow
+                          item={item}
+                          onUpdate={onItemUpdate}
+                          onEdit={onItemEdit}
+                          userRole={userRole}
+                          dragHandleProps={provided.dragHandleProps}
+                          isDragging={snapshot.isDragging} />
+
                               </div>
-                            )}
+                      }
                           </Draggable>
-                        ))}
+                    )}
                         {provided.placeholder}
                       </div>
-                    )}
+                  }
                   </Droppable>
                 </DragDropContext>
                 
                 {/* Botón para agregar nuevo ítem */}
                 <div className="mt-3 pt-3 border-t border-[var(--border-primary)]">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-                    onClick={() => onAddItem(phase)}
-                  >
+                  <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-[var(--text-secondary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  onClick={() => onAddItem(phase)}>
+
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar ítem a esta fase
                   </Button>
                 </div>
               </CardContent>
             </motion.div>
-          )}
+          }
         </AnimatePresence>
       </Card>
       
@@ -414,16 +414,16 @@ export default function PhaseCard({
         phaseKey={phase}
         isOpen={approvingPhase}
         onClose={() => setApprovingPhase(false)}
-        onApprove={handleApprovePhase}
-      />
+        onApprove={handleApprovePhase} />
+
 
       <EntryCriteriaModal
         projectId={project?.id}
         phaseKey={phase}
         phaseName={displayName}
         isOpen={showEntryCriteria}
-        onClose={() => setShowEntryCriteria(false)}
-      />
-    </>
-  );
+        onClose={() => setShowEntryCriteria(false)} />
+
+    </>);
+
 }
