@@ -59,14 +59,20 @@ css
 
   body {
     @apply bg-[var(--bg-primary)] text-[var(--text-primary)];
-    font-family: var(--font-sans);
-    font-style: normal;
+    font-family: Satoshi, var(--font-sans);
+    font-style: normal !important;
     transition: background-color 0.2s ease, color 0.2s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   * {
+    font-style: normal !important;
+    font-family: Satoshi, -apple-system, BlinkMacSystemFont, sans-serif !important;
+  }
+
+  button, input, textarea, select {
+    font-family: Satoshi, -apple-system, BlinkMacSystemFont, sans-serif !important;
     font-style: normal !important;
   }
 
