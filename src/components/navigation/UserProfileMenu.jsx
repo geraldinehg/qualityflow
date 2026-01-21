@@ -84,9 +84,9 @@ export default function UserProfileMenu() {
           <Button variant="ghost" className="flex items-center gap-3 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-primary)]">
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-[var(--text-primary)]">{user.full_name || user.email}</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]" style={{ fontStyle: 'normal' }}>{user.full_name || user.email}</p>
                 {teamMember && (
-                  <p className="text-xs text-[var(--text-secondary)]">{roleConfig.name || teamMember.role}</p>
+                  <p className="text-xs text-[var(--text-secondary)]" style={{ fontStyle: 'normal' }}>{roleConfig.name || teamMember.role}</p>
                 )}
               </div>
               <Avatar className="h-10 w-10 bg-[#FF1B7E]">

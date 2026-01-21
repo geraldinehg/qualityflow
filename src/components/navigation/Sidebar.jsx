@@ -176,7 +176,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
               >
                 <div className="flex items-center gap-3 text-left">
                   <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-left">{item.label}</span>
+                  <span className="text-left" style={{ fontStyle: 'normal' }}>{item.label}</span>
                 </div>
                 {hasSubMenu && (
                   isExpanded ? 
@@ -215,7 +215,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
                         >
                           <div className="flex items-center gap-2">
                             <SubIcon className="h-4 w-4" />
-                            <span>{subItem.label}</span>
+                            <span style={{ fontStyle: 'normal' }}>{subItem.label}</span>
                           </div>
                           {hasNestedMenu && (
                             isSubExpanded ? 
@@ -245,7 +245,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
                                       : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                                   )}
                                 >
-                                  <span>{nestedItem.label}</span>
+                                  <span style={{ fontStyle: 'normal' }}>{nestedItem.label}</span>
                                 </button>
                               );
                             })}
@@ -265,7 +265,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
       <div className="p-4 border-t border-[var(--border-primary)] space-y-2">
         <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all duration-200">
           <Settings className="h-5 w-5" />
-          <span>Configuración</span>
+          <span style={{ fontStyle: 'normal' }}>Configuración</span>
         </button>
         
         {/* Admin Panel - Solo para administradores */}
@@ -275,7 +275,7 @@ export default function Sidebar({ currentSection, onSectionChange, onAction }) {
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-[#FF1B7E] to-[#e6156e] text-white shadow-md hover:shadow-lg hover:shadow-[#FF1B7E]/30 transition-all duration-200 active:scale-[0.98]"
           >
             <Shield className="h-5 w-5" />
-            <span>Panel Admin</span>
+            <span style={{ fontStyle: 'normal' }}>Panel Admin</span>
           </button>
         )}
       </div>
