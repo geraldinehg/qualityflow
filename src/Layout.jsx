@@ -147,12 +147,13 @@ export default function Layout({ children, currentPageName }) {
           }
           
           body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: Satoshi, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             background: var(--bg-primary);
             color: var(--text-primary);
             transition: background 0.2s ease, color 0.2s ease;
+            font-style: normal !important;
           }
           
           ::-webkit-scrollbar {
@@ -244,8 +245,8 @@ export default function Layout({ children, currentPageName }) {
         }
         
         body {
-          font-family: var(--font-sans);
-          font-style: normal;
+          font-family: Satoshi, var(--font-sans);
+          font-style: normal !important;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           background: var(--bg-primary);
@@ -255,6 +256,7 @@ export default function Layout({ children, currentPageName }) {
 
         * {
           font-style: normal !important;
+          font-family: Satoshi, -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
         
         ::-webkit-scrollbar {
