@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
@@ -20,10 +21,10 @@ const TabsTrigger = React.forwardRef(({ className, style, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[var(--bg-secondary)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-sm hover:text-[var(--text-primary)] data-[state=active]:font-semibold",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[var(--bg-secondary)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-sm hover:text-[var(--text-primary)] data-[state=active]:font-semibold [font-family:Satoshi,sans-serif]",
       className
     )}
-    style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif', ...style }}
+    style={{ fontStyle: 'normal !important', fontFamily: 'Satoshi, -apple-system, BlinkMacSystemFont, sans-serif !important', ...style }}
     {...props} />
 ))
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
