@@ -43,6 +43,9 @@ Deno.serve(async (req) => {
 
     const isAntpackUser = sharedWithEmail.endsWith('@antpack.co');
 
+    console.log('Sharing access with:', sharedWithEmail);
+    console.log('Is Antpack user:', isAntpackUser);
+
     // Si NO es usuario de @antpack.co, generar PDF con los accesos
     if (!isAntpackUser) {
       // Obtener datos del proyecto y accesos
@@ -151,21 +154,27 @@ Deno.serve(async (req) => {
         const uploadResult = await base44.integrations.Core.UploadFile({ file: pdfFile });
 
         // Enviar email con PDF adjunto
-        await base44.integrations.Core.SendEmail({
+        console.log('Sending PDF email to external user...');
+        const emailResult = await base44.integrations.Core.SendEmail({
           to: sharedWithEmail,
           subject: `Accesos compartidos - ${project.name}`,
           body: `${user.full_name || user.email} te ha compartido acceso al proyecto "${project.name}".\n\nTu token de acceso es: ${token}\n\nAdjunto encontrarás un PDF con todas las credenciales de acceso.\n\nEste acceso es de solo lectura y ${expiresAt ? `expira el ${new Date(expiresAt).toLocaleDateString()}` : 'no tiene fecha de expiración'}.\n\nPDF: ${uploadResult.file_url}`
         });
+        console.log('Email sent result:', emailResult);
       }
     } else {
       // Usuario de @antpack.co - enviar email simple
-      await base44.integrations.Core.SendEmail({
+      console.log('Sending email to Antpack user...');
+      const emailResult = await base44.integrations.Core.SendEmail({
         to: sharedWithEmail,
         subject: `Te han compartido acceso al proyecto`,
         body: `${user.full_name || user.email} te ha compartido acceso a un proyecto.\n\nToken de acceso: ${token}\n\nPuedes ver los accesos compartidos en tu panel de control en la sección "Accesos Compartidos".`
       });
+      console.log('Email sent result:', emailResult);
     }
 
+    console.log('Access shared successfully');
+    
     return Response.json({ 
       success: true, 
       token,
@@ -174,6 +183,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Error in generateAccessToken:', error);
+    return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
   }
 });
