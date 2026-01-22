@@ -65,7 +65,12 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
 
       if (response.data.success) {
         setGeneratedToken(response.data.token);
-        toast.success('Acceso compartido exitosamente');
+        const isAntpack = response.data.isAntpackUser;
+        if (isAntpack) {
+          toast.success('Acceso compartido. El usuario puede verlo en su panel.');
+        } else {
+          toast.success('Acceso compartido. Se ha enviado un PDF por email.');
+        }
       }
     } catch (error) {
       toast.error(`Error: ${error.message}`);
