@@ -7,14 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Save, ExternalLink, Eye, EyeOff, Copy, Check, Share2, Shield } from 'lucide-react';
+import { Plus, Trash2, Save, ExternalLink, Eye, EyeOff, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import ShareAccessModal from './ShareAccessModal';
 
 export default function ProjectAccessTab({ projectId }) {
   const [showPasswords, setShowPasswords] = useState({});
   const [copiedField, setCopiedField] = useState(null);
-  const [showShareModal, setShowShareModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: accessData, isLoading } = useQuery({
@@ -112,18 +110,6 @@ export default function ProjectAccessTab({ projectId }) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const { data: sharedAccesses = [] } = useQuery({
-    queryKey: ['shared-accesses', projectId],
-    queryFn: async () => {
-      const result = await base44.entities.SharedProjectAccess.filter({ 
-        project_id: projectId,
-        is_active: true
-      });
-      return result;
-    },
-    enabled: !!projectId
-  });
-
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -135,72 +121,6 @@ export default function ProjectAccessTab({ projectId }) {
 
   return (
     <div className="space-y-6">
-      {/* Header con botón compartir */}
-      <div className="flex items-center justify-between bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-lg p-4">
-        <div>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
-            <Shield className="h-4 w-4 text-[#FF1B7E]" />
-            Accesos del Proyecto
-          </h3>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Gestiona y comparte accesos de forma segura
-          </p>
-        </div>
-        <Button
-          onClick={() => setShowShareModal(true)}
-          className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-        >
-          <Share2 className="h-4 w-4 mr-2" />
-          Compartir Accesos
-        </Button>
-      </div>
-
-      {/* Lista de accesos compartidos */}
-      {sharedAccesses.length > 0 && (
-        <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-          <CardHeader>
-            <CardTitle className="text-base text-[var(--text-primary)]">
-              Accesos Compartidos ({sharedAccesses.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {sharedAccesses.map((access) => (
-                <div key={access.id} className="flex items-center justify-between p-3 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-primary)]">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">
-                      {access.shared_with_email}
-                    </p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Compartido por {access.shared_by}
-                      {access.expires_at && ` • Expira: ${new Date(access.expires_at).toLocaleDateString()}`}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={async () => {
-                      try {
-                        await base44.functions.invoke('revokeAccessToken', { 
-                          sharedAccessId: access.id 
-                        });
-                        queryClient.invalidateQueries({ queryKey: ['shared-accesses'] });
-                        toast.success('Acceso revocado');
-                      } catch (error) {
-                        toast.error('Error al revocar acceso');
-                      }
-                    }}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Revocar
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Hosting QA */}
       <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
         <CardHeader>
@@ -677,13 +597,6 @@ export default function ProjectAccessTab({ projectId }) {
           {saveMutation.isPending ? 'Guardando...' : 'Guardar Accesos'}
         </Button>
       </div>
-
-      <ShareAccessModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        projectId={projectId}
-        projectAccess={accessData}
-      />
     </div>
   );
 }
