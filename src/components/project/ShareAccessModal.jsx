@@ -65,10 +65,7 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
 
       if (response.data.success) {
         setGeneratedToken(response.data.token);
-        if (response.data.documentUrl) {
-          window.open(response.data.documentUrl, '_blank');
-        }
-        toast.success('Acceso compartido y documento generado');
+        toast.success('Acceso compartido exitosamente');
       }
     } catch (error) {
       toast.error(`Error: ${error.message}`);
@@ -243,7 +240,7 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
                 ✓ Acceso compartido exitosamente con <strong>{email}</strong>
               </p>
               <p className="text-xs text-green-600 dark:text-green-400">
-                Se ha enviado un email con el documento de accesos y el token
+                Se ha enviado un email con el token de acceso
               </p>
             </div>
 

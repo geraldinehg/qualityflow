@@ -175,16 +175,6 @@ export default function ProjectAccessTab({ projectId }) {
                       Compartido por {access.shared_by}
                       {access.expires_at && ` • Expira: ${new Date(access.expires_at).toLocaleDateString()}`}
                     </p>
-                    {access.document_url && (
-                      <Button
-                        variant="link"
-                        size="sm"
-                        onClick={() => window.open(access.document_url, '_blank')}
-                        className="text-xs p-0 h-auto text-[#FF1B7E]"
-                      >
-                        Ver documento
-                      </Button>
-                    )}
                   </div>
                   <Button
                     variant="ghost"
