@@ -56,8 +56,6 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
         new Date(Date.now() + parseInt(expirationDays) * 24 * 60 * 60 * 1000).toISOString() 
         : null;
 
-      toast.loading('Generando acceso y enviando email...');
-
       const response = await base44.functions.invoke('generateAccessToken', {
         projectId,
         sharedWithEmail: email,
@@ -65,23 +63,12 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
         expiresAt
       });
 
-      toast.dismiss();
-
       if (response.data.success) {
         setGeneratedToken(response.data.token);
-        const isAntpack = response.data.isAntpackUser;
-        if (isAntpack) {
-          toast.success(`✓ Acceso compartido con ${email}. Email enviado exitosamente.`);
-        } else {
-          toast.success(`✓ Acceso compartido con ${email}. PDF enviado por email.`);
-        }
-      } else {
-        toast.error('Error al compartir acceso');
+        toast.success('Acceso compartido exitosamente');
       }
     } catch (error) {
-      toast.dismiss();
-      console.error('Error sharing access:', error);
-      toast.error(`Error al compartir: ${error.message || 'Intenta nuevamente'}`);
+      toast.error(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }

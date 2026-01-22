@@ -23,9 +23,6 @@ export default function SharedAccessesView() {
     loadUser();
   }, []);
 
-  // Solo usuarios @antpack.co pueden ver esta vista
-  const isAntpackUser = user?.email?.endsWith('@antpack.co');
-
   const { data: sharedWithMe = [] } = useQuery({
     queryKey: ['shared-with-me', user?.email],
     queryFn: async () => {
@@ -80,27 +77,6 @@ export default function SharedAccessesView() {
   };
 
   if (!user) return null;
-
-  if (!isAntpackUser) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-          <CardContent className="py-12 text-center">
-            <Share2 className="h-12 w-12 text-[var(--text-tertiary)] mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-              Acceso No Disponible
-            </h2>
-            <p className="text-[var(--text-secondary)]">
-              Esta sección solo está disponible para usuarios de @antpack.co
-            </p>
-            <p className="text-sm text-[var(--text-secondary)] mt-2">
-              Los accesos compartidos contigo fueron enviados por email en formato PDF
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
