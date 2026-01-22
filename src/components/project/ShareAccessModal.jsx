@@ -63,12 +63,15 @@ export default function ShareAccessModal({ isOpen, onClose, projectId, projectAc
         expiresAt
       });
 
-      if (response.data.success) {
+      if (response.data?.success) {
         setGeneratedToken(response.data.token);
         toast.success('Acceso compartido exitosamente');
+      } else {
+        toast.error(response.data?.error || 'Error al compartir acceso');
       }
     } catch (error) {
-      toast.error(`Error: ${error.message}`);
+      console.error('Error sharing access:', error);
+      toast.error(`Error: ${error.response?.data?.error || error.message}`);
     } finally {
       setLoading(false);
     }
