@@ -1,27 +1,189 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Eye, EyeOff, Copy, Check, Lock } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Eye, EyeOff, Copy, Check, ExternalLink, Search, Filter, Star, Clock, Package } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function GlobalAccess() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterProject, setFilterProject] = useState('all');
+  const [filterEnvironment, setFilterEnvironment] = useState('all');
+  const [filterType, setFilterType] = useState('all');
   const [showPasswords, setShowPasswords] = useState({});
   const [copiedField, setCopiedField] = useState(null);
 
+  // Fetch todos los proyectos
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => base44.entities.Project.list(),
   });
 
-  const { data: allAccesses = [], isLoading: accessesLoading } = useQuery({
-    queryKey: ['all-project-accesses'],
+  // Fetch todos los accesos
+  const { data: allAccess = [], isLoading: accessLoading } = useQuery({
+    queryKey: ['all-project-access'],
     queryFn: () => base44.entities.ProjectAccess.list(),
   });
+
+  // Combinar datos de proyectos con accesos
+  const accessWithProjects = useMemo(() => {
+    return allAccess.map(access => {
+      const project = projects.find(p => p.id === access.project_id);
+      return { ...access, project };
+    }).filter(a => a.project); // Solo mostrar accesos con proyecto válido
+  }, [allAccess, projects]);
+
+  // Filtrar accesos
+  const filteredAccess = useMemo(() => {
+    let filtered = accessWithProjects;
+
+    // Filtro por búsqueda
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(access => 
+        access.project?.name?.toLowerCase().includes(term) ||
+        access.qa_hosting_url?.toLowerCase().includes(term) ||
+        access.prod_hosting_url?.toLowerCase().includes(term) ||
+        access.cms_qa_url?.toLowerCase().includes(term) ||
+        access.cms_prod_url?.toLowerCase().includes(term) ||
+        access.apis?.some(api => api.name?.toLowerCase().includes(term))
+      );
+    }
+
+    // Filtro por proyecto
+    if (filterProject !== 'all') {
+      filtered = filtered.filter(access => access.project_id === filterProject);
+    }
+
+    return filtered;
+  }, [accessWithProjects, searchTerm, filterProject]);
+
+  // Extraer todos los accesos individuales para filtrado
+  const flattenedAccess = useMemo(() => {
+    const items = [];
+    
+    filteredAccess.forEach(access => {
+      // Hosting QA
+      if (access.qa_hosting_url) {
+        items.push({
+          id: `${access.id}-qa-hosting`,
+          projectId: access.project_id,
+          projectName: access.project?.name,
+          type: 'hosting',
+          environment: 'qa',
+          name: 'Hosting QA',
+          url: access.qa_hosting_url,
+          user: access.qa_hosting_user,
+          password: access.qa_hosting_password,
+        });
+      }
+      
+      // Hosting Producción
+      if (access.prod_hosting_url) {
+        items.push({
+          id: `${access.id}-prod-hosting`,
+          projectId: access.project_id,
+          projectName: access.project?.name,
+          type: 'hosting',
+          environment: 'prod',
+          name: 'Hosting Producción',
+          url: access.prod_hosting_url,
+          user: access.prod_hosting_user,
+          password: access.prod_hosting_password,
+        });
+      }
+      
+      // CMS QA
+      if (access.cms_qa_url) {
+        items.push({
+          id: `${access.id}-cms-qa`,
+          projectId: access.project_id,
+          projectName: access.project?.name,
+          type: 'cms',
+          environment: 'qa',
+          name: 'CMS QA',
+          url: access.cms_qa_url,
+          user: access.cms_qa_user,
+          password: access.cms_qa_password,
+        });
+      }
+      
+      // CMS Producción
+      if (access.cms_prod_url) {
+        items.push({
+          id: `${access.id}-cms-prod`,
+          projectId: access.project_id,
+          projectName: access.project?.name,
+          type: 'cms',
+          environment: 'prod',
+          name: 'CMS Producción',
+          url: access.cms_prod_url,
+          user: access.cms_prod_user,
+          password: access.cms_prod_password,
+        });
+      }
+      
+      // APIs
+      if (access.apis && access.apis.length > 0) {
+        access.apis.forEach((api, index) => {
+          if (api.url) {
+            items.push({
+              id: `${access.id}-api-${index}`,
+              projectId: access.project_id,
+              projectName: access.project?.name,
+              type: 'api',
+              environment: 'api',
+              name: api.name || `API ${index + 1}`,
+              url: api.url,
+              user: api.user,
+              password: api.password,
+            });
+          }
+        });
+      }
+    });
+    
+    return items;
+  }, [filteredAccess]);
+
+  // Aplicar filtros adicionales
+  const finalFilteredAccess = useMemo(() => {
+    let filtered = flattenedAccess;
+
+    // Filtro por ambiente
+    if (filterEnvironment !== 'all') {
+      filtered = filtered.filter(item => item.environment === filterEnvironment);
+    }
+
+    // Filtro por tipo
+    if (filterType !== 'all') {
+      filtered = filtered.filter(item => item.type === filterType);
+    }
+
+    return filtered;
+  }, [flattenedAccess, filterEnvironment, filterType]);
+
+  // Agrupar por proyecto
+  const groupedByProject = useMemo(() => {
+    const groups = {};
+    finalFilteredAccess.forEach(item => {
+      if (!groups[item.projectId]) {
+        groups[item.projectId] = {
+          projectName: item.projectName,
+          items: []
+        };
+      }
+      groups[item.projectId].items.push(item);
+    });
+    return Object.entries(groups);
+  }, [finalFilteredAccess]);
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] });
@@ -34,422 +196,281 @@ export default function GlobalAccess() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const filteredProjects = projects.filter(project => 
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const projectsWithAccess = filteredProjects.map(project => {
-    const access = allAccesses.find(a => a.project_id === project.id);
-    return { project, access };
-  }).filter(item => item.access);
-
-  if (projectsLoading || accessesLoading) {
+  if (projectsLoading || accessLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E] mx-auto" />
-        <p className="text-sm text-[var(--text-secondary)] mt-4">Cargando accesos...</p>
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF1B7E] mx-auto mb-4" />
+          <p className="text-sm text-[var(--text-secondary)]">Cargando accesos...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-[var(--bg-primary)] p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Accesos Globales</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Consulta los accesos de hosting, CMS y APIs de todos los proyectos
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+            Accesos Globales
+          </h1>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Consulta todos los accesos técnicos de todos los proyectos en un solo lugar
           </p>
         </div>
-        <Badge variant="outline" className="text-sm">
-          {projectsWithAccess.length} proyectos con accesos
-        </Badge>
-      </div>
 
-      {/* Barra de búsqueda */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)]" />
-        <Input
-          placeholder="Buscar proyecto por nombre..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-[var(--bg-secondary)] border-[var(--border-primary)]"
-        />
-      </div>
-
-      {/* Lista de proyectos con accesos */}
-      {projectsWithAccess.length === 0 ? (
+        {/* Filtros y búsqueda */}
         <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-          <CardContent className="py-12 text-center">
-            <Lock className="h-12 w-12 text-[var(--text-tertiary)] mx-auto mb-3" />
-            <p className="text-[var(--text-secondary)]">
-              {searchQuery ? 'No se encontraron proyectos con ese nombre' : 'No hay proyectos con accesos configurados'}
-            </p>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Búsqueda */}
+              <div className="md:col-span-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+                  <Input
+                    placeholder="Buscar por proyecto, URL o nombre..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-[var(--bg-input)]"
+                  />
+                </div>
+              </div>
+
+              {/* Filtro por proyecto */}
+              <div>
+                <Label className="text-xs mb-2 block">Proyecto</Label>
+                <Select value={filterProject} onValueChange={setFilterProject}>
+                  <SelectTrigger className="bg-[var(--bg-input)]">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los proyectos</SelectItem>
+                    {projects.map(project => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro por ambiente */}
+              <div>
+                <Label className="text-xs mb-2 block">Ambiente</Label>
+                <Select value={filterEnvironment} onValueChange={setFilterEnvironment}>
+                  <SelectTrigger className="bg-[var(--bg-input)]">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="qa">QA</SelectItem>
+                    <SelectItem value="prod">Producción</SelectItem>
+                    <SelectItem value="api">APIs</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Filtro por tipo */}
+              <div>
+                <Label className="text-xs mb-2 block">Tipo</Label>
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="bg-[var(--bg-input)]">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="hosting">Hosting</SelectItem>
+                    <SelectItem value="cms">CMS</SelectItem>
+                    <SelectItem value="api">API</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Botón limpiar filtros */}
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterProject('all');
+                    setFilterEnvironment('all');
+                    setFilterType('all');
+                  }}
+                  className="w-full"
+                >
+                  Limpiar Filtros
+                </Button>
+              </div>
+            </div>
+
+            {/* Estadísticas */}
+            <div className="mt-4 pt-4 border-t border-[var(--border-primary)] flex gap-4">
+              <div className="text-sm">
+                <span className="text-[var(--text-tertiary)]">Total de accesos:</span>
+                <span className="ml-2 font-semibold text-[var(--text-primary)]">
+                  {finalFilteredAccess.length}
+                </span>
+              </div>
+              <div className="text-sm">
+                <span className="text-[var(--text-tertiary)]">Proyectos:</span>
+                <span className="ml-2 font-semibold text-[var(--text-primary)]">
+                  {groupedByProject.length}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="space-y-6">
-          {projectsWithAccess.map(({ project, access }) => (
-            <Card key={project.id} className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-              <CardHeader>
-                <CardTitle className="text-xl text-[var(--text-primary)]">{project.name}</CardTitle>
-                <p className="text-sm text-[var(--text-secondary)]">{project.description}</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                
-                {/* Hosting QA */}
-                {(access.qa_hosting_url || access.qa_hosting_user || access.qa_hosting_password) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-blue-500">QA</Badge>
-                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">Hosting QA</h4>
-                    </div>
-                    {access.qa_hosting_url && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">URL:</span>
-                        <a 
-                          href={access.qa_hosting_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#FF1B7E] hover:underline flex items-center gap-1"
-                        >
-                          {access.qa_hosting_url}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                    {access.qa_hosting_user && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Usuario:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {access.qa_hosting_user}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.qa_hosting_user, `qa_host_user_${project.id}`)}
-                          >
-                            {copiedField === `qa_host_user_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {access.qa_hosting_password && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Contraseña:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {showPasswords[`qa_host_${project.id}`] ? access.qa_hosting_password : '••••••••••'}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => togglePasswordVisibility(`qa_host_${project.id}`)}
-                          >
-                            {showPasswords[`qa_host_${project.id}`] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.qa_hosting_password, `qa_host_pass_${project.id}`)}
-                          >
-                            {copiedField === `qa_host_pass_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
 
-                {/* Hosting Producción */}
-                {(access.prod_hosting_url || access.prod_hosting_user || access.prod_hosting_password) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-green-500">PROD</Badge>
-                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">Hosting Producción</h4>
-                    </div>
-                    {access.prod_hosting_url && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">URL:</span>
-                        <a 
-                          href={access.prod_hosting_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#FF1B7E] hover:underline flex items-center gap-1"
-                        >
-                          {access.prod_hosting_url}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                    {access.prod_hosting_user && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Usuario:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {access.prod_hosting_user}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.prod_hosting_user, `prod_host_user_${project.id}`)}
-                          >
-                            {copiedField === `prod_host_user_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {access.prod_hosting_password && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Contraseña:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {showPasswords[`prod_host_${project.id}`] ? access.prod_hosting_password : '••••••••••'}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => togglePasswordVisibility(`prod_host_${project.id}`)}
-                          >
-                            {showPasswords[`prod_host_${project.id}`] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.prod_hosting_password, `prod_host_pass_${project.id}`)}
-                          >
-                            {copiedField === `prod_host_pass_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+        {/* Accesos agrupados por proyecto */}
+        {groupedByProject.length === 0 ? (
+          <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+            <CardContent className="py-12 text-center">
+              <Package className="h-12 w-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+              <p className="text-sm text-[var(--text-secondary)]">
+                No se encontraron accesos con los filtros aplicados
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {groupedByProject.map(([projectId, group]) => (
+              <Card key={projectId} className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      {group.projectName}
+                      <Badge variant="outline" className="text-xs">
+                        {group.items.length} {group.items.length === 1 ? 'acceso' : 'accesos'}
+                      </Badge>
+                    </CardTitle>
+                    <Link to={`${createPageUrl('ProjectChecklist')}?id=${projectId}`}>
+                      <Button variant="outline" size="sm">
+                        Ver proyecto
+                      </Button>
+                    </Link>
                   </div>
-                )}
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {group.items.map(item => (
+                    <div
+                      key={item.id}
+                      className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-sm text-[var(--text-primary)]">
+                            {item.name}
+                          </h4>
+                          <Badge className={
+                            item.environment === 'qa' ? 'bg-blue-500' :
+                            item.environment === 'prod' ? 'bg-green-500' :
+                            'bg-purple-500'
+                          }>
+                            {item.environment === 'qa' ? 'QA' :
+                             item.environment === 'prod' ? 'PROD' :
+                             'API'}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {item.type}
+                          </Badge>
+                        </div>
+                      </div>
 
-                {/* CMS QA */}
-                {(access.cms_qa_url || access.cms_qa_user || access.cms_qa_password) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-blue-500">QA</Badge>
-                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">CMS QA</h4>
-                    </div>
-                    {access.cms_qa_url && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">URL:</span>
-                        <a 
-                          href={access.cms_qa_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#FF1B7E] hover:underline flex items-center gap-1"
-                        >
-                          {access.cms_qa_url}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                    {access.cms_qa_user && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Usuario:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {access.cms_qa_user}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.cms_qa_user, `cms_qa_user_${project.id}`)}
-                          >
-                            {copiedField === `cms_qa_user_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {access.cms_qa_password && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Contraseña:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {showPasswords[`cms_qa_${project.id}`] ? access.cms_qa_password : '••••••••••'}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => togglePasswordVisibility(`cms_qa_${project.id}`)}
-                          >
-                            {showPasswords[`cms_qa_${project.id}`] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.cms_qa_password, `cms_qa_pass_${project.id}`)}
-                          >
-                            {copiedField === `cms_qa_pass_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* CMS Producción */}
-                {(access.cms_prod_url || access.cms_prod_user || access.cms_prod_password) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-green-500">PROD</Badge>
-                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">CMS Producción</h4>
-                    </div>
-                    {access.cms_prod_url && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">URL:</span>
-                        <a 
-                          href={access.cms_prod_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#FF1B7E] hover:underline flex items-center gap-1"
-                        >
-                          {access.cms_prod_url}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    )}
-                    {access.cms_prod_user && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Usuario:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {access.cms_prod_user}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.cms_prod_user, `cms_prod_user_${project.id}`)}
-                          >
-                            {copiedField === `cms_prod_user_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {access.cms_prod_password && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--text-secondary)] w-20">Contraseña:</span>
-                        <div className="flex-1 flex items-center gap-2">
-                          <code className="text-xs bg-[var(--bg-tertiary)] px-2 py-1 rounded flex-1 font-mono">
-                            {showPasswords[`cms_prod_${project.id}`] ? access.cms_prod_password : '••••••••••'}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => togglePasswordVisibility(`cms_prod_${project.id}`)}
-                          >
-                            {showPasswords[`cms_prod_${project.id}`] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyToClipboard(access.cms_prod_password, `cms_prod_pass_${project.id}`)}
-                          >
-                            {copiedField === `cms_prod_pass_${project.id}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* APIs */}
-                {access.apis && access.apis.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">APIs</h4>
-                    {access.apis.map((api, idx) => (
-                      <div key={idx} className="bg-[var(--bg-tertiary)] rounded-lg p-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-[var(--text-primary)]">{api.name}</span>
-                          {api.url && (
-                            <a 
-                              href={api.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-[#FF1B7E] hover:underline flex items-center gap-1"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                          )}
-                        </div>
-                        {api.url && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--text-secondary)] w-20">URL:</span>
-                            <code className="text-xs bg-[var(--bg-input)] px-2 py-1 rounded flex-1 font-mono text-[var(--text-primary)]">
-                              {api.url}
-                            </code>
-                          </div>
-                        )}
-                        {api.user && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--text-secondary)] w-20">Usuario:</span>
-                            <div className="flex-1 flex items-center gap-2">
-                              <code className="text-xs bg-[var(--bg-input)] px-2 py-1 rounded flex-1 font-mono">
-                                {api.user}
-                              </code>
+                      <div className="space-y-2">
+                        {/* URL */}
+                        {item.url && (
+                          <div>
+                            <Label className="text-xs text-[var(--text-tertiary)]">URL</Label>
+                            <div className="flex gap-2 mt-1">
+                              <Input
+                                value={item.url}
+                                readOnly
+                                className="bg-[var(--bg-input)] text-xs"
+                              />
                               <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
-                                className="h-7 w-7"
-                                onClick={() => copyToClipboard(api.user, `api_user_${project.id}_${idx}`)}
+                                onClick={() => window.open(item.url, '_blank')}
                               >
-                                {copiedField === `api_user_${project.id}_${idx}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                                <ExternalLink className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
                         )}
-                        {api.password && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--text-secondary)] w-20">Contraseña:</span>
-                            <div className="flex-1 flex items-center gap-2">
-                              <code className="text-xs bg-[var(--bg-input)] px-2 py-1 rounded flex-1 font-mono">
-                                {showPasswords[`api_${project.id}_${idx}`] ? api.password : '••••••••••'}
-                              </code>
+
+                        {/* Usuario */}
+                        {item.user && (
+                          <div>
+                            <Label className="text-xs text-[var(--text-tertiary)]">Usuario</Label>
+                            <div className="relative mt-1">
+                              <Input
+                                value={item.user}
+                                readOnly
+                                className="bg-[var(--bg-input)] pr-10 text-xs"
+                              />
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7"
-                                onClick={() => togglePasswordVisibility(`api_${project.id}_${idx}`)}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                                onClick={() => copyToClipboard(item.user, `${item.id}-user`)}
                               >
-                                {showPasswords[`api_${project.id}_${idx}`] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => copyToClipboard(api.password, `api_pass_${project.id}_${idx}`)}
-                              >
-                                {copiedField === `api_pass_${project.id}_${idx}` ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                                {copiedField === `${item.id}-user` ?
+                                  <Check className="h-4 w-4 text-green-500" /> :
+                                  <Copy className="h-4 w-4" />
+                                }
                               </Button>
                             </div>
                           </div>
                         )}
-                      </div>
-                    ))}
-                  </div>
-                )}
 
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                        {/* Contraseña */}
+                        {item.password && (
+                          <div>
+                            <Label className="text-xs text-[var(--text-tertiary)]">Contraseña</Label>
+                            <div className="relative mt-1">
+                              <Input
+                                value={item.password}
+                                type={showPasswords[item.id] ? 'text' : 'password'}
+                                readOnly
+                                className="bg-[var(--bg-input)] pr-20 text-xs"
+                              />
+                              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => togglePasswordVisibility(item.id)}
+                                >
+                                  {showPasswords[item.id] ?
+                                    <EyeOff className="h-4 w-4" /> :
+                                    <Eye className="h-4 w-4" />
+                                  }
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => copyToClipboard(item.password, `${item.id}-pass`)}
+                                >
+                                  {copiedField === `${item.id}-pass` ?
+                                    <Check className="h-4 w-4 text-green-500" /> :
+                                    <Copy className="h-4 w-4" />
+                                  }
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
