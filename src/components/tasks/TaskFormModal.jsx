@@ -52,21 +52,41 @@ export default function TaskFormModal({ isOpen, onClose, task, initialStatus, pr
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
+      const currentUser = await base44.auth.me();
+      
+      // Agregar metadata de creación
+      data.assigned_by = currentUser.email;
+      
       const newTask = await base44.entities.Task.create(data);
+      
+      // Log de actividad
+      await base44.entities.TaskActivityLog.create({
+        task_id: newTask.id,
+        project_id: projectId,
+        action_type: 'created',
+        action_by: currentUser.email,
+        action_by_name: currentUser.full_name,
+        new_value: data
+      });
       
       // Si hay un usuario asignado, enviar notificación
       if (data.assigned_to?.[0]) {
         try {
           const projects = await base44.entities.Project.filter({ id: projectId });
           const project = projects[0];
+          const assignedMember = teamMembers.find(m => m.user_email === data.assigned_to[0]);
           
-          await base44.functions.invoke('notifyTaskAssignment', {
+          await base44.functions.invoke('sendTaskNotification', {
             taskId: newTask.id,
             projectId: projectId,
-            assignedTo: data.assigned_to[0],
+            notificationType: 'task_created',
+            recipientEmail: data.assigned_to[0],
+            recipientName: assignedMember?.display_name,
             taskTitle: data.title,
+            taskDescription: data.description,
             projectName: project?.name
           });
+          toast.success('✉️ Notificación enviada al asignado');
         } catch (error) {
           console.error('Error enviando notificación:', error);
         }
