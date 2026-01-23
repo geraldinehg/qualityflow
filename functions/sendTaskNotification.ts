@@ -20,7 +20,8 @@ Deno.serve(async (req) => {
       taskDescription,
       projectName,
       assignedToName,
-      completedByName
+      completedByName,
+      dueDate // fecha de vencimiento para calendario
     } = await req.json();
 
     if (!taskId || !projectId || !notificationType || !recipientEmail) {
