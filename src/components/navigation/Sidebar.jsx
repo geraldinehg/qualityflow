@@ -67,10 +67,18 @@ const MENU_ITEMS = [
 },
 {
   id: 'schedules',
-  label: 'Cronogramas Generales',
+  label: 'Cronogramas',
   icon: Calendar,
   page: 'Dashboard',
-  section: 'schedules'
+  section: 'schedules',
+  subMenu: [
+    {
+      id: 'global-schedules',
+      label: 'Cronograma Global',
+      icon: Calendar,
+      section: 'global-schedules'
+    }
+  ]
 },
 {
   id: 'reports',
