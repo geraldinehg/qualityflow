@@ -17,6 +17,7 @@ import GeneralSchedules from '../components/schedule/GeneralSchedules';
 import DashboardHome from '../components/dashboard/DashboardHome';
 import AdminPanel from '../components/admin/AdminPanel';
 import ReportsView from '../components/reports/ReportsView';
+import GlobalSchedulesView from '../components/schedule/GlobalSchedulesView';
 
 
 export default function Dashboard({ currentSection = 'dashboard', onSectionChange, sidebarAction, onActionHandled, currentUser }) {
@@ -190,6 +191,11 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
   // Home Dashboard
   if (currentSection === 'dashboard') {
     return <DashboardHome onNavigate={onSectionChange} />;
+  }
+
+  // Vista de Cronograma Global
+  if (currentSection === 'global-schedules') {
+    return <GlobalSchedulesView />;
   }
 
   // Vista de Proyectos por Área
