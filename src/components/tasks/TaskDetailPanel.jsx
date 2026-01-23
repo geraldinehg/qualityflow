@@ -117,7 +117,8 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
             recipientName: assignedMember?.display_name,
             taskTitle: data.title || task.title,
             taskDescription: data.description || task.description,
-            projectName: project?.name
+            projectName: project?.name,
+            dueDate: data.due_date || task.due_date
           });
           toast.success('✉️ Notificación enviada al asignado');
         } catch (error) {
