@@ -67,11 +67,12 @@ export default function Layout({ children, currentPageName }) {
   // Páginas públicas que no requieren autenticación
   const isPublicPage = currentPageName === 'PublicTaskForm' || currentPageName === 'SharedAccess';
   
-  // Mostrar pantalla de login si no hay usuario (excepto páginas públicas)
+  // Redirigir al login de Base44 si no hay usuario (excepto páginas públicas)
   if (user === null && !isPublicPage) {
-    return <LoginScreen />;
+    base44.auth.redirectToLogin();
+    return null;
   }
-  
+
   // Mostrar loading mientras verificamos autenticación (excepto páginas públicas)
   if (user === undefined && !isPublicPage) {
     return null;
