@@ -57,21 +57,69 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data, previousData }) => {
+      const currentUser = await base44.auth.me();
+      
+      // Detectar si cambió el estado a completado
+      const statusChanged = data.status && data.status !== previousData?.status;
+      const nowCompleted = statusChanged && config?.custom_statuses?.find(s => s.key === data.status && s.is_final);
+      
+      // Si se completó, agregar metadata
+      if (nowCompleted) {
+        data.completed_by = currentUser.email;
+        data.completed_at = new Date().toISOString();
+      }
+      
       const result = await base44.entities.Task.update(id, data);
+      
+      // Log de actividad
+      await base44.entities.TaskActivityLog.create({
+        task_id: id,
+        project_id: projectId,
+        action_type: nowCompleted ? 'completed' : statusChanged ? 'status_changed' : 'updated',
+        action_by: currentUser.email,
+        action_by_name: currentUser.full_name,
+        previous_value: previousData,
+        new_value: data
+      });
+      
+      // Enviar notificación si se completó
+      if (nowCompleted && previousData?.notification_email) {
+        try {
+          await base44.functions.invoke('sendTaskNotification', {
+            taskId: id,
+            projectId: projectId,
+            notificationType: 'task_completed',
+            recipientEmail: previousData.notification_email,
+            recipientName: previousData.requester_name,
+            taskTitle: data.title || task.title,
+            taskDescription: data.description || task.description,
+            projectName: project?.name,
+            completedByName: currentUser.full_name
+          });
+          toast.success('✉️ Notificación enviada al solicitante');
+        } catch (error) {
+          console.error('Error enviando notificación:', error);
+        }
+      }
       
       // Si se cambió la asignación, enviar notificación
       const oldAssigned = previousData?.assigned_to?.[0];
       const newAssigned = data.assigned_to?.[0];
       
       if (newAssigned && oldAssigned !== newAssigned) {
+        const assignedMember = teamMembers.find(m => m.user_email === newAssigned);
         try {
-          await base44.functions.invoke('notifyTaskAssignment', {
+          await base44.functions.invoke('sendTaskNotification', {
             taskId: id,
             projectId: projectId,
-            assignedTo: newAssigned,
+            notificationType: 'task_assigned',
+            recipientEmail: newAssigned,
+            recipientName: assignedMember?.display_name,
             taskTitle: data.title || task.title,
+            taskDescription: data.description || task.description,
             projectName: project?.name
           });
+          toast.success('✉️ Notificación enviada al asignado');
         } catch (error) {
           console.error('Error enviando notificación:', error);
         }
@@ -504,10 +552,65 @@ export default function TaskDetailPanel({ task, projectId, config, onClose }) {
 
         <Separator />
 
-        {/* Metadata */}
-        <div className="text-xs text-[var(--text-secondary)] space-y-1">
-          <div>Creado: {format(new Date(task.created_date), "d 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })}</div>
-          {task.created_by && <div>Por: {task.created_by}</div>}
+        {/* Trazabilidad */}
+        <div className="space-y-3 p-4 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-secondary)]">
+          <h4 className="text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+            Trazabilidad
+          </h4>
+          
+          <div className="space-y-2 text-xs text-[var(--text-secondary)]">
+            {/* Creación */}
+            <div className="flex items-start gap-2">
+              <span className="font-medium text-[var(--text-primary)] min-w-[80px]">Creado:</span>
+              <div className="flex-1">
+                <div>{format(new Date(task.created_date), "d 'de' MMM yyyy, HH:mm", { locale: es })}</div>
+                {task.created_by && <div className="text-[var(--text-tertiary)]">por {task.created_by}</div>}
+              </div>
+            </div>
+            
+            {/* Solicitante (si es de formulario público) */}
+            {task.is_from_public_form && task.requester_email && (
+              <div className="flex items-start gap-2">
+                <span className="font-medium text-[var(--text-primary)] min-w-[80px]">Solicitante:</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-1">
+                    {task.requester_name || task.requester_email}
+                    <Badge className="bg-purple-500 text-white text-[10px] px-1 py-0">
+                      Externo
+                    </Badge>
+                  </div>
+                  <div className="text-[var(--text-tertiary)]">{task.requester_email}</div>
+                </div>
+              </div>
+            )}
+            
+            {/* Asignación */}
+            {task.assigned_by && (
+              <div className="flex items-start gap-2">
+                <span className="font-medium text-[var(--text-primary)] min-w-[80px]">Asignado por:</span>
+                <div className="flex-1">{task.assigned_by}</div>
+              </div>
+            )}
+            
+            {/* Completado */}
+            {task.completed_by && task.completed_at && (
+              <div className="flex items-start gap-2">
+                <span className="font-medium text-[var(--text-primary)] min-w-[80px]">Completado:</span>
+                <div className="flex-1">
+                  <div>{format(new Date(task.completed_at), "d 'de' MMM yyyy, HH:mm", { locale: es })}</div>
+                  <div className="text-[var(--text-tertiary)]">por {task.completed_by}</div>
+                </div>
+              </div>
+            )}
+            
+            {/* Email de notificación */}
+            {task.notification_email && (
+              <div className="flex items-start gap-2">
+                <span className="font-medium text-[var(--text-primary)] min-w-[80px]">Notificar a:</span>
+                <div className="flex-1">{task.notification_email}</div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Acciones */}

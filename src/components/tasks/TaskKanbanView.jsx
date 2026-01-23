@@ -192,15 +192,53 @@ export default function TaskKanbanView({ projectId }) {
       const toastId = toast.loading('💾 Moviendo tarea...');
       
       try {
+        const currentUser = await base44.auth.me();
+        const updateData = { status: destination.droppableId };
+        
+        // Si se mueve a estado final, agregar metadata
+        if (destinationStatus?.is_final) {
+          updateData.completed_by = currentUser.email;
+          updateData.completed_at = new Date().toISOString();
+        }
+        
         await updateMutation.mutateAsync({
           id: task.id,
-          data: { status: destination.droppableId }
+          data: updateData
+        });
+        
+        // Log de actividad
+        await base44.entities.TaskActivityLog.create({
+          task_id: task.id,
+          project_id: projectId,
+          action_type: destinationStatus?.is_final ? 'completed' : 'status_changed',
+          action_by: currentUser.email,
+          action_by_name: currentUser.full_name,
+          previous_value: { status: source.droppableId },
+          new_value: { status: destination.droppableId }
         });
         
         toast.success(`✅ Movida a ${destinationStatus?.label}`, { id: toastId, duration: 2000 });
         
-        // Disparar notificaciones si aplica
-        await triggerTaskNotifications(task, destination.droppableId);
+        // Enviar notificación si se completó y tiene email de notificación
+        if (destinationStatus?.is_final && task.notification_email) {
+          try {
+            const project = await base44.entities.Project.filter({ id: projectId });
+            await base44.functions.invoke('sendTaskNotification', {
+              taskId: task.id,
+              projectId: projectId,
+              notificationType: 'task_completed',
+              recipientEmail: task.notification_email,
+              recipientName: task.requester_name,
+              taskTitle: task.title,
+              taskDescription: task.description,
+              projectName: project[0]?.name,
+              completedByName: currentUser.full_name
+            });
+            toast.success('✉️ Notificación enviada', { duration: 2000 });
+          } catch (error) {
+            console.error('Error enviando notificación:', error);
+          }
+        }
       } catch (error) {
         toast.error('❌ Error al mover', { id: toastId });
       }
