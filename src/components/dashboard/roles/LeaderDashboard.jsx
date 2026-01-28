@@ -3,7 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Users, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Users, Clock, ArrowRight, Bug } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from './utils';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const AREA_MAP = {
   leader_web: 'web',
@@ -18,6 +23,7 @@ const AREA_MAP = {
 };
 
 export default function LeaderDashboard({ user, teamMember }) {
+  const navigate = useNavigate();
   const myArea = AREA_MAP[teamMember?.role] || '';
   const isDevLeader = ['leader_software', 'leader_dev_web'].includes(teamMember?.role);
 
@@ -176,27 +182,71 @@ export default function LeaderDashboard({ user, teamMember }) {
       {isDevLeader && (
         <Card>
           <CardHeader>
-            <CardTitle>Seguimiento QA</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Bug className="h-5 w-5" />
+              Seguimiento QA
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
+            <div className="space-y-3 mb-4">
+              <div 
+                className="flex justify-between items-center p-2 rounded hover:bg-[var(--bg-hover)] cursor-pointer transition-colors"
+                onClick={() => {
+                  const task = qaTasks[0];
+                  if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+                }}
+              >
                 <span className="text-sm text-[var(--text-secondary)]">Total en QA:</span>
                 <span className="font-semibold">{qaTasks.length}</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div 
+                className="flex justify-between items-center p-2 rounded hover:bg-[var(--bg-hover)] cursor-pointer transition-colors"
+                onClick={() => {
+                  const task = qaTasks.find(t => t.status === 'pending' || t.status === 'todo');
+                  if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+                }}
+              >
                 <span className="text-sm text-[var(--text-secondary)]">Pendientes:</span>
                 <span className="font-semibold">
                   {qaTasks.filter(t => t.status === 'pending' || t.status === 'todo').length}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
+              <div 
+                className="flex justify-between items-center p-2 rounded hover:bg-red-50 cursor-pointer transition-colors"
+                onClick={() => {
+                  const task = qaTasks.find(t => t.priority === 'high' && t.tags?.includes('bug'));
+                  if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+                }}
+              >
                 <span className="text-sm text-[var(--text-secondary)]">Bugs críticos:</span>
                 <span className="font-semibold text-red-600">
                   {qaTasks.filter(t => t.priority === 'high' && t.tags?.includes('bug')).length}
                 </span>
               </div>
             </div>
+
+            {/* Lista de bugs recientes */}
+            {qaTasks.filter(t => t.tags?.includes('bug')).slice(0, 3).map(task => (
+              <div
+                key={task.id}
+                className="border border-[var(--border-primary)] rounded-lg p-3 mb-2 hover:border-[#FF1B7E] cursor-pointer transition-all group"
+                onClick={() => navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[#FF1B7E] transition-colors">
+                      {task.title}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge className={task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}>
+                        {task.priority || 'media'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-[var(--text-tertiary)] group-hover:text-[#FF1B7E] transition-colors" />
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}

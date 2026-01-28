@@ -3,9 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Bug, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertTriangle, Bug, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from './utils';
 
 export default function QADashboard({ user }) {
+  const navigate = useNavigate();
   // Tareas QA
   const { data: qaTasks = [] } = useQuery({
     queryKey: ['qa-all-tasks'],
@@ -161,11 +164,12 @@ export default function QADashboard({ user }) {
                 return (
                   <div
                     key={task.id}
-                    className="border border-[var(--border-primary)] rounded-lg p-3 hover:bg-[var(--bg-hover)] transition-colors"
+                    className="border border-[var(--border-primary)] rounded-lg p-3 hover:bg-[var(--bg-hover)] hover:border-[#FF1B7E] transition-all cursor-pointer group"
+                    onClick={() => navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`)}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex-1">
-                        <div className="font-medium text-[var(--text-primary)] mb-1">
+                        <div className="font-medium text-[var(--text-primary)] mb-1 group-hover:text-[#FF1B7E] transition-colors">
                           {task.title}
                         </div>
                         <div className="flex items-center gap-2">
@@ -180,6 +184,7 @@ export default function QADashboard({ user }) {
                           )}
                         </div>
                       </div>
+                      <ArrowRight className="h-4 w-4 text-[var(--text-tertiary)] group-hover:text-[#FF1B7E] transition-colors" />
                     </div>
                   </div>
                 );

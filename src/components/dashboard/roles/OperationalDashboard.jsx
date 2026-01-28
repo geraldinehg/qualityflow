@@ -3,11 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from './utils';
 
 export default function OperationalDashboard({ user, teamMember }) {
+  const navigate = useNavigate();
   // Mis tareas
   const { data: myTasks = [] } = useQuery({
     queryKey: ['my-tasks', user.email],
@@ -50,9 +54,15 @@ export default function OperationalDashboard({ user, teamMember }) {
         <p className="text-[var(--text-secondary)]">Tus tareas y prioridades</p>
       </div>
 
-      {/* Métricas */}
+      {/* Métricas clicables */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:border-orange-500"
+          onClick={() => {
+            const task = myTasks.find(t => t.status === 'pending' || t.status === 'todo');
+            if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+          }}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
               Pendientes
@@ -65,7 +75,13 @@ export default function OperationalDashboard({ user, teamMember }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:border-blue-500"
+          onClick={() => {
+            const task = myTasks.find(t => t.status === 'in_progress');
+            if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+          }}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
               En Progreso
@@ -91,7 +107,13 @@ export default function OperationalDashboard({ user, teamMember }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:border-red-500"
+          onClick={() => {
+            const task = myTasks.find(t => t.priority === 'high' && t.status !== 'completed');
+            if (task) navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`);
+          }}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">
               Alta Prioridad
@@ -146,11 +168,12 @@ export default function OperationalDashboard({ user, teamMember }) {
                 return (
                   <div
                     key={task.id}
-                    className="border border-[var(--border-primary)] rounded-lg p-3 hover:bg-[var(--bg-hover)] transition-colors"
+                    className="border border-[var(--border-primary)] rounded-lg p-3 hover:bg-[var(--bg-hover)] hover:border-[#FF1B7E] transition-all cursor-pointer group"
+                    onClick={() => navigate(createPageUrl('ProjectChecklist') + `?project=${task.project_id}`)}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <div className="font-medium text-[var(--text-primary)] mb-1">
+                        <div className="font-medium text-[var(--text-primary)] mb-1 group-hover:text-[#FF1B7E] transition-colors">
                           {task.title}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -165,6 +188,7 @@ export default function OperationalDashboard({ user, teamMember }) {
                           )}
                         </div>
                       </div>
+                      <ArrowRight className="h-4 w-4 text-[var(--text-tertiary)] group-hover:text-[#FF1B7E] transition-colors" />
                     </div>
                   </div>
                 );
