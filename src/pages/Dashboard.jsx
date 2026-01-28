@@ -201,10 +201,23 @@ export default function Dashboard({ currentSection = 'dashboard', onSectionChang
 
   // Home Dashboard
   if (currentSection === 'dashboard') {
+    // Mostrar loading mientras se carga el TeamMember
+    if (user && !teamMember && isLoading) {
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF1B7E] mx-auto mb-4"></div>
+            <p className="text-[var(--text-secondary)]">Cargando dashboard...</p>
+          </div>
+        </div>
+      );
+    }
+    
     // Si tiene TeamMember con rol, mostrar dashboard por perfil
     if (teamMember?.role) {
       return <DashboardByRole user={user} teamMember={teamMember} onSectionChange={onSectionChange} />;
     }
+    
     // Si no, mostrar dashboard general
     return <DashboardHome onNavigate={onSectionChange} />;
   }
