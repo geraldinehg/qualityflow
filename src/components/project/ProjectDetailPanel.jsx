@@ -1,12 +1,14 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { X, ExternalLink, Calendar, Users, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { X, ExternalLink, Calendar, Users, AlertTriangle, CheckCircle2, Clock, Tag, FolderKanban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { createPageUrl } from '../../utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProjectDetailPanel({ projectId, onClose }) {
   const { data: project, isLoading } = useQuery({
@@ -72,186 +74,237 @@ export default function ProjectDetailPanel({ projectId, onClose }) {
   };
 
   return (
-    <>
-      {/* Overlay */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-[600px] bg-[var(--bg-secondary)] shadow-2xl z-50 overflow-y-auto border-l border-[var(--border-primary)]">
-        {/* Header */}
-        <div className="sticky top-0 bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] px-6 py-4 z-10">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-                {isLoading ? 'Cargando...' : project?.name}
-              </h2>
-              {project && (
-                <Badge className={statusColors[project.status]}>
-                  {statusLabels[project.status]}
-                </Badge>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="shrink-0"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E]"></div>
-          </div>
-        ) : project ? (
-          <div className="p-6 space-y-6">
-            {/* Descripción */}
-            {project.description && (
-              <div>
-                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-2">Descripción</h3>
-                <p className="text-[var(--text-primary)]">{project.description}</p>
-              </div>
-            )}
-
-            {/* Info general */}
-            <div className="grid grid-cols-2 gap-4">
-              {project.project_type && (
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-1">Tipo</h3>
-                  <p className="text-[var(--text-primary)] capitalize">{project.project_type}</p>
+    <AnimatePresence>
+      {projectId && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          
+          {/* Panel */}
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed right-0 top-0 h-full w-full md:w-[600px] bg-white shadow-2xl z-50 overflow-y-auto"
+          >
+            {/* Barra magenta lateral */}
+            <div className="absolute top-0 right-0 bottom-0 w-2 bg-gradient-to-b from-[#FF1B7E] to-[#e6156e]" />
+            
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-[var(--border-primary)] px-6 py-4 z-10">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                    Detalles del proyecto
+                  </h2>
                 </div>
-              )}
-              {project.technology && (
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-1">Tecnología</h3>
-                  <p className="text-[var(--text-primary)] capitalize">{project.technology}</p>
-                </div>
-              )}
-              {project.start_date && (
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-1">Inicio</h3>
-                  <p className="text-[var(--text-primary)] flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {format(new Date(project.start_date), "d 'de' MMM, yyyy", { locale: es })}
-                  </p>
-                </div>
-              )}
-              {project.target_date && (
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-1">Objetivo</h3>
-                  <p className="text-[var(--text-primary)] flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {format(new Date(project.target_date), "d 'de' MMM, yyyy", { locale: es })}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Estadísticas de tareas */}
-            <div className="bg-[var(--bg-tertiary)] rounded-lg p-4">
-              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
-                Tareas
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Total</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{taskStats.total}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Pendientes</span>
-                  <span className="font-semibold text-orange-600">{taskStats.pending}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">En Progreso</span>
-                  <span className="font-semibold text-blue-600">{taskStats.inProgress}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Completadas</span>
-                  <span className="font-semibold text-green-600">{taskStats.completed}</span>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="shrink-0"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
             </div>
 
-            {/* Estadísticas de checklist */}
-            <div className="bg-[var(--bg-tertiary)] rounded-lg p-4">
-              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Checklist
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Total</span>
-                  <span className="font-semibold text-[var(--text-primary)]">{checklistStats.total}</span>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF1B7E]"></div>
+              </div>
+            ) : project ? (
+              <div className="p-6 space-y-6">
+                {/* Nombre del proyecto */}
+                <div>
+                  <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+                    {project.name}
+                  </h3>
+                  <Badge className={statusColors[project.status]}>
+                    {statusLabels[project.status]}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Pendientes</span>
-                  <span className="font-semibold text-orange-600">{checklistStats.pending}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Completados</span>
-                  <span className="font-semibold text-green-600">{checklistStats.completed}</span>
-                </div>
-                {checklistStats.critical > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[var(--text-secondary)]">Críticos</span>
-                    <span className="font-semibold text-red-600">{checklistStats.critical}</span>
+
+                <Separator />
+
+                {/* Descripción */}
+                {project.description && (
+                  <div>
+                    <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
+                      Descripción
+                    </label>
+                    <p className="text-[var(--text-primary)] text-sm">{project.description}</p>
                   </div>
                 )}
-              </div>
-              {checklistStats.total > 0 && (
-                <div className="mt-3 pt-3 border-t border-[var(--border-primary)]">
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-[var(--text-secondary)]">Progreso</span>
-                    <span className="font-semibold text-[var(--text-primary)]">
-                      {Math.round((checklistStats.completed / checklistStats.total) * 100)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-[var(--bg-primary)] rounded-full h-2">
-                    <div 
-                      className="bg-[#FF1B7E] h-2 rounded-full transition-all"
-                      style={{ width: `${(checklistStats.completed / checklistStats.total) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* Áreas aplicables */}
-            {project.applicable_areas && project.applicable_areas.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-2">Áreas</h3>
-                <div className="flex flex-wrap gap-2">
-                  {project.applicable_areas.map(area => (
-                    <Badge key={area} variant="outline" className="capitalize">
-                      {area}
-                    </Badge>
-                  ))}
+                {/* Info general */}
+                <div className="grid grid-cols-2 gap-4">
+                  {project.project_type && (
+                    <div>
+                      <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block flex items-center gap-1">
+                        <FolderKanban className="h-3 w-3" />
+                        Tipo de Proyecto
+                      </label>
+                      <p className="text-[var(--text-primary)] text-sm capitalize">{project.project_type}</p>
+                    </div>
+                  )}
+                  {project.technology && (
+                    <div>
+                      <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        Tecnología
+                      </label>
+                      <p className="text-[var(--text-primary)] text-sm capitalize">{project.technology}</p>
+                    </div>
+                  )}
                 </div>
+
+                {/* Fechas */}
+                {(project.start_date || project.target_date) && (
+                  <div className="grid grid-cols-2 gap-4">
+                    {project.start_date && (
+                      <div>
+                        <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Fecha de Inicio
+                        </label>
+                        <p className="text-[var(--text-primary)] text-sm">
+                          {format(new Date(project.start_date), "d 'de' MMMM, yyyy", { locale: es })}
+                        </p>
+                      </div>
+                    )}
+                    {project.target_date && (
+                      <div>
+                        <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Fecha Objetivo
+                        </label>
+                        <p className="text-[var(--text-primary)] text-sm">
+                          {format(new Date(project.target_date), "d 'de' MMMM, yyyy", { locale: es })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <Separator />
+
+                {/* Estadísticas de tareas */}
+                <div>
+                  <label className="text-xs font-medium text-[var(--text-secondary)] mb-3 block flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Tareas del Proyecto
+                  </label>
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-secondary)]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--text-secondary)]">Total</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{taskStats.total}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--text-secondary)]">Pendientes</span>
+                      <span className="font-semibold text-orange-600">{taskStats.pending}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--text-secondary)]">En Progreso</span>
+                      <span className="font-semibold text-blue-600">{taskStats.inProgress}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--text-secondary)]">Completadas</span>
+                      <span className="font-semibold text-green-600">{taskStats.completed}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Estadísticas de checklist */}
+                <div>
+                  <label className="text-xs font-medium text-[var(--text-secondary)] mb-3 block flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Checklist del Proyecto
+                  </label>
+                  <div className="p-4 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-secondary)] space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-[var(--text-secondary)]">Total</span>
+                        <span className="font-semibold text-[var(--text-primary)]">{checklistStats.total}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-[var(--text-secondary)]">Pendientes</span>
+                        <span className="font-semibold text-orange-600">{checklistStats.pending}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-[var(--text-secondary)]">Completados</span>
+                        <span className="font-semibold text-green-600">{checklistStats.completed}</span>
+                      </div>
+                      {checklistStats.critical > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-[var(--text-secondary)]">Críticos</span>
+                          <span className="font-semibold text-red-600">{checklistStats.critical}</span>
+                        </div>
+                      )}
+                    </div>
+                    {checklistStats.total > 0 && (
+                      <div className="pt-3 border-t border-[var(--border-primary)]">
+                        <div className="flex items-center justify-between text-xs mb-2">
+                          <span className="text-[var(--text-secondary)]">Progreso</span>
+                          <span className="font-semibold text-[var(--text-primary)]">
+                            {Math.round((checklistStats.completed / checklistStats.total) * 100)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[var(--bg-primary)] rounded-full h-2">
+                          <div 
+                            className="bg-[#FF1B7E] h-2 rounded-full transition-all"
+                            style={{ width: `${(checklistStats.completed / checklistStats.total) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Áreas aplicables */}
+                {project.applicable_areas && project.applicable_areas.length > 0 && (
+                  <div>
+                    <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
+                      Áreas Aplicables
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {project.applicable_areas.map(area => (
+                        <Badge key={area} variant="outline" className="capitalize text-xs">
+                          {area}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <Separator />
+
+                {/* Botón para ir al proyecto completo */}
+                <Button
+                  onClick={goToProject}
+                  className="w-full bg-[#FF1B7E] hover:bg-[#e6156e] text-white"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Abrir Proyecto Completo
+                </Button>
+              </div>
+            ) : (
+              <div className="p-6 text-center text-[var(--text-secondary)]">
+                No se pudo cargar el proyecto
               </div>
             )}
-
-            {/* Botón para ir al proyecto completo */}
-            <Button
-              onClick={goToProject}
-              className="w-full bg-[#FF1B7E] hover:bg-[#e6156e] text-white"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Abrir Proyecto Completo
-            </Button>
-          </div>
-        ) : (
-          <div className="p-6 text-center text-[var(--text-secondary)]">
-            No se pudo cargar el proyecto
-          </div>
-        )}
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
