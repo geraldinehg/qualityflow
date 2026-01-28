@@ -26,7 +26,9 @@ export default function LeaderDashboard({ user, teamMember, onSectionChange }) {
   const navigate = useNavigate();
   
   const goToProject = (projectId) => {
-    navigate(createPageUrl('ProjectChecklist') + `?project=${projectId}`);
+    if (projectId) {
+      navigate(createPageUrl('ProjectChecklist') + `?project=${projectId}`);
+    }
   };
   
   const myArea = AREA_MAP[teamMember?.role] || '';
@@ -34,20 +36,23 @@ export default function LeaderDashboard({ user, teamMember, onSectionChange }) {
 
   // Proyectos de mi área
   const { data: projects = [] } = useQuery({
-    queryKey: ['projects-leader', myArea],
+    queryKey: ['projects-leader', myArea, user?.email],
     queryFn: async () => {
+      if (!myArea || !user?.email) return [];
       const allProjects = await base44.entities.Project.list();
       return allProjects.filter(p => 
         p.applicable_areas?.includes(myArea) ||
         p.area_responsibles?.[myArea] === user.email
       );
-    }
+    },
+    enabled: !!myArea && !!user?.email
   });
 
   // Tareas de mi área
   const { data: tasks = [] } = useQuery({
-    queryKey: ['tasks-leader', myArea],
+    queryKey: ['tasks-leader', myArea, user?.email],
     queryFn: async () => {
+      if (!projects || projects.length === 0) return [];
       const allTasks = await base44.entities.Task.list();
       return allTasks.filter(t => 
         projects.some(p => p.id === t.project_id)
@@ -58,12 +63,12 @@ export default function LeaderDashboard({ user, teamMember, onSectionChange }) {
 
   // Tareas QA (solo para líderes de desarrollo)
   const { data: qaTasks = [] } = useQuery({
-    queryKey: ['qa-tasks'],
+    queryKey: ['qa-tasks-leader', user?.email],
     queryFn: async () => {
       const allTasks = await base44.entities.Task.list();
       return allTasks.filter(t => t.tags?.includes('qa'));
     },
-    enabled: isDevLeader
+    enabled: isDevLeader && !!user?.email
   });
 
   const metrics = {
