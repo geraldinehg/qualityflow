@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Users, Clock, ArrowRight, Bug } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../../utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -22,9 +23,12 @@ const AREA_MAP = {
 };
 
 export default function LeaderDashboard({ user, teamMember, onSectionChange }) {
+  const navigate = useNavigate();
+  
   const goToProject = (projectId) => {
-    window.location.href = createPageUrl('ProjectChecklist') + `?project=${projectId}`;
+    navigate(createPageUrl('ProjectChecklist') + `?project=${projectId}`);
   };
+  
   const myArea = AREA_MAP[teamMember?.role] || '';
   const isDevLeader = ['leader_software', 'leader_dev_web'].includes(teamMember?.role);
 

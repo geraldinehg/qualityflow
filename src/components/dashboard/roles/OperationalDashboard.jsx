@@ -7,11 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Clock, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../../utils';
 
 export default function OperationalDashboard({ user, teamMember, onSectionChange }) {
+  const navigate = useNavigate();
+  
   const goToProject = (projectId) => {
-    window.location.href = createPageUrl('ProjectChecklist') + `?project=${projectId}`;
+    navigate(createPageUrl('ProjectChecklist') + `?project=${projectId}`);
   };
   // Mis tareas
   const { data: myTasks = [] } = useQuery({
