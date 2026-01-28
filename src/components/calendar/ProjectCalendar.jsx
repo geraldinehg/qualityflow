@@ -6,8 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Calendar } from "@/components/ui/calendar";
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parseISO } from 'date-fns';
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parseISO, isWeekend } from 'date-fns';
 import { es } from 'date-fns/locale';
+
+// Función para añadir días hábiles (excluyendo sábados y domingos)
+const addBusinessDays = (date, days) => {
+  let currentDate = new Date(date);
+  let remainingDays = days;
+  
+  while (remainingDays > 0) {
+    currentDate = addDays(currentDate, 1);
+    if (!isWeekend(currentDate)) {
+      remainingDays--;
+    }
+  }
+  
+  return currentDate;
+};
 import { cn } from "@/lib/utils";
 
 const PHASES = [
@@ -30,16 +45,21 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
     project.phase_durations || PHASES.reduce((acc, phase) => ({ ...acc, [phase.key]: 5 }), {})
   );
 
-  // Calcular fechas de cada fase
+  // Calcular fechas de cada fase (solo días hábiles)
   const phaseSchedule = useMemo(() => {
     if (!startDate) return [];
     
     const schedule = [];
-    let currentDate = startDate;
+    let currentDate = new Date(startDate);
+    
+    // Asegurar que la fecha de inicio sea un día hábil
+    while (isWeekend(currentDate)) {
+      currentDate = addDays(currentDate, 1);
+    }
     
     PHASES.forEach(phase => {
       const duration = phaseDurations[phase.key] || 5;
-      const endDate = addDays(currentDate, duration - 1);
+      const endDate = addBusinessDays(currentDate, duration - 1);
       
       schedule.push({
         ...phase,
@@ -48,7 +68,11 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
         duration
       });
       
+      // Siguiente fase comienza el siguiente día hábil
       currentDate = addDays(endDate, 1);
+      while (isWeekend(currentDate)) {
+        currentDate = addDays(currentDate, 1);
+      }
     });
     
     return schedule;
@@ -205,6 +229,7 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                 {monthDays.map(day => {
                   const phase = getPhaseForDay(day);
                   const isToday = isSameDay(day, new Date());
+                  const isWeekendDay = isWeekend(day);
                   
                   return (
                     <div
@@ -213,12 +238,13 @@ export default function ProjectCalendar({ project, onUpdatePhaseDurations }) {
                         "aspect-square p-1 border border-[var(--border-primary)] rounded-lg text-center flex flex-col items-center justify-center",
                         !isSameMonth(day, currentMonth) && "opacity-30",
                         isToday && "ring-2 ring-[#FF1B7E]",
+                        isWeekendDay && !phase && "bg-gray-100",
                         phase && phase.color
                       )}
                     >
                       <span className={cn(
                         "text-xs font-medium",
-                        phase ? "text-white" : "text-[var(--text-primary)]"
+                        phase ? "text-white" : isWeekendDay ? "text-gray-400" : "text-[var(--text-primary)]"
                       )}>
                         {format(day, 'd')}
                       </span>
