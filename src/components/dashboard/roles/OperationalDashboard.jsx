@@ -8,7 +8,7 @@ import { Clock, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../../../utils';
 
 export default function OperationalDashboard({ user, teamMember }) {
   const navigate = useNavigate();

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Users, Clock, ArrowRight, Bug } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../../../utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Bug, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../../../utils';
 
 export default function QADashboard({ user }) {
   const navigate = useNavigate();
