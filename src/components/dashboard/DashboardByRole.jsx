@@ -7,7 +7,19 @@ import OperationalDashboard from './roles/OperationalDashboard';
 import QADashboard from './roles/QADashboard';
 
 export default function DashboardByRole({ user, teamMember, onSectionChange }) {
-  const role = teamMember?.role;
+  // Validación de datos antes de renderizar
+  if (!user || !teamMember) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF1B7E] mx-auto mb-4"></div>
+          <p className="text-[var(--text-secondary)]">Cargando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const role = teamMember.role;
 
   // Admin/Administrador
   if (role === 'administrador') {
