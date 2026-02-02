@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Save, ExternalLink, Eye, EyeOff, Copy, Check, Share2, Link as LinkIcon, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
-import ShareAccessModal from './ShareAccessModal';
+import AccessItemCard from './AccessItemCard';
+import ShareAccessItemModal from './ShareAccessItemModal';
+import BulkAccessUpload from './BulkAccessUpload';
 
-export default function ProjectAccessTab({ projectId }) {
-  const [showPasswords, setShowPasswords] = useState({});
-  const [copiedField, setCopiedField] = useState(null);
-  const [showShareModal, setShowShareModal] = useState(false);
+export default function ProjectAccessTab({ projectId, project }) {
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [sharingItem, setSharingItem] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: accessData, isLoading } = useQuery({
-    queryKey: ['project-access', projectId],
+  const { data: accessItems = [], isLoading } = useQuery({
+    queryKey: ['access-items', projectId],
     queryFn: async () => {
-      const result = await base44.entities.ProjectAccess.filter({ project_id: projectId });
-      return result[0] || null;
+      return await base44.entities.ProjectAccessItem.filter({ project_id: projectId });
     },
     enabled: !!projectId
   });
@@ -34,6 +31,38 @@ export default function ProjectAccessTab({ projectId }) {
     enabled: !!projectId
   });
 
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.ProjectAccessItem.create({ ...data, project_id: projectId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['access-items', projectId] });
+      setIsCreating(false);
+      toast.success('Acceso creado');
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ProjectAccessItem.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['access-items', projectId] });
+      setEditingItemId(null);
+      toast.success('Acceso actualizado');
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.ProjectAccessItem.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['access-items', projectId] });
+      toast.success('Acceso eliminado');
+    }
+  });
+
   const revokeTokenMutation = useMutation({
     mutationFn: async (tokenId) => {
       return await base44.entities.ProjectAccessToken.update(tokenId, { is_revoked: true });
@@ -43,92 +72,6 @@ export default function ProjectAccessTab({ projectId }) {
       toast.success('Token revocado');
     }
   });
-
-  const [formData, setFormData] = useState({
-    qa_hosting_url: '',
-    qa_hosting_user: '',
-    qa_hosting_password: '',
-    prod_hosting_url: '',
-    prod_hosting_user: '',
-    prod_hosting_password: '',
-    cms_qa_url: '',
-    cms_qa_user: '',
-    cms_qa_password: '',
-    cms_prod_url: '',
-    cms_prod_user: '',
-    cms_prod_password: '',
-    apis: []
-  });
-
-  React.useEffect(() => {
-    if (accessData) {
-      setFormData({
-        qa_hosting_url: accessData.qa_hosting_url || '',
-        qa_hosting_user: accessData.qa_hosting_user || '',
-        qa_hosting_password: accessData.qa_hosting_password || '',
-        prod_hosting_url: accessData.prod_hosting_url || '',
-        prod_hosting_user: accessData.prod_hosting_user || '',
-        prod_hosting_password: accessData.prod_hosting_password || '',
-        cms_qa_url: accessData.cms_qa_url || '',
-        cms_qa_user: accessData.cms_qa_user || '',
-        cms_qa_password: accessData.cms_qa_password || '',
-        cms_prod_url: accessData.cms_prod_url || '',
-        cms_prod_user: accessData.cms_prod_user || '',
-        cms_prod_password: accessData.cms_prod_password || '',
-        apis: accessData.apis || []
-      });
-    }
-  }, [accessData]);
-
-  const saveMutation = useMutation({
-    mutationFn: async (data) => {
-      if (accessData?.id) {
-        return await base44.entities.ProjectAccess.update(accessData.id, data);
-      } else {
-        return await base44.entities.ProjectAccess.create({ ...data, project_id: projectId });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-access', projectId] });
-      toast.success('Accesos guardados correctamente');
-    },
-    onError: (error) => {
-      toast.error(`Error al guardar: ${error.message}`);
-    }
-  });
-
-  const handleSave = () => {
-    saveMutation.mutate(formData);
-  };
-
-  const handleAddApi = () => {
-    setFormData({
-      ...formData,
-      apis: [...formData.apis, { name: '', url: '', user: '', password: '' }]
-    });
-  };
-
-  const handleRemoveApi = (index) => {
-    const newApis = formData.apis.filter((_, i) => i !== index);
-    setFormData({ ...formData, apis: newApis });
-  };
-
-  const handleApiChange = (index, field, value) => {
-    const newApis = [...formData.apis];
-    newApis[index][field] = value;
-    setFormData({ ...formData, apis: newApis });
-  };
-
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] });
-  };
-
-  const copyToClipboard = (text, field) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    toast.success('Copiado al portapapeles');
-    setTimeout(() => setCopiedField(null), 2000);
-  };
 
   if (isLoading) {
     return (
@@ -141,536 +84,109 @@ export default function ProjectAccessTab({ projectId }) {
 
   return (
     <div className="space-y-6">
-      {/* Botón Compartir */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-medium text-[var(--text-primary)]">Compartir Accesos</h3>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Genera enlaces seguros para compartir accesos específicos con personas externas
-              </p>
-            </div>
-            <Button
-              onClick={() => setShowShareModal(true)}
-              className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartir
-            </Button>
-          </div>
-
-          {/* Tokens activos */}
-          {tokens.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <h4 className="text-xs font-medium text-[var(--text-tertiary)]">Accesos compartidos activos</h4>
-              {tokens.filter(t => !t.is_revoked).map(token => (
-                <div key={token.id} className="flex items-center justify-between bg-[var(--bg-tertiary)] p-3 rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{token.recipient_name}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Accedido {token.access_count || 0} veces • 
-                      Expira: {new Date(token.expires_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => revokeTokenMutation.mutate(token.id)}
-                    className="text-red-500"
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Revocar
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Hosting QA */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
-            <Badge className="bg-blue-500">QA</Badge>
-            Hosting de QA
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-xs">URL</Label>
-            <div className="flex gap-2">
-              <Input
-                value={formData.qa_hosting_url}
-                onChange={(e) => setFormData({ ...formData, qa_hosting_url: e.target.value })}
-                placeholder="https://qa.ejemplo.com"
-                className="bg-[var(--bg-input)]"
-              />
-              {formData.qa_hosting_url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(formData.qa_hosting_url, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Usuario</Label>
-            <div className="relative">
-              <Input
-                value={formData.qa_hosting_user}
-                onChange={(e) => setFormData({ ...formData, qa_hosting_user: e.target.value })}
-                placeholder="usuario@ejemplo.com"
-                className="bg-[var(--bg-input)] pr-10"
-              />
-              {formData.qa_hosting_user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  onClick={() => copyToClipboard(formData.qa_hosting_user, 'qa_hosting_user')}
-                >
-                  {copiedField === 'qa_hosting_user' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Contraseña</Label>
-            <div className="relative">
-              <Input
-                value={formData.qa_hosting_password}
-                onChange={(e) => setFormData({ ...formData, qa_hosting_password: e.target.value })}
-                placeholder="••••••••"
-                type={showPasswords['qa_hosting'] ? 'text' : 'password'}
-                className="bg-[var(--bg-input)] pr-20"
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => togglePasswordVisibility('qa_hosting')}
-                >
-                  {showPasswords['qa_hosting'] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                {formData.qa_hosting_password && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => copyToClipboard(formData.qa_hosting_password, 'qa_hosting_pass')}
-                  >
-                    {copiedField === 'qa_hosting_pass' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Hosting Producción */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
-            <Badge className="bg-green-500">PROD</Badge>
-            Hosting de Producción
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-xs">URL</Label>
-            <div className="flex gap-2">
-              <Input
-                value={formData.prod_hosting_url}
-                onChange={(e) => setFormData({ ...formData, prod_hosting_url: e.target.value })}
-                placeholder="https://www.ejemplo.com"
-                className="bg-[var(--bg-input)]"
-              />
-              {formData.prod_hosting_url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(formData.prod_hosting_url, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Usuario</Label>
-            <div className="relative">
-              <Input
-                value={formData.prod_hosting_user}
-                onChange={(e) => setFormData({ ...formData, prod_hosting_user: e.target.value })}
-                placeholder="usuario@ejemplo.com"
-                className="bg-[var(--bg-input)] pr-10"
-              />
-              {formData.prod_hosting_user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  onClick={() => copyToClipboard(formData.prod_hosting_user, 'prod_hosting_user')}
-                >
-                  {copiedField === 'prod_hosting_user' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Contraseña</Label>
-            <div className="relative">
-              <Input
-                value={formData.prod_hosting_password}
-                onChange={(e) => setFormData({ ...formData, prod_hosting_password: e.target.value })}
-                placeholder="••••••••"
-                type={showPasswords['prod_hosting'] ? 'text' : 'password'}
-                className="bg-[var(--bg-input)] pr-20"
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => togglePasswordVisibility('prod_hosting')}
-                >
-                  {showPasswords['prod_hosting'] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                {formData.prod_hosting_password && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => copyToClipboard(formData.prod_hosting_password, 'prod_hosting_pass')}
-                  >
-                    {copiedField === 'prod_hosting_pass' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* CMS QA */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
-            <Badge className="bg-blue-500">QA</Badge>
-            CMS - QA
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-xs">URL</Label>
-            <div className="flex gap-2">
-              <Input
-                value={formData.cms_qa_url}
-                onChange={(e) => setFormData({ ...formData, cms_qa_url: e.target.value })}
-                placeholder="https://cms-qa.ejemplo.com"
-                className="bg-[var(--bg-input)]"
-              />
-              {formData.cms_qa_url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(formData.cms_qa_url, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Usuario</Label>
-            <div className="relative">
-              <Input
-                value={formData.cms_qa_user}
-                onChange={(e) => setFormData({ ...formData, cms_qa_user: e.target.value })}
-                placeholder="usuario@ejemplo.com"
-                className="bg-[var(--bg-input)] pr-10"
-              />
-              {formData.cms_qa_user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  onClick={() => copyToClipboard(formData.cms_qa_user, 'cms_qa_user')}
-                >
-                  {copiedField === 'cms_qa_user' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Contraseña</Label>
-            <div className="relative">
-              <Input
-                value={formData.cms_qa_password}
-                onChange={(e) => setFormData({ ...formData, cms_qa_password: e.target.value })}
-                placeholder="••••••••"
-                type={showPasswords['cms_qa'] ? 'text' : 'password'}
-                className="bg-[var(--bg-input)] pr-20"
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => togglePasswordVisibility('cms_qa')}
-                >
-                  {showPasswords['cms_qa'] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                {formData.cms_qa_password && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => copyToClipboard(formData.cms_qa_password, 'cms_qa_pass')}
-                  >
-                    {copiedField === 'cms_qa_pass' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* CMS Producción */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 text-[var(--text-primary)]">
-            <Badge className="bg-green-500">PROD</Badge>
-            CMS - Producción
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-xs">URL</Label>
-            <div className="flex gap-2">
-              <Input
-                value={formData.cms_prod_url}
-                onChange={(e) => setFormData({ ...formData, cms_prod_url: e.target.value })}
-                placeholder="https://cms.ejemplo.com"
-                className="bg-[var(--bg-input)]"
-              />
-              {formData.cms_prod_url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(formData.cms_prod_url, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Usuario</Label>
-            <div className="relative">
-              <Input
-                value={formData.cms_prod_user}
-                onChange={(e) => setFormData({ ...formData, cms_prod_user: e.target.value })}
-                placeholder="usuario@ejemplo.com"
-                className="bg-[var(--bg-input)] pr-10"
-              />
-              {formData.cms_prod_user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  onClick={() => copyToClipboard(formData.cms_prod_user, 'cms_prod_user')}
-                >
-                  {copiedField === 'cms_prod_user' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Contraseña</Label>
-            <div className="relative">
-              <Input
-                value={formData.cms_prod_password}
-                onChange={(e) => setFormData({ ...formData, cms_prod_password: e.target.value })}
-                placeholder="••••••••"
-                type={showPasswords['cms_prod'] ? 'text' : 'password'}
-                className="bg-[var(--bg-input)] pr-20"
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => togglePasswordVisibility('cms_prod')}
-                >
-                  {showPasswords['cms_prod'] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                {formData.cms_prod_password && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => copyToClipboard(formData.cms_prod_password, 'cms_prod_pass')}
-                  >
-                    {copiedField === 'cms_prod_pass' ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* APIs */}
-      <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center justify-between text-[var(--text-primary)]">
-            <span>APIs</span>
-            <Button
-              size="sm"
-              onClick={handleAddApi}
-              className="bg-[#FF1B7E] hover:bg-[#e6156e]"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar API
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {formData.apis.length === 0 ? (
-            <p className="text-sm text-[var(--text-secondary)] text-center py-4">
-              No hay APIs agregadas
-            </p>
-          ) : (
-            formData.apis.map((api, index) => (
-              <Card key={index} className="bg-[var(--bg-tertiary)] border-[var(--border-secondary)]">
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-3">
-                      <div>
-                        <Label className="text-xs">Nombre de la API</Label>
-                        <Input
-                          value={api.name}
-                          onChange={(e) => handleApiChange(index, 'name', e.target.value)}
-                          placeholder="Nombre de la API"
-                          className="bg-[var(--bg-input)]"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">URL</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={api.url}
-                            onChange={(e) => handleApiChange(index, 'url', e.target.value)}
-                            placeholder="https://api.ejemplo.com"
-                            className="bg-[var(--bg-input)]"
-                          />
-                          {api.url && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => window.open(api.url, '_blank')}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Usuario</Label>
-                        <div className="relative">
-                          <Input
-                            value={api.user}
-                            onChange={(e) => handleApiChange(index, 'user', e.target.value)}
-                            placeholder="usuario / API key"
-                            className="bg-[var(--bg-input)] pr-10"
-                          />
-                          {api.user && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                              onClick={() => copyToClipboard(api.user, `api_user_${index}`)}
-                            >
-                              {copiedField === `api_user_${index}` ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Contraseña / Token</Label>
-                        <div className="relative">
-                          <Input
-                            value={api.password}
-                            onChange={(e) => handleApiChange(index, 'password', e.target.value)}
-                            placeholder="••••••••"
-                            type={showPasswords[`api_${index}`] ? 'text' : 'password'}
-                            className="bg-[var(--bg-input)] pr-20"
-                          />
-                          <div className="absolute top-1/2 -translate-y-1/2 right-1 flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => togglePasswordVisibility(`api_${index}`)}
-                            >
-                              {showPasswords[`api_${index}`] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            {api.password && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => copyToClipboard(api.password, `api_pass_${index}`)}
-                              >
-                                {copiedField === `api_pass_${index}` ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveApi(index)}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Botón Guardar */}
-      <div className="flex justify-end">
+      {/* Header con estadísticas */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">Gestión de Accesos</h2>
+          <p className="text-sm text-[var(--text-secondary)]">
+            {accessItems.length} acceso{accessItems.length !== 1 ? 's' : ''} registrado{accessItems.length !== 1 ? 's' : ''}
+          </p>
+        </div>
         <Button
-          onClick={handleSave}
-          disabled={saveMutation.isPending}
+          onClick={() => setIsCreating(true)}
           className="bg-[#FF1B7E] hover:bg-[#e6156e]"
         >
-          <Save className="h-4 w-4 mr-2" />
-          {saveMutation.isPending ? 'Guardando...' : 'Guardar Accesos'}
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Acceso
         </Button>
       </div>
 
-      <ShareAccessModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
+      {/* Carga masiva */}
+      <BulkAccessUpload projectId={projectId} />
+
+      {/* Tokens activos */}
+      {tokens.filter(t => !t.is_revoked && t.access_item_id).length > 0 && (
+        <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+          <CardContent className="pt-6">
+            <h3 className="text-sm font-medium text-[var(--text-primary)] mb-3">Accesos Compartidos Activos</h3>
+            <div className="space-y-2">
+              {tokens.filter(t => !t.is_revoked && t.access_item_id).map(token => {
+                const item = accessItems.find(i => i.id === token.access_item_id);
+                return (
+                  <div key={token.id} className="flex items-center justify-between bg-[var(--bg-tertiary)] p-3 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
+                        {item?.title || 'Acceso'} → {token.recipient_name}
+                      </p>
+                      <p className="text-xs text-[var(--text-secondary)]">
+                        {token.recipient_email} • Accedido {token.access_count || 0} veces • 
+                        Expira: {new Date(token.expires_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => revokeTokenMutation.mutate(token.id)}
+                      className="text-red-500"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Revocar
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Nuevo acceso en creación */}
+      {isCreating && (
+        <AccessItemCard
+          item={null}
+          isEditing={true}
+          onUpdate={(data) => createMutation.mutate(data)}
+          onEditToggle={() => setIsCreating(false)}
+        />
+      )}
+
+      {/* Lista de accesos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {accessItems.map(item => (
+          <AccessItemCard
+            key={item.id}
+            item={item}
+            isEditing={editingItemId === item.id}
+            onUpdate={(data) => updateMutation.mutate({ id: item.id, data })}
+            onDelete={(id) => {
+              if (confirm('¿Eliminar este acceso?')) {
+                deleteMutation.mutate(id);
+              }
+            }}
+            onShare={(item) => setSharingItem(item)}
+            onEditToggle={() => setEditingItemId(editingItemId === item.id ? null : item.id)}
+          />
+        ))}
+      </div>
+
+      {accessItems.length === 0 && !isCreating && (
+        <Card className="bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+          <CardContent className="py-12 text-center">
+            <p className="text-[var(--text-secondary)]">No hay accesos registrados</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">
+              Crea uno manualmente o carga varios desde CSV
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Modal compartir */}
+      <ShareAccessItemModal
+        isOpen={!!sharingItem}
+        onClose={() => setSharingItem(null)}
+        accessItem={sharingItem}
         projectId={projectId}
-        projectAccess={accessData}
+        projectName={project?.name}
       />
     </div>
   );
