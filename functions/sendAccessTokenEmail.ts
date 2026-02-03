@@ -3,12 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    
     const body = await req.json();
     const { token, recipient_email, recipient_name, project_name, access_title, access_count } = body;
 
@@ -65,15 +60,15 @@ Deno.serve(async (req) => {
       ? `🔐 Acceso compartido: ${access_count} recursos del proyecto`
       : `🔐 Acceso compartido: ${access_title || 'Recurso del proyecto'}`;
 
-    const result = await base44.integrations.Core.SendEmail({
+    const result = await base44.asServiceRole.integrations.Core.SendEmail({
       to: recipient_email,
       subject: subject,
       body: emailBody
     });
     
-    console.log('Email sent successfully:', result);
+    console.log('Email sent successfully to:', recipient_email, result);
 
-    return Response.json({ success: true, result });
+    return Response.json({ success: true, result, email: recipient_email });
   } catch (error) {
     console.error('Error sending access email:', error);
     return Response.json({ error: error.message }, { status: 500 });
