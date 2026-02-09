@@ -113,7 +113,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Agregar notas o comentarios..."
-                className="text-xs h-20" />
+                className="text-xs h-20 bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]" />
 
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setShowNotes(false)}>
@@ -144,12 +144,15 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
-                      onClick={() => onEdit(item)}>
+                      onClick={() => {
+                        console.log('Edit clicked', item);
+                        onEdit?.(item);
+                      }}>
 
                       <Edit className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-tertiary)]" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Editar ítem</TooltipContent>
+                  <TooltipContent className="bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">Editar ítem</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               
@@ -165,7 +168,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                       <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-tertiary)]" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Agregar nota</TooltipContent>
+                  <TooltipContent className="bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">Agregar nota</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               
@@ -181,7 +184,7 @@ export default function ChecklistItemRow({ item, onUpdate, onEdit, userRole, dra
                       <X className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-tertiary)]" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Marcar como N/A</TooltipContent>
+                  <TooltipContent className="bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">Marcar como N/A</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
