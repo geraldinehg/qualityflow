@@ -66,7 +66,7 @@ export default function ProjectDocuments({ projectId }) {
     try {
       const user = await base44.auth.me();
       const { file_url } = await base44.integrations.Core.UploadFile({ file: formData.file });
-      
+
       await base44.entities.ProjectDocument.create({
         project_id: projectId,
         name: formData.name,
@@ -110,44 +110,44 @@ export default function ProjectDocuments({ projectId }) {
           <Button
             size="sm"
             onClick={() => setShowGoogleDrivePicker(true)}
-            className="bg-gradient-to-r from-[#4285F4] to-[#34A853] hover:from-[#3367D6] hover:to-[#2D8E47] text-white border-0 shadow-lg"
-          >
+            className="bg-gradient-to-r from-[#4285F4] to-[#34A853] hover:from-[#3367D6] hover:to-[#2D8E47] text-white border-0 shadow-lg">
+
             <FileText className="h-4 w-4 mr-2" />
             Google Drive
           </Button>
           <Button
             size="sm"
             onClick={() => setIsUploadOpen(true)}
-            className="bg-white hover:bg-gray-100 text-black border-white shadow-md"
-          >
+            className="bg-white hover:bg-gray-100 text-black border-white shadow-md">
+
             <Plus className="h-4 w-4 mr-2" />
             Subir Archivo
           </Button>
         </div>
 
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
+        {isLoading ?
+        <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-[#FF1B7E] mb-3" />
             <p className="text-sm text-[var(--text-secondary)]">Cargando documentos...</p>
-          </div>
-        ) : documents.length === 0 ? (
-          <div className="text-center py-12 border-2 border-dashed border-[var(--border-primary)] rounded-xl bg-[var(--bg-primary)]/50">
+          </div> :
+        documents.length === 0 ?
+        <div className="text-center py-12 border-2 border-dashed border-[var(--border-primary)] rounded-xl bg-[var(--bg-primary)]/50">
             <div className="w-20 h-20 rounded-full bg-[var(--bg-tertiary)]/30 flex items-center justify-center mx-auto mb-4">
               <FileText className="h-10 w-10 text-[var(--text-tertiary)]" />
             </div>
             <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No hay documentos subidos</p>
             <p className="text-xs text-[var(--text-secondary)]">Sube archivos o vincula desde Google Drive</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {Object.entries(groupedDocs).map(([type, docs]) => (
-              <div key={type}>
+          </div> :
+
+        <div className="space-y-4">
+            {Object.entries(groupedDocs).map(([type, docs]) =>
+          <div key={type}>
                 <h4 className="text-sm font-medium text-[var(--text-primary)] mb-2">
                   {DOCUMENT_TYPES[type]?.label}
                 </h4>
                 <div className="space-y-2">
-                  {docs.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors">
+                  {docs.map((doc) =>
+              <div key={doc.id} className="flex items-center justify-between p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors">
                       <div className="flex items-center gap-3 flex-1">
                         <FileText className="h-5 w-5 text-[var(--text-secondary)]" />
                         <div className="flex-1 min-w-0">
@@ -155,45 +155,45 @@ export default function ProjectDocuments({ projectId }) {
                           <p className="text-xs text-[var(--text-secondary)]">
                             Subido por {doc.uploaded_by} • {format(new Date(doc.created_date), "d MMM yyyy", { locale: es })}
                           </p>
-                          {doc.notes && (
-                            <p className="text-xs text-[var(--text-primary)] mt-1">{doc.notes}</p>
-                          )}
+                          {doc.notes &&
+                    <p className="text-xs text-[var(--text-primary)] mt-1">{doc.notes}</p>
+                    }
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                          onClick={() => window.open(doc.file_url, '_blank')}
-                          title={doc.file_url.includes('drive.google.com') ? 'Ver en Google Drive' : 'Descargar'}
-                        >
-                          {doc.file_url.includes('drive.google.com') ? (
-                            <ExternalLink className="h-4 w-4" />
-                          ) : (
-                            <Download className="h-4 w-4" />
-                          )}
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => window.open(doc.file_url, '_blank')}
+                    title={doc.file_url.includes('drive.google.com') ? 'Ver en Google Drive' : 'Descargar'}>
+
+                          {doc.file_url.includes('drive.google.com') ?
+                    <ExternalLink className="h-4 w-4" /> :
+
+                    <Download className="h-4 w-4" />
+                    }
                         </Button>
                         <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 text-red-600 hover:text-red-700"
-                          onClick={() => {
-                            if (confirm('¿Eliminar este documento?')) {
-                              deleteMutation.mutate(doc.id);
-                            }
-                          }}
-                        >
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-red-600 hover:text-red-700"
+                    onClick={() => {
+                      if (confirm('¿Eliminar este documento?')) {
+                        deleteMutation.mutate(doc.id);
+                      }
+                    }}>
+
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
-                  ))}
+              )}
                 </div>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
 
         <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
           <DialogContent className="bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">
@@ -205,15 +205,15 @@ export default function ProjectDocuments({ projectId }) {
                 <Label className="text-[var(--text-primary)]">Tipo de Documento *</Label>
                 <Select
                   value={formData.document_type}
-                  onValueChange={(value) => setFormData({ ...formData, document_type: value })}
-                >
+                  onValueChange={(value) => setFormData({ ...formData, document_type: value })}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(DOCUMENT_TYPES).map(([key, config]) => (
-                      <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                    ))}
+                    {Object.entries(DOCUMENT_TYPES).map(([key, config]) =>
+                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -223,9 +223,9 @@ export default function ProjectDocuments({ projectId }) {
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ej: Propuesta Final v2"
-                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500"
-                />
+                  placeholder="Ej: Propuesta Final v2" className="bg-[#FFF] text-white px-3 py-2 text-sm rounded-lg flex h-10 w-full border shadow-sm transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[#FF1B7E] disabled:cursor-not-allowed disabled:opacity-50 hover:border-[var(--border-secondary)] border-[#2a2a2a] placeholder:text-gray-500" />
+
+
               </div>
 
               <div className="space-y-2">
@@ -234,8 +234,8 @@ export default function ProjectDocuments({ projectId }) {
                   type="file"
                   onChange={handleFileSelect}
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png"
-                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white"
-                />
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white" />
+
                 <p className="text-xs text-gray-400">
                   Formatos permitidos: PDF, Word, Excel, PowerPoint, Imágenes
                 </p>
@@ -247,8 +247,8 @@ export default function ProjectDocuments({ projectId }) {
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Notas adicionales sobre el documento"
-                  className="h-20 bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500"
-                />
+                  className="h-20 bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500" />
+
               </div>
 
               <DialogFooter>
@@ -284,9 +284,9 @@ export default function ProjectDocuments({ projectId }) {
             } catch (error) {
               toast.error('Error al vincular archivo');
             }
-          }}
-        />
+          }} />
+
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
