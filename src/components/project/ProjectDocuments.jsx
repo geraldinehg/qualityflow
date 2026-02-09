@@ -233,8 +233,8 @@ export default function ProjectDocuments({ projectId }) {
                 <Input
                   type="file"
                   onChange={handleFileSelect}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png"
-                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white" />
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png" className="bg-[#FFF] text-white px-3 py-2 text-sm rounded-lg flex h-10 w-full border shadow-sm transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-[#FF1B7E] disabled:cursor-not-allowed disabled:opacity-50 hover:border-[var(--border-secondary)] border-[#2a2a2a]" />
+
 
                 <p className="text-xs text-gray-400">
                   Formatos permitidos: PDF, Word, Excel, PowerPoint, Imágenes
@@ -246,8 +246,8 @@ export default function ProjectDocuments({ projectId }) {
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Notas adicionales sobre el documento"
-                  className="h-20 bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-gray-500" />
+                  placeholder="Notas adicionales sobre el documento" className="bg-[#FFF] text-white px-3 py-2 text-base rounded-md flex min-h-[60px] w-full border shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-20 border-[#2a2a2a] placeholder:text-gray-500" />
+
 
               </div>
 
