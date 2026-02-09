@@ -35,21 +35,22 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-[#1a1a1a] border-[#2a2a2a] text-white">
+      <DialogContent className="sm:max-w-md bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">Editar nombre de fase</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-[var(--text-primary)]">Editar nombre de fase</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="phaseName">Nombre de la fase</Label>
+            <Label htmlFor="phaseName" className="text-[var(--text-primary)]">Nombre de la fase</Label>
             <Input
               id="phaseName"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder={defaultName}
+              className="bg-[var(--bg-input)] border-[var(--border-primary)] text-[var(--text-primary)]"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[var(--text-secondary)]">
               Nombre por defecto: <strong>{defaultName}</strong>
             </p>
           </div>
@@ -60,7 +61,7 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
               variant="outline" 
               size="sm"
               onClick={handleReset}
-              className="w-full border-white hover:bg-gray-100 text-white hover:text-black"
+              className="w-full"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Restaurar nombre original
@@ -86,10 +87,10 @@ export default function EditPhaseModal({ phase, currentName, isOpen, onClose, on
               Eliminar Fase
             </Button>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handleClose} className="border-white hover:bg-gray-100 text-white hover:text-black">
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={!isValid || isLoading} className="bg-white hover:bg-gray-100 text-black">
+              <Button type="submit" disabled={!isValid || isLoading} className="bg-[#FF1B7E] hover:bg-[#e6156e] text-white">
                 {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Guardar
               </Button>
