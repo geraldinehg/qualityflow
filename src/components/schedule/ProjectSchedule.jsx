@@ -25,6 +25,8 @@ const addBusinessDays = (date, days) => {
 };
 import { toast } from 'sonner';
 import EditScheduleTaskModal from './EditScheduleTaskModal';
+import ExcelImportButton from './ExcelImportButton';
+import TimelineGantt from './TimelineGantt';
 
 const AREA_COLORS = {
   creativity: 'bg-purple-500',
@@ -113,6 +115,17 @@ export default function ProjectSchedule({ projectId, project }) {
     }
   });
 
+  const bulkCreateTasksMutation = useMutation({
+    mutationFn: async (tasksData) => {
+      const promises = tasksData.map(task => base44.entities.ScheduleTask.create(task));
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schedule-tasks', projectId] });
+      toast.success('Tareas importadas correctamente');
+    }
+  });
+
   const weekDays = useMemo(() => {
     return eachDayOfInterval({
       start: currentWeekStart,
@@ -123,6 +136,28 @@ export default function ProjectSchedule({ projectId, project }) {
   const nextWeek = () => setCurrentWeekStart(addDays(currentWeekStart, 7));
   const prevWeek = () => setCurrentWeekStart(addDays(currentWeekStart, -7));
   const goToToday = () => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
+
+  const dateRange = useMemo(() => {
+    if (tasks.length === 0) {
+      return { 
+        start: currentWeekStart, 
+        end: endOfWeek(currentWeekStart, { weekStartsOn: 1 }) 
+      };
+    }
+    
+    const dates = tasks.flatMap(t => [
+      parseISO(t.start_date),
+      parseISO(t.end_date || t.start_date)
+    ]);
+    
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+    
+    return {
+      start: startOfWeek(minDate, { weekStartsOn: 1 }),
+      end: endOfWeek(maxDate, { weekStartsOn: 1 })
+    };
+  }, [tasks, currentWeekStart]);
 
   const tasksInView = useMemo(() => {
     return tasks.filter(task => {
@@ -193,49 +228,59 @@ export default function ProjectSchedule({ projectId, project }) {
     return breakdown;
   }, [tasks]);
 
+  const handleImportComplete = async (tasksToImport) => {
+    await bulkCreateTasksMutation.mutateAsync(tasksToImport);
+  };
+
+  const handleDragUpdate = (taskId, updates) => {
+    updateTaskMutation.mutate({ id: taskId, data: updates });
+  };
+
   const exportToExcel = () => {
     const worksheetData = [
-      ['Cronograma del Proyecto', project?.name || ''],
+      ['CRONOGRAMA DEL PROYECTO', project?.name || ''],
+      ['Exportado el', format(new Date(), 'dd/MM/yyyy HH:mm')],
       [],
-      ['Tarea', 'Área', 'Fecha Inicio', 'Duración (días)', 'Fecha Fin', 'Responsable', 'Estado', 'Notas']
+      ['TAREA', 'ÁREA', 'ASIGNADO A', 'PROGRESO', 'INICIO', 'FIN', 'DÍAS']
     ];
 
     tasks
       .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
       .forEach(task => {
+        const progress = task.status === 'completed' ? '100%' : 
+                        task.status === 'in_progress' ? '50%' : '0%';
         worksheetData.push([
           task.name,
           AREA_NAMES[task.area],
-          format(parseISO(task.start_date), 'dd/MM/yyyy'),
-          task.duration,
-          format(parseISO(task.end_date), 'dd/MM/yyyy'),
           task.assigned_to || '',
-          task.status === 'pending' ? 'Pendiente' : 
-            task.status === 'in_progress' ? 'En progreso' : 
-            task.status === 'completed' ? 'Completada' : 'Bloqueada',
-          task.notes || ''
+          progress,
+          format(parseISO(task.start_date), 'dd/MM/yyyy'),
+          format(parseISO(task.end_date), 'dd/MM/yyyy'),
+          task.duration
         ]);
       });
 
     worksheetData.push([]);
-    worksheetData.push(['Resumen por Área']);
+    worksheetData.push(['RESUMEN POR ÁREA']);
+    worksheetData.push(['Área', 'Total Días', 'Total Tareas']);
     Object.entries(areaBreakdown).forEach(([area, days]) => {
-      worksheetData.push([AREA_NAMES[area], `${days} días`]);
+      const taskCount = tasks.filter(t => t.area === area).length;
+      worksheetData.push([AREA_NAMES[area], days, taskCount]);
     });
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Cronograma');
 
+    // Estilos de columna
     worksheet['!cols'] = [
-      { wch: 30 },
-      { wch: 15 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 25 },
-      { wch: 15 },
-      { wch: 40 }
+      { wch: 35 },  // TAREA
+      { wch: 15 },  // ÁREA
+      { wch: 25 },  // ASIGNADO A
+      { wch: 10 },  // PROGRESO
+      { wch: 12 },  // INICIO
+      { wch: 12 },  // FIN
+      { wch: 8 }    // DÍAS
     ];
 
     XLSX.writeFile(workbook, `Cronograma_${project?.name || 'Proyecto'}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`);
@@ -316,6 +361,11 @@ export default function ProjectSchedule({ projectId, project }) {
           </span>
         </div>
         <div className="flex gap-2">
+          <ExcelImportButton 
+            projectId={projectId}
+            existingTasks={tasks}
+            onImportComplete={handleImportComplete}
+          />
           <Button variant="outline" onClick={exportToExcel}>
             <Download className="h-4 w-4 mr-2" />
             Exportar
@@ -327,101 +377,18 @@ export default function ProjectSchedule({ projectId, project }) {
         </div>
       </div>
 
-      {/* Vista Gantt */}
+      {/* Vista Timeline Gantt Mejorada */}
       <Card className="border-[var(--border-primary)] shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">Timeline Interactivo</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
-              {/* Header de días */}
-              <div className="grid grid-cols-8 border-b border-[var(--border-primary)] bg-[var(--bg-tertiary)]">
-                <div className="p-3 border-r border-[var(--border-primary)] font-semibold text-sm text-[var(--text-primary)] uppercase tracking-wide">
-                  Tarea
-                </div>
-                {weekDays.map(day => {
-                  const isWeekendDay = isWeekend(day);
-                  return (
-                    <div 
-                      key={day.toString()} 
-                      className={`p-3 text-center border-r border-[var(--border-primary)] ${
-                        isSameDay(day, new Date()) ? 'bg-[#FF1B7E]/10' : isWeekendDay ? 'bg-gray-100' : ''
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, day)}
-                    >
-                      <div className={`text-xs uppercase ${isWeekendDay ? 'text-gray-400' : 'text-[var(--text-secondary)]'}`}>
-                        {format(day, 'EEE', { locale: es })}
-                      </div>
-                      <div className={`text-sm font-semibold ${isWeekendDay ? 'text-gray-400' : 'text-[var(--text-primary)]'}`}>
-                        {format(day, 'd')}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Tareas */}
-              {tasksInView.length === 0 ? (
-                <div className="p-8 text-center text-[var(--text-secondary)]">
-                  No hay tareas en esta semana
-                </div>
-              ) : (
-                tasksInView.map(task => (
-                  <div key={task.id} className="grid grid-cols-8 border-b border-[var(--border-primary)] hover:bg-[var(--bg-hover)]">
-                    <div className="p-3 border-r border-[var(--border-primary)] flex items-center justify-between">
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <div className={`w-2 h-2 rounded-full ${AREA_COLORS[task.area]} flex-shrink-0`} />
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium text-[var(--text-primary)] truncate">
-                            {task.name}
-                          </div>
-                          <div className="text-xs text-[var(--text-secondary)]">
-                            {task.duration} días
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0 ml-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6"
-                          onClick={() => setEditingTask(task)}
-                        >
-                          <Edit2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {weekDays.map(day => {
-                      const position = getTaskPosition(task, day);
-                      
-                      return (
-                        <div 
-                          key={day.toString()} 
-                          className="border-r border-[var(--border-primary)] p-1"
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e, day)}
-                        >
-                          {position && (
-                            <div
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, task)}
-                              className={`h-8 ${AREA_COLORS[task.area]} cursor-move opacity-90 hover:opacity-100 flex items-center justify-center text-white text-xs font-medium ${
-                                position.isStart ? 'rounded-l-md' : ''
-                              } ${
-                                position.isEnd ? 'rounded-r-md' : ''
-                              }`}
-                            >
-                              {position.isStart && task.name.substring(0, 10)}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <TimelineGantt
+            tasks={tasks}
+            dateRange={dateRange}
+            onUpdateTask={handleDragUpdate}
+            onEditTask={setEditingTask}
+          />
         </CardContent>
       </Card>
 
