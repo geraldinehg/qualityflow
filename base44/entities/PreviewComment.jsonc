@@ -1,0 +1,53 @@
+{
+  "name": "PreviewComment",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "comment_text": {
+      "type": "string",
+      "description": "Texto del comentario"
+    },
+    "screenshot_url": {
+      "type": "string",
+      "description": "URL de la captura de pantalla"
+    },
+    "position_x": {
+      "type": "number",
+      "description": "Posici\u00f3n X relativa en porcentaje"
+    },
+    "position_y": {
+      "type": "number",
+      "description": "Posici\u00f3n Y relativa en porcentaje"
+    },
+    "iframe_url": {
+      "type": "string",
+      "description": "URL del iframe en el momento del comentario"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "resolved"
+      ],
+      "default": "open",
+      "description": "Estado del comentario"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email del autor"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Nombre del autor"
+    }
+  },
+  "required": [
+    "project_id",
+    "comment_text",
+    "position_x",
+    "position_y"
+  ]
+}

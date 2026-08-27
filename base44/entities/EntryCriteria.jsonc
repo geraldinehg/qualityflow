@@ -1,0 +1,55 @@
+{
+  "name": "EntryCriteria",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "phase_key": {
+      "type": "string",
+      "description": "Fase a la que aplica el criterio"
+    },
+    "title": {
+      "type": "string",
+      "description": "Nombre del criterio"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del criterio"
+    },
+    "is_mandatory": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si es obligatorio para avanzar"
+    },
+    "area": {
+      "type": "string",
+      "description": "\u00c1rea responsable (DEV, QA, Producto, etc.)"
+    },
+    "is_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "completed_by": {
+      "type": "string",
+      "description": "Email de quien complet\u00f3"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "URL del documento adjunto si aplica"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "phase_key",
+    "title"
+  ]
+}

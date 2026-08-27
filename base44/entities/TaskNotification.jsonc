@@ -1,0 +1,49 @@
+{
+  "name": "TaskNotification",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "ID de la tarea"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email del destinatario"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "task_created",
+        "status_changed",
+        "assigned",
+        "comment_added",
+        "due_soon"
+      ],
+      "description": "Tipo de evento"
+    },
+    "message": {
+      "type": "string",
+      "description": "Mensaje de la notificaci\u00f3n"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si la notificaci\u00f3n fue le\u00edda"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Datos adicionales del evento"
+    }
+  },
+  "required": [
+    "task_id",
+    "project_id",
+    "recipient_email",
+    "event_type",
+    "message"
+  ]
+}

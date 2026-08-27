@@ -1,0 +1,94 @@
+{
+  "name": "ChecklistItem",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto asociado"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "requirements",
+        "architecture",
+        "design",
+        "development",
+        "performance",
+        "seo_accessibility",
+        "responsive",
+        "qa",
+        "security",
+        "delivery"
+      ],
+      "description": "Fase del checklist"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del \u00edtem"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada"
+    },
+    "weight": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "description": "Peso/prioridad del \u00edtem"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "not_applicable",
+        "conflict"
+      ],
+      "default": "pending"
+    },
+    "completed_by": {
+      "type": "string",
+      "description": "Email de quien complet\u00f3 el \u00edtem"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_by_role": {
+      "type": "string",
+      "description": "Rol de quien complet\u00f3"
+    },
+    "applicable_technologies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tecnolog\u00edas para las que aplica este \u00edtem"
+    },
+    "applicable_site_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tipos de sitio para los que aplica"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number",
+      "description": "Orden dentro de la fase"
+    }
+  },
+  "required": [
+    "project_id",
+    "phase",
+    "title",
+    "weight"
+  ]
+}

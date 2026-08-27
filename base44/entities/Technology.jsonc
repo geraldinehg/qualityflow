@@ -1,0 +1,26 @@
+{
+  "name": "Technology",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre de la tecnolog\u00eda"
+    },
+    "key": {
+      "type": "string",
+      "description": "Identificador \u00fanico (slug)"
+    },
+    "color": {
+      "type": "string",
+      "description": "Color asociado (clase de Tailwind)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "key"
+  ]
+}

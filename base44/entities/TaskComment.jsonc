@@ -1,0 +1,31 @@
+{
+  "name": "TaskComment",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "ID de la tarea"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Contenido del comentario"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email del autor"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Nombre del autor"
+    }
+  },
+  "required": [
+    "task_id",
+    "project_id",
+    "comment"
+  ]
+}

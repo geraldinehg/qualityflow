@@ -1,0 +1,58 @@
+{
+  "name": "Conflict",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string"
+    },
+    "checklist_item_id": {
+      "type": "string"
+    },
+    "item_title": {
+      "type": "string"
+    },
+    "reported_by": {
+      "type": "string",
+      "description": "Email de quien report\u00f3"
+    },
+    "reported_by_role": {
+      "type": "string"
+    },
+    "original_status": {
+      "type": "string",
+      "description": "Estado marcado originalmente"
+    },
+    "conflicting_status": {
+      "type": "string",
+      "description": "Estado que genera conflicto"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Motivo del conflicto"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "escalated",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "resolution": {
+      "type": "string"
+    },
+    "resolved_by": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "project_id",
+    "checklist_item_id",
+    "reported_by"
+  ]
+}

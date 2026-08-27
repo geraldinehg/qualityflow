@@ -1,0 +1,66 @@
+{
+  "name": "TaskFormPublicUrl",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "form_token": {
+      "type": "string",
+      "description": "Token \u00fanico para la URL p\u00fablica"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el formulario est\u00e1 activo"
+    },
+    "form_title": {
+      "type": "string",
+      "description": "T\u00edtulo del formulario"
+    },
+    "form_description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del formulario"
+    },
+    "default_status": {
+      "type": "string",
+      "description": "Estado por defecto para tareas creadas"
+    },
+    "visible_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Campos visibles en el formulario"
+    },
+    "require_authentication": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si requiere autenticaci\u00f3n"
+    },
+    "max_submissions_per_day": {
+      "type": "number",
+      "description": "L\u00edmite de env\u00edos por d\u00eda (anti-spam)"
+    },
+    "success_message": {
+      "type": "string",
+      "description": "Mensaje de \u00e9xito personalizado"
+    },
+    "redirect_url": {
+      "type": "string",
+      "description": "URL de redirecci\u00f3n despu\u00e9s del env\u00edo"
+    },
+    "notification_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails para notificaci\u00f3n de nuevos env\u00edos"
+    }
+  },
+  "required": [
+    "project_id",
+    "form_token"
+  ]
+}

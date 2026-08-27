@@ -1,0 +1,67 @@
+{
+  "name": "WorkflowPhase",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "phase_key": {
+      "type": "string",
+      "enum": [
+        "activation",
+        "planning",
+        "development",
+        "qa_complete",
+        "content_upload",
+        "final_approval",
+        "stabilization"
+      ],
+      "description": "Fase del workflow"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "blocked"
+      ],
+      "default": "pending",
+      "description": "Estado de la fase"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_by": {
+      "type": "string",
+      "description": "Email de quien complet\u00f3 la fase"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email de quien aprob\u00f3 la fase"
+    },
+    "approval_notes": {
+      "type": "string",
+      "description": "Notas de aprobaci\u00f3n"
+    },
+    "blocked_reason": {
+      "type": "string",
+      "description": "Raz\u00f3n de bloqueo"
+    },
+    "entry_criteria_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si se completaron los criterios de entrada"
+    }
+  },
+  "required": [
+    "project_id",
+    "phase_key"
+  ]
+}

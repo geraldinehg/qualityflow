@@ -1,0 +1,156 @@
+{
+  "name": "TaskConfiguration",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto (null para configuraci\u00f3n global)"
+    },
+    "module_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el m\u00f3dulo de tareas est\u00e1 habilitado"
+    },
+    "custom_statuses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "is_final": {
+            "type": "boolean",
+            "default": false,
+            "description": "Si este es el estado final"
+          },
+          "order": {
+            "type": "number"
+          }
+        }
+      },
+      "default": [
+        {
+          "key": "todo",
+          "label": "Por hacer",
+          "color": "gray",
+          "is_final": false,
+          "order": 0
+        },
+        {
+          "key": "in_progress",
+          "label": "En progreso",
+          "color": "blue",
+          "is_final": false,
+          "order": 1
+        },
+        {
+          "key": "completed",
+          "label": "Finalizado",
+          "color": "green",
+          "is_final": true,
+          "order": 2
+        }
+      ],
+      "description": "Estados personalizados (columnas del Kanban)"
+    },
+    "custom_priorities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          }
+        }
+      },
+      "default": [
+        {
+          "key": "low",
+          "label": "Baja",
+          "color": "gray",
+          "order": 0
+        },
+        {
+          "key": "medium",
+          "label": "Media",
+          "color": "yellow",
+          "order": 1
+        },
+        {
+          "key": "high",
+          "label": "Alta",
+          "color": "red",
+          "order": 2
+        }
+      ],
+      "description": "Prioridades personalizadas"
+    },
+    "custom_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "number",
+              "date",
+              "checkbox",
+              "select"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "visible": {
+            "type": "boolean",
+            "default": true
+          },
+          "editable": {
+            "type": "boolean",
+            "default": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Opciones para campos tipo select"
+          },
+          "default_value": {
+            "type": "string",
+            "description": "Valor por defecto"
+          }
+        }
+      },
+      "default": [],
+      "description": "Campos personalizados adicionales"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,173 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre del proyecto"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n breve del proyecto"
+    },
+    "project_type": {
+      "type": "string",
+      "description": "Tipo de proyecto (Marketing, PEI, Webmaster, etc.)"
+    },
+    "fee_type": {
+      "type": "string",
+      "description": "Tipo de Fee"
+    },
+    "is_monthly_fee": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si es un fee mensual"
+    },
+    "monthly_fee_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Alcance del fee mensual (lista de \u00edtems)"
+    },
+    "product_owner_email": {
+      "type": "string",
+      "description": "Email del Product Owner asignado"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID del cliente/sociedad"
+    },
+    "site_type": {
+      "type": "string",
+      "description": "Tipo de sitio web"
+    },
+    "technology": {
+      "type": "string",
+      "description": "Tecnolog\u00eda utilizada"
+    },
+    "applicable_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\u00c1reas que aplican para este proyecto (creativity, software, seo, marketing, paid, social)"
+    },
+    "area_responsibles": {
+      "type": "object",
+      "description": "Responsables asignados por \u00e1rea (objeto con email por \u00e1rea)"
+    },
+    "project_value": {
+      "type": "number",
+      "description": "Valor del proyecto (solo visible para PO y l\u00edderes)"
+    },
+    "impact_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "description": "Nivel de impacto del proyecto"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_progress",
+        "review",
+        "blocked",
+        "completed"
+      ],
+      "default": "draft",
+      "description": "Estado actual del proyecto"
+    },
+    "current_workflow_phase": {
+      "type": "string",
+      "enum": [
+        "activation",
+        "planning",
+        "design",
+        "web_development",
+        "development",
+        "qa_complete",
+        "content_upload",
+        "final_approval",
+        "stabilization"
+      ],
+      "default": "activation",
+      "description": "Fase actual del workflow"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Nivel de riesgo calculado"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails de los miembros del equipo"
+    },
+    "leader_email": {
+      "type": "string",
+      "description": "Email del l\u00edder web asignado"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "critical_pending": {
+      "type": "number",
+      "default": 0,
+      "description": "Cantidad de \u00edtems cr\u00edticos pendientes"
+    },
+    "has_conflicts": {
+      "type": "boolean",
+      "default": false
+    },
+    "custom_phase_names": {
+      "type": "object",
+      "description": "Nombres personalizados para las fases del proyecto"
+    },
+    "phase_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Orden personalizado de las fases"
+    },
+    "hidden_phases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fases ocultas/eliminadas del proyecto"
+    },
+    "phase_responsibles": {
+      "type": "object",
+      "description": "Responsables asignados por fase (objeto con array de emails por fase)"
+    },
+    "phase_durations": {
+      "type": "object",
+      "description": "Duraci\u00f3n en d\u00edas de cada fase del checklist para el calendario"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

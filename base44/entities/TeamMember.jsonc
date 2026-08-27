@@ -1,0 +1,48 @@
+{
+  "name": "TeamMember",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "administrador",
+        "leader_web",
+        "leader_product",
+        "leader_ux",
+        "leader_ui",
+        "leader_seo",
+        "leader_paid",
+        "leader_marketing",
+        "leader_software",
+        "leader_dev_web",
+        "ux",
+        "ui",
+        "seo",
+        "paid_media",
+        "marketing",
+        "developer",
+        "web_dev",
+        "qa",
+        "product_owner"
+      ],
+      "description": "Rol en el equipo"
+    },
+    "avatar_color": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "user_email",
+    "role"
+  ]
+}

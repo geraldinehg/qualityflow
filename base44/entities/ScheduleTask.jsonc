@@ -1,0 +1,79 @@
+{
+  "name": "ScheduleTask",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre de la tarea del cronograma"
+    },
+    "area": {
+      "type": "string",
+      "enum": [
+        "creativity",
+        "software",
+        "seo",
+        "marketing",
+        "paid",
+        "social",
+        "product",
+        "qa"
+      ],
+      "description": "\u00c1rea responsable de la tarea"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de inicio"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duraci\u00f3n en d\u00edas"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de fin (calculada autom\u00e1ticamente)"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Email del responsable"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "blocked"
+      ],
+      "default": "pending",
+      "description": "Estado de la tarea"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs de tareas de las que depende"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Orden de visualizaci\u00f3n"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    }
+  },
+  "required": [
+    "project_id",
+    "name",
+    "start_date",
+    "duration"
+  ]
+}

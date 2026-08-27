@@ -1,0 +1,86 @@
+{
+  "name": "ProjectAccessToken",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "access_item_id": {
+      "type": "string",
+      "description": "ID del \u00edtem de acceso espec\u00edfico a compartir (para un solo \u00edtem)"
+    },
+    "access_item_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs de m\u00faltiples \u00edtems de acceso a compartir"
+    },
+    "token": {
+      "type": "string",
+      "description": "Token \u00fanico para acceso compartido"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email del destinatario (opcional)"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Nombre del destinatario"
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "qa_hosting": {
+          "type": "boolean",
+          "default": false
+        },
+        "prod_hosting": {
+          "type": "boolean",
+          "default": false
+        },
+        "cms_qa": {
+          "type": "boolean",
+          "default": false
+        },
+        "cms_prod": {
+          "type": "boolean",
+          "default": false
+        },
+        "apis": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "\u00cdndices de las APIs permitidas"
+        }
+      },
+      "description": "Permisos granulares por secci\u00f3n (para accesos legacy)"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de expiraci\u00f3n del token"
+    },
+    "is_revoked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el token fue revocado manualmente"
+    },
+    "last_accessed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u00daltima vez que se accedi\u00f3 con este token"
+    },
+    "access_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Cantidad de veces que se accedi\u00f3"
+    }
+  },
+  "required": [
+    "project_id",
+    "token"
+  ]
+}

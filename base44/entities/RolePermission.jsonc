@@ -1,0 +1,73 @@
+{
+  "name": "RolePermission",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "Rol del usuario"
+    },
+    "can_access_dashboard": {
+      "type": "boolean",
+      "default": true,
+      "description": "Puede acceder al dashboard principal"
+    },
+    "can_access_projects": {
+      "type": "boolean",
+      "default": true,
+      "description": "Puede ver la lista de proyectos"
+    },
+    "can_create_projects": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede crear nuevos proyectos"
+    },
+    "can_edit_projects": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede editar proyectos"
+    },
+    "can_delete_projects": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede eliminar proyectos"
+    },
+    "can_access_resources": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede ver ocupaci\u00f3n de recursos"
+    },
+    "can_access_schedules": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede ver cronogramas generales"
+    },
+    "can_access_team": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede gestionar equipo"
+    },
+    "can_access_reports": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede ver reportes"
+    },
+    "can_access_admin": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede acceder al panel de administraci\u00f3n"
+    },
+    "can_approve_phases": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede aprobar fases del workflow"
+    },
+    "can_resolve_conflicts": {
+      "type": "boolean",
+      "default": false,
+      "description": "Puede resolver conflictos"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

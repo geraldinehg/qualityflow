@@ -1,0 +1,86 @@
+{
+  "name": "ProjectAccess",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "qa_hosting_url": {
+      "type": "string",
+      "description": "URL del hosting de QA"
+    },
+    "qa_hosting_user": {
+      "type": "string",
+      "description": "Usuario del hosting de QA"
+    },
+    "qa_hosting_password": {
+      "type": "string",
+      "description": "Contrase\u00f1a del hosting de QA"
+    },
+    "prod_hosting_url": {
+      "type": "string",
+      "description": "URL del hosting de producci\u00f3n"
+    },
+    "prod_hosting_user": {
+      "type": "string",
+      "description": "Usuario del hosting de producci\u00f3n"
+    },
+    "prod_hosting_password": {
+      "type": "string",
+      "description": "Contrase\u00f1a del hosting de producci\u00f3n"
+    },
+    "cms_qa_url": {
+      "type": "string",
+      "description": "URL del CMS en QA"
+    },
+    "cms_qa_user": {
+      "type": "string",
+      "description": "Usuario del CMS en QA"
+    },
+    "cms_qa_password": {
+      "type": "string",
+      "description": "Contrase\u00f1a del CMS en QA"
+    },
+    "cms_prod_url": {
+      "type": "string",
+      "description": "URL del CMS en producci\u00f3n"
+    },
+    "cms_prod_user": {
+      "type": "string",
+      "description": "Usuario del CMS en producci\u00f3n"
+    },
+    "cms_prod_password": {
+      "type": "string",
+      "description": "Contrase\u00f1a del CMS en producci\u00f3n"
+    },
+    "apis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nombre de la API"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL de la API"
+          },
+          "user": {
+            "type": "string",
+            "description": "Usuario de la API"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contrase\u00f1a/token de la API"
+          }
+        }
+      },
+      "description": "Lista de APIs con sus accesos"
+    }
+  },
+  "required": [
+    "project_id"
+  ]
+}

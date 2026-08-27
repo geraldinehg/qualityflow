@@ -1,0 +1,44 @@
+{
+  "name": "ProjectDocument",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre del documento"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "propuesta",
+        "cronograma",
+        "planeacion",
+        "brief",
+        "hoja_vida",
+        "otro"
+      ],
+      "description": "Tipo de documento"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL del archivo"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email de quien subi\u00f3 el documento"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas sobre el documento"
+    }
+  },
+  "required": [
+    "project_id",
+    "name",
+    "document_type",
+    "file_url"
+  ]
+}

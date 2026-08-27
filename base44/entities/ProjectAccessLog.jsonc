@@ -1,0 +1,39 @@
+{
+  "name": "ProjectAccessLog",
+  "type": "object",
+  "properties": {
+    "token_id": {
+      "type": "string",
+      "description": "ID del token usado"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto accedido"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "view",
+        "copy"
+      ],
+      "description": "Acci\u00f3n realizada"
+    },
+    "section": {
+      "type": "string",
+      "description": "Secci\u00f3n accedida (qa_hosting, apis, etc.)"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP del usuario"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent del navegador"
+    }
+  },
+  "required": [
+    "token_id",
+    "project_id",
+    "action"
+  ]
+}

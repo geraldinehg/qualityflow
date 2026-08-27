@@ -1,0 +1,90 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto asociado"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo de la tarea"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada de la tarea"
+    },
+    "status": {
+      "type": "string",
+      "default": "pending",
+      "description": "Estado de la tarea"
+    },
+    "priority": {
+      "type": "string",
+      "default": "medium",
+      "description": "Prioridad de la tarea"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de vencimiento"
+    },
+    "assigned_to": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails de los responsables asignados"
+    },
+    "assigned_by": {
+      "type": "string",
+      "description": "Email del usuario que asign\u00f3 la tarea"
+    },
+    "notification_email": {
+      "type": "string",
+      "description": "Email al que se enviar\u00e1n notificaciones (solicitante)"
+    },
+    "requester_name": {
+      "type": "string",
+      "description": "Nombre del solicitante (especialmente para formularios p\u00fablicos)"
+    },
+    "requester_email": {
+      "type": "string",
+      "description": "Email de quien solicita/crea la tarea (especialmente para formularios p\u00fablicos)"
+    },
+    "is_from_public_form": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica si la tarea fue creada desde un formulario p\u00fablico"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Etiquetas de la tarea"
+    },
+    "custom_fields": {
+      "type": "object",
+      "description": "Campos personalizados definidos por el administrador"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Orden de la tarea en la lista"
+    },
+    "completed_by": {
+      "type": "string",
+      "description": "Email del usuario que complet\u00f3 la tarea"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha y hora de completaci\u00f3n"
+    }
+  },
+  "required": [
+    "project_id",
+    "title"
+  ]
+}

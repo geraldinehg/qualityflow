@@ -1,0 +1,69 @@
+{
+  "name": "TaskActivityLog",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "ID de la tarea"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "status_changed",
+        "assigned",
+        "completed",
+        "notification_sent"
+      ],
+      "description": "Tipo de acci\u00f3n realizada"
+    },
+    "action_by": {
+      "type": "string",
+      "description": "Email del usuario que realiz\u00f3 la acci\u00f3n (o 'system' si fue autom\u00e1tico)"
+    },
+    "action_by_name": {
+      "type": "string",
+      "description": "Nombre del usuario que realiz\u00f3 la acci\u00f3n"
+    },
+    "previous_value": {
+      "type": "object",
+      "description": "Valor anterior (para cambios)"
+    },
+    "new_value": {
+      "type": "object",
+      "description": "Nuevo valor"
+    },
+    "notification_details": {
+      "type": "object",
+      "properties": {
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "description": "Detalles de notificaciones enviadas"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Informaci\u00f3n adicional del contexto"
+    }
+  },
+  "required": [
+    "task_id",
+    "project_id",
+    "action_type"
+  ]
+}

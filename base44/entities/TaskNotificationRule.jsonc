@@ -1,0 +1,95 @@
+{
+  "name": "TaskNotificationRule",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre de la regla"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si la regla est\u00e1 activa"
+    },
+    "trigger_event": {
+      "type": "string",
+      "enum": [
+        "task_created",
+        "task_updated",
+        "status_changed",
+        "task_completed"
+      ],
+      "description": "Evento que dispara la notificaci\u00f3n"
+    },
+    "conditions": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Estado espec\u00edfico"
+        },
+        "priority": {
+          "type": "string",
+          "description": "Prioridad espec\u00edfica"
+        },
+        "custom_field_conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field_key": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "equals",
+                  "not_equals",
+                  "contains",
+                  "not_empty"
+                ]
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "description": "Condiciones que deben cumplirse"
+    },
+    "action": {
+      "type": "object",
+      "properties": {
+        "send_email": {
+          "type": "boolean",
+          "default": true
+        },
+        "email_recipients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Emails destinatarios"
+        },
+        "email_subject": {
+          "type": "string",
+          "description": "Asunto del email"
+        },
+        "email_body": {
+          "type": "string",
+          "description": "Cuerpo del email (puede usar {{task.title}}, {{task.status}}, etc.)"
+        }
+      }
+    }
+  },
+  "required": [
+    "project_id",
+    "name",
+    "trigger_event"
+  ]
+}

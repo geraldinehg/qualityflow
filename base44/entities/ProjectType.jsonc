@@ -1,0 +1,30 @@
+{
+  "name": "ProjectType",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre del tipo de proyecto (Ej: Marketing, PEI, Webmaster)"
+    },
+    "key": {
+      "type": "string",
+      "description": "Identificador \u00fanico"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del tipo de proyecto"
+    },
+    "color": {
+      "type": "string",
+      "description": "Color asociado"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "key"
+  ]
+}

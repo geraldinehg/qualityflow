@@ -1,0 +1,43 @@
+{
+  "name": "ProjectAccessItem",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID del proyecto"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del acceso (ej: Servidor Producci\u00f3n, Google Ads)"
+    },
+    "username": {
+      "type": "string",
+      "description": "Usuario o nombre de usuario"
+    },
+    "email": {
+      "type": "string",
+      "description": "Correo electr\u00f3nico asociado"
+    },
+    "password": {
+      "type": "string",
+      "description": "Contrase\u00f1a (encriptada)"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL asociada (opcional)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Orden de visualizaci\u00f3n"
+    }
+  },
+  "required": [
+    "project_id",
+    "title"
+  ]
+}
